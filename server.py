@@ -115,6 +115,22 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(db_data.encode('utf-8'))
             return
 
+        elif path == '/api/import':
+            # Import database from JSON - for POST requests
+            # In browser, use POST method (e.g., via HTML form or curl)
+            # For GET requests, show instructions
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "message": "Use POST method to import database",
+                "instructions": {
+                    "curl": "curl -X POST -H 'Content-Type: application/json' -d @yourfile.json https://e-invitations.onrender.com/api/import",
+                    "html_form": "<form method='POST' enctype='multipart/form-data' action='/api/import'><input type='file' name='database'/><button type='submit'>Import</button></form>"
+                }
+            }, ensure_ascii=False).encode('utf-8'))
+            return
+
         # Friendly direct routes
         if path in ('/databasecloud', '/databasecloud/'):
             file_path = os.path.join(BASE_DIR, 'databasecloud', 'index.html')
