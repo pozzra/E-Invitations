@@ -107,6 +107,14 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(res, ensure_ascii=False).encode('utf-8'))
             return
 
+        elif path == '/api/export':
+            db_data = export_database()
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(db_data.encode('utf-8'))
+            return
+
         # Friendly direct routes
         if path in ('/databasecloud', '/databasecloud/'):
             file_path = os.path.join(BASE_DIR, 'databasecloud', 'index.html')
@@ -231,6 +239,24 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps({"success": True, "wishes": default_wishes}, ensure_ascii=False).encode('utf-8'))
             return
 
+        elif path == '/api/import':
+            import json, os
+            db_file = os.path.join(BASE_DIR, 'database', 'invitation_data.json')
+            try:
+                with open(db_file, 'w', encoding='utf-8') as f:
+                    json.dump(payload, f, ensure_ascii=False, indent=2)
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "message": "Database imported successfully!"}, ensure_ascii=False).encode('utf-8'))
+                return
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode('utf-8'))
+                return
+
         elif path == '/api/upload-video':
             try:
                 import re, base64, time
@@ -334,6 +360,44 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
 
         self.send_response(404)
         self.end_headers()
+
+    def do_PUT(self):
+        parsed = urlparse(self.path)
+        path = parsed.path
+        length = int(self.headers.get('Content-Length', 0))
+        body = self.rfile.read(length).decode('utf-8') if length > 0 else '{}'
+
+        try:
+            payload = json.loads(body)
+        except Exception:
+            payload = {}
+
+        if path == '/api/import':
+            import json, os
+            db_file = os.path.join(BASE_DIR, 'database', 'invitation_data.json')
+            try:
+                with open(db_file, 'w', encoding='utf-8') as f:
+                    json.dump(payload, f, ensure_ascii=False, indent=2)
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "message": "Database imported successfully!"}, ensure_ascii=False).encode('utf-8'))
+                return
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode('utf-8'))
+                return
+
+        self.send_response(404)
+        self.end_headers()
+
+
+def export_database():
+    """Export the current database as JSON data"""
+    db = load_db()
+    return json.dumps(db, ensure_ascii=False, indent=2)
 
 
 if __name__ == '__main__':
