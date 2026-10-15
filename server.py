@@ -313,6 +313,59 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode('utf-8'))
                 return
 
+        elif path == '/api/upload-mp3':
+            try:
+                import re, base64, time, mimetypes
+                filename = payload.get('filename', 'song.mp3')
+                safe_name = re.sub(r'[^a-zA-Z0-9_\.-]', '_', filename)
+                if not safe_name.lower().endswith('.mp3'):
+                    safe_name += '.mp3'
+                
+                unique_name = f"music_{int(time.time())}_{safe_name}"
+                music_dir = os.path.join(BASE_DIR, 'assets', 'music')
+                os.makedirs(music_dir, exist_ok=True)
+                dest_path = os.path.join(music_dir, unique_name)
+
+                b64_str = payload.get('base64Data', '')
+                if ',' in b64_str:
+                    b64_str = b64_str.split(',', 1)[1]
+                
+                audio_bytes = base64.b64decode(b64_str)
+                
+                # Limit to 10 music files - remove oldest if over limit
+                existing_files = []
+                if os.path.exists(music_dir):
+                    for f in os.listdir(music_dir):
+                        if f.endswith('.mp3'):
+                            existing_files.append(f)
+                
+                if len(existing_files) >= 10:
+                    # Remove oldest file (first in sorted list)
+                    oldest = sorted(existing_files)[0]
+                    os.remove(os.path.join(music_dir, oldest))
+                
+                with open(dest_path, 'wb') as f:
+                    f.write(audio_bytes)
+                
+                rel_url = f"assets/music/{unique_name}"
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    "success": True,
+                    "url": rel_url,
+                    "filename": unique_name,
+                    "sizeBytes": len(audio_bytes),
+                    "message": "MP3 uploaded successfully!"
+                }, ensure_ascii=False).encode('utf-8'))
+                return
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode('utf-8'))
+                return
+
         self.send_response(404)
         self.end_headers()
 
