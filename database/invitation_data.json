@@ -10,9 +10,9 @@
     "lunarDate": "ត្រូវនឹងថ្ងៃ ៥កើត ខែកត្តិក ឆ្នាំរោង ឆស័ក ព.ស. ២៥៧០",
     "targetDateTime": "2026-11-15T07:00",
     "venueName": "មជ្ឈមណ្ឌលសន្និបាត និងពិព័រណ៍កោះពេជ្រ (អគារ G)",
-    "venueAddress": "📍 ទីតាំង៖ កោះពេជ្រ សង្កាត់ទន្លេបាសាក់ ខណ្ឌចំការមន រាជធានីភ្នំពេញ\\n(Koh Pich Exhibition Center, Building G, Phnom Penh)",
+    "venueAddress": "📍 ទីតាំង៖ កោះពេជ្រ សង្កាត់ទន្លេបាសាក់ ខណ្ឌចំការមន រាជធានីភ្នំពេញ\n(Koh Pich Exhibition Center, Building G, Phnom Penh)",
     "mapsUrl": "https://maps.google.com/?q=Koh+Pich+Convention+and+Exhibition+Center+Building+G+Phnom+Penh",
-    "bankAccName": "KUN AMRA & KUN AMRA",
+    "bankAccName": "KUN AMRA",
     "bankAccNum": "004 393 646 (USD)",
     "bankName": "ABA Bank / Bakong",
     "bankAppLink": "https://pay.ababank.com/oRF8/25tqgp4i",
@@ -43,37 +43,37 @@
     },
     "schedule": [
       {
-        "desc": "Groom's Procession & Ancestor Blessing Ceremony",
         "time": "07:00 AM",
-        "title": "ពិធីហែជំនូន និងសែនព្រេន"
+        "title": "ពិធីហែជំនូន និងសែនព្រេន",
+        "desc": "Groom's Procession & Ancestor Blessing Ceremony"
       },
       {
-        "desc": "Traditional Hair Cutting & Purification Ceremony",
         "time": "09:30 AM",
-        "title": "ពិធីកាត់សក់បង្កក់សិរី"
+        "title": "ពិធីកាត់សក់បង្កក់សិរី",
+        "desc": "Traditional Hair Cutting & Purification Ceremony"
       },
       {
-        "desc": "Sacred Knot Tying & Popil Twirling Blessing",
         "time": "02:00 PM",
-        "title": "ពិធីសំពះផ្ទឹម និងបង្វិលពពិល"
+        "title": "ពិធីសំពះផ្ទឹម និងបង្វិលពពិល",
+        "desc": "Sacred Knot Tying & Popil Twirling Blessing"
       },
       {
-        "desc": "Grand Evening Wedding Banquet & Celebration",
         "time": "05:30 PM",
-        "title": "ពិធីទទួលទានភោជនាហារ និងរាំកម្សាន្ត"
+        "title": "ពិធីទទួលទានភោជនាហារ និងរាំកម្សាន្ត",
+        "desc": "Grand Evening Wedding Banquet & Celebration"
       }
     ]
   },
   "wishes": [
     {
-      "name": "Test Wish",
-      "date_display": "Just now",
-      "message": "Test wish message"
-    },
-    {
       "name": "Test User",
       "date_display": "ទើបតែផ្ញើ",
       "message": "Test wish"
+    },
+    {
+      "name": "Test Wish",
+      "date_display": "Just now",
+      "message": "Test wish message"
     },
     {
       "name": "KUN AMRA",
@@ -97,6 +97,14 @@
     }
   ],
   "rsvps": [
+    {
+      "name": "Test User",
+      "phone": "012345678",
+      "attendance": "attending",
+      "count": 2,
+      "wishes": "Test wish",
+      "submittedAt": "2026-10-14T12:00:00Z"
+    },
     {
       "name": "Test User",
       "phone": "012345678",
