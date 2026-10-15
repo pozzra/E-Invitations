@@ -56,10 +56,11 @@ def init_tables(conn):
             );
         """)
         # Ensure config row exists
-        cur.execute("""
-            INSERT INTO invitation_config (id, data) VALUES (1, '{}'::jsonb)
-            ON CONFLICT (id) DO NOTHING;
-        """)
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO invitation_config (id, data) VALUES (1, '{}'::jsonb)
+                ON CONFLICT (id) DO NOTHING;
+            """)
 
 
 def load_rsvps(conn):
@@ -76,9 +77,11 @@ def load_rsvps(conn):
 def save_rsvps(conn, rsvps):
     with conn.cursor() as cur:
         # Clear existing and insert new
-        cur.execute("DELETE FROM rsvps;")
+        with conn.cursor() as cur2:
+            cur2.execute("DELETE FROM rsvps;")
         for rsvp in rsvps:
-            cur.execute("INSERT INTO rsvps (data) VALUES (%s);", (json.dumps(rsvp),))
+            with conn.cursor() as cur3:
+                cur3.execute("INSERT INTO rsvps (data) VALUES (%s);", (json.dumps(rsvp),))
 
 
 def load_wishes(conn):
@@ -93,12 +96,14 @@ def load_wishes(conn):
 
 def save_wishes(conn, wishes):
     with conn.cursor() as cur:
-        cur.execute("DELETE FROM wishes;")
+        with conn.cursor() as cur2:
+            cur2.execute("DELETE FROM wishes;")
         for wish in wishes:
-            cur.execute(
-                "INSERT INTO wishes (name, message, date_display) VALUES (%s, %s, %s);",
-                (wish.get('name'), wish.get('message'), wish.get('date_display'))
-            )
+            with conn.cursor() as cur3:
+                cur3.execute(
+                    "INSERT INTO wishes (name, message, date_display) VALUES (%s, %s, %s);",
+                    (wish.get('name'), wish.get('message'), wish.get('date_display'))
+                )
 
 
 def load_config(conn):
@@ -139,10 +144,11 @@ def reset_wishes_defaults(conn):
             }
         ]
         for wish in defaults:
-            cur.execute(
-                "INSERT INTO wishes (name, message, date_display) VALUES (%s, %s, %s);",
-                (wish['name'], wish['message'], wish['date_display'])
-            )
+            with conn.cursor() as cur:
+                cur.execute(
+                    "INSERT INTO wishes (name, message, date_display) VALUES (%s, %s, %s);",
+                    (wish['name'], wish['message'], wish['date_display'])
+                )
 
 
 class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
@@ -161,7 +167,9 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
         conn = get_db_connection()
         if conn is None:
             self.send_response(500)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.end_headers()
+            self.wfile.write(json.dumps({"error": "Database connection failed"}).encode('utf-8'))
             return None
         init_tables(conn)
         return conn
@@ -200,7 +208,7 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
                 return
 
             elif path == '/api/test-db':
-                db = load_rsvps(conn)
+                rsvps = load_rsvps(conn)
                 wish_count = len(load_wishes(conn))
                 config_count = len(load_config(conn))
                 res = {
@@ -209,13 +217,13 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
                     "message": "Connected to Supabase PostgreSQL successfully!",
                     "databaseType": "postgresql",
                     "counts": {
-                        "rsvps": len(db),
+                        "rsvps": len(rsvps),
                         "wishes": wish_count,
                         "configFields": config_count
                     },
                     "data": {
                         "invitation_config": load_config(conn),
-                        "rsvps": db,
+                        "rsvps": rsvps,
                         "wishes": load_wishes(conn)
                     }
                 }
@@ -224,8 +232,13 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(json.dumps(res, ensure_ascii=False).encode('utf-8'))
                 return
-        finally:
-            conn.close()
+        except Exception as e:
+            print(f"Error in do_GET: {e}")
+            self.send_response(500)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode('utf-8'))
+            return
 
         # Friendly direct routes
         if path in ('/databasecloud', '/databasecloud/'):
@@ -275,14 +288,12 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
         conn = self.get_db()
         if conn is None:
             self.send_response(500)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.end_headers()
             return
 
         try:
             if path == '/api/rsvp':
-                if "rsvps" not in payload:
-                    payload["rsvps"] = []
-
                 # Add or update RSVP
                 rsvps = load_rsvps(conn)
                 rsvps.insert(0, payload)
@@ -375,11 +386,8 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
                 return
 
             elif path == '/api/rsvp/clear':
-                conn = get_db_connection()
                 with conn.cursor() as cur:
                     cur.execute("DELETE FROM rsvps;")
-                conn.close()
-
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json; charset=utf-8')
                 self.end_headers()
@@ -387,11 +395,8 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
                 return
 
             elif path == '/api/wishes/clear':
-                conn = get_db_connection()
                 with conn.cursor() as cur:
                     cur.execute("DELETE FROM wishes;")
-                conn.close()
-
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json; charset=utf-8')
                 self.end_headers()
@@ -401,14 +406,11 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             elif path == '/api/wish':
                 name = payload.get('name')
                 msg = payload.get('message')
-                conn = get_db_connection()
                 with conn.cursor() as cur:
                     cur.execute(
                         "DELETE FROM wishes WHERE name = %s AND message = %s;",
                         (name, msg)
                     )
-                conn.close()
-
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json; charset=utf-8')
                 self.end_headers()
@@ -416,18 +418,24 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
                 return
 
             elif path == '/api/wishes/clear':
-                conn = get_db_connection()
                 with conn.cursor() as cur:
                     cur.execute("DELETE FROM wishes;")
-                conn.close()
-
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json; charset=utf-8')
                 self.end_headers()
                 self.wfile.write(json.dumps({"success": True}, ensure_ascii=False).encode('utf-8'))
                 return
 
+        except Exception as e:
+            print(f"Error in do_POST: {e}")
+            self.send_response(500)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode('utf-8'))
+            return
+
         self.send_response(404)
+        self.send_header('Content-Type', 'application/json; charset=utf-8')
         self.end_headers()
 
     def do_DELETE(self):
@@ -444,6 +452,7 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
         conn = self.get_db()
         if conn is None:
             self.send_response(500)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.end_headers()
             return
 
@@ -462,11 +471,8 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
                 return
 
             elif path == '/api/rsvps/clear':
-                conn = get_db_connection()
                 with conn.cursor() as cur:
                     cur.execute("DELETE FROM rsvps;")
-                conn.close()
-
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json; charset=utf-8')
                 self.end_headers()
@@ -476,14 +482,11 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             elif path == '/api/wish':
                 name = payload.get('name')
                 msg = payload.get('message')
-                conn = get_db_connection()
                 with conn.cursor() as cur:
                     cur.execute(
                         "DELETE FROM wishes WHERE name = %s AND message = %s;",
                         (name, msg)
                     )
-                conn.close()
-
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json; charset=utf-8')
                 self.end_headers()
@@ -491,18 +494,24 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
                 return
 
             elif path == '/api/wishes/clear':
-                conn = get_db_connection()
                 with conn.cursor() as cur:
                     cur.execute("DELETE FROM wishes;")
-                conn.close()
-
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json; charset=utf-8')
                 self.end_headers()
                 self.wfile.write(json.dumps({"success": True}, ensure_ascii=False).encode('utf-8'))
                 return
 
+        except Exception as e:
+            print(f"Error in do_DELETE: {e}")
+            self.send_response(500)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode('utf-8'))
+            return
+
         self.send_response(404)
+        self.send_header('Content-Type', 'application/json; charset=utf-8')
         self.end_headers()
 
 
