@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>⚡ Supabase Cloud Database Sync | E-Invitation</title>
+  <meta name="description" content="ផ្ទាំងគ្រប់គ្រង និងត្រួតពិនិត្យទិន្នន័យ Supabase Cloud Database Real-time សម្រាប់សំបុត្រអាពាហ៍ពិពាហ៍">
+  <link rel="stylesheet" href="../css/style.css">
+  <!-- Supabase JS Library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    .cloud-container {
+      max-width: 900px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: var(--bg-overlay);
+      padding: 30px 20px 80px 20px;
+    }
+    .badge-supabase {
+      background: rgba(62, 207, 142, 0.15);
+      border: 1px solid #3ecf8e;
+      color: #3ecf8e;
+      padding: 5px 16px;
+      border-radius: var(--radius-full);
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 16px;
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 700;
+      transition: all 0.3s ease;
+    }
+    .status-connected {
+      background: rgba(46, 204, 113, 0.18);
+      border: 1px solid #2ecc71;
+      color: #2ecc71;
+    }
+    .status-disconnected {
+      background: rgba(255, 107, 107, 0.18);
+      border: 1px solid #ff6b6b;
+      color: #ff6b6b;
+    }
+    .nav-tabs-row {
+      display: flex;
+      gap: 8px;
+      margin: 20px 0 16px 0;
+      overflow-x: auto;
+      border-bottom: 1px solid rgba(229, 185, 85, 0.2);
+      padding-bottom: 10px;
+    }
+    .nav-tab-btn {
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      cursor: pointer;
+      font-family: var(--font-khmer-sub);
+      font-size: 0.85rem;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+    .nav-tab-btn.active {
+      background: rgba(62, 207, 142, 0.2);
+      border-color: #3ecf8e;
+      color: #85e8ba;
+      font-weight: 700;
+    }
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(229, 185, 85, 0.2);
+    }
+    .cloud-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      text-align: left;
+    }
+    .cloud-table th {
+      background: rgba(62, 207, 142, 0.12);
+      color: #85e8ba;
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(62, 207, 142, 0.25);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .cloud-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--text-light);
+    }
+    .cloud-table tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .action-btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Particle & Glitter Canvas -->
+  <canvas id="particle-canvas"></canvas>
+
+  <div class="cloud-container">
+    
+    <!-- Top Header & Navigation -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+      <a href="../" class="btn-gold-secondary" style="margin-top: 0; padding: 6px 14px; font-size: 0.8rem; width: auto; text-decoration: none;">
+        ← ត្រឡប់ទៅសំបុត្រអញ្ជើញ
+      </a>
+      <div style="display: flex; gap: 8px;">
+        <a href="../admin/" class="btn-gold-secondary" style="margin-top: 0; padding: 6px 14px; font-size: 0.8rem; width: auto; text-decoration: none; border-color: var(--primary-gold);">
+          👑 ផ្ទាំង Admin
+        </a>
+        <a href="../generate/" class="btn-gold-secondary" style="margin-top: 0; padding: 6px 14px; font-size: 0.8rem; width: auto; text-decoration: none;">
+          🎫 VIP Link
+        </a>
+      </div>
+    </div>
+
+    <!-- Main Title Card -->
+    <div class="card-glass" style="border: 1.5px solid #3ecf8e; margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 18px;">
+        <div>
+          <span class="badge-supabase" style="margin-bottom: 8px;">
+            ⚡ SUPABASE CLOUD SYNC
+          </span>
+          <h2 class="section-title" style="font-size: 1.4rem; color: #3ecf8e; margin-top: 6px;">
+            ⚡ Supabase Cloud Database Sync
+          </h2>
+          <p class="section-subtitle">
+            ភ្ជាប់ Cloud Database សម្រាប់រក្សាទុក RSVP និងពាក្យជូនពរ Real-time
+          </p>
+        </div>
+        <div id="status-pill" class="status-pill status-disconnected">
+          ⚪ កំពុងពិនិត្យការតភ្ជាប់...
+        </div>
+      </div>
+
+      <!-- Credentials Form -->
+      <form id="supabase-config-form">
+        <div class="form-group">
+          <label class="form-label" for="supabase-url">Supabase Project URL</label>
+          <input type="url" id="supabase-url" class="form-input" placeholder="https://your-project.supabase.co" required value="https://htooctdmmtcpujkfhbna.supabase.co">
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+            យកពី Supabase Dashboard ➔ Project Settings ➔ API ➔ Project URL
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="supabase-key">Supabase Anon Public API Key</label>
+          <input type="password" id="supabase-key" class="form-input" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." required>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+            យកពី Supabase Dashboard ➔ Project Settings ➔ API ➔ Project API keys (anon public)
+          </div>
+        </div>
+
+        <div class="action-btn-row">
+          <button type="submit" class="btn-gold-primary ripple-effect" id="btn-save-connect" style="width: auto; padding: 10px 20px; font-size: 0.85rem; background: linear-gradient(135deg, #3ecf8e 0%, #2bb874 100%); color: #051a10;">
+            ⚡ រក្សាទុក & ភ្ជាប់ (Connect)
+          </button>
+          <button type="button" class="btn-gold-secondary ripple-effect" id="btn-test-conn" style="width: auto; padding: 10px 18px; font-size: 0.85rem; margin-top: 0; border-color: #3ecf8e; color: #3ecf8e;">
+            🔄 សាកល្បងភ្ជាប់ (Test)
+          </button>
+          <button type="button" class="btn-gold-secondary ripple-effect" id="btn-sync-all" style="width: auto; padding: 10px 18px; font-size: 0.85rem; margin-top: 0; border-color: var(--primary-gold); color: var(--primary-gold-light);">
+            ⬆️ បញ្ជូនទិន្នន័យ Local ឡើង Cloud
+          </button>
+          <button type="button" class="btn-gold-secondary ripple-effect" id="btn-pull-cloud" style="width: auto; padding: 10px 18px; font-size: 0.85rem; margin-top: 0; border-color: #3498db; color: #5dade2;">
+            ⬇️ ទាញយក Cloud មក Local
+          </button>
+          <button type="button" class="btn-gold-secondary" id="btn-disconnect" style="width: auto; padding: 10px 18px; font-size: 0.85rem; margin-top: 0; border-color: #ff6b6b; color: #ff6b6b;">
+            ❌ ផ្តាច់ការភ្ជាប់
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Live Cloud Data Explorer -->
+    <div class="card-glass" style="margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <h3 style="font-size: 1.1rem; color: var(--primary-gold-light); display: flex; align-items: center; gap: 8px;">
+          <span>🌐</span> ទិន្នន័យផ្ទាល់ក្នុង Cloud (Live Cloud Explorer)
+        </h3>
+        <button id="btn-refresh-tables" class="btn-gold-secondary" style="padding: 4px 12px; font-size: 0.75rem; margin-top: 0; width: auto;">
+          🔄 Refresh
+        </button>
+      </div>
+
+      <!-- Navigation Tabs for Cloud Tables -->
+      <div class="nav-tabs-row">
+        <button class="nav-tab-btn active" data-tab="tab-rsvps">
+          📋 តារាង RSVPs (<span id="count-cloud-rsvps">0</span>)
+        </button>
+        <button class="nav-tab-btn" data-tab="tab-wishes">
+          💌 តារាង Wishes (<span id="count-cloud-wishes">0</span>)
+        </button>
+        <button class="nav-tab-btn" data-tab="tab-config">
+          ⚙️ តារាង Invitation Config
+        </button>
+      </div>
+
+      <!-- Tab 1: RSVPs Table -->
+      <div id="tab-rsvps" class="tab-content-pane">
+        <div class="table-container">
+          <table class="cloud-table">
+            <thead>
+              <tr>
+                <th>កាលបរិច្ឆេទ</th>
+                <th>ឈ្មោះភ្ញៀវ</th>
+                <th>លេខទូរស័ព្ទ</th>
+                <th>ការចូលរួម</th>
+                <th>ចំនួន</th>
+                <th>សារជូនពរ</th>
+              </tr>
+            </thead>
+            <tbody id="cloud-rsvps-tbody">
+              <tr>
+                <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">
+                  កំពុងទាញយកទិន្នន័យពី Cloud...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab 2: Wishes Table -->
+      <div id="tab-wishes" class="tab-content-pane" style="display: none;">
+        <div class="table-container">
+          <table class="cloud-table">
+            <thead>
+              <tr>
+                <th>ឈ្មោះ</th>
+                <th>កាលបរិច្ឆេទ</th>
+                <th>សារជូនពរ (Message)</th>
+              </tr>
+            </thead>
+            <tbody id="cloud-wishes-tbody">
+              <tr>
+                <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 20px;">
+                  កំពុងទាញយកទិន្នន័យពី Cloud...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab 3: Config Viewer -->
+      <div id="tab-config" class="tab-content-pane" style="display: none;">
+        <pre id="cloud-config-pre" style="background: #050a12; color: #85e8ba; padding: 14px; border-radius: var(--radius-sm); font-family: monospace; font-size: 0.78rem; overflow-x: auto; max-height: 380px;">កំពុងទាញយកការកំណត់ពី Cloud...</pre>
+      </div>
+    </div>
+
+    <!-- SQL Schema Box -->
+    <div class="card-glass" style="border: 1px solid rgba(62, 207, 142, 0.3);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <span style="font-size: 0.9rem; font-weight: 700; color: #3ecf8e;">
+          📜 SQL Schema សម្រាប់បង្កើត Tables ក្នុង Supabase:
+        </span>
+        <button class="btn-gold-secondary ripple-effect" id="btn-copy-sql" style="padding: 6px 14px; font-size: 0.78rem; margin-top: 0; width: auto; border-color: #3ecf8e; color: #3ecf8e;">
+          📋 ចម្លង SQL
+        </button>
+      </div>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">
+        គ្រាន់តែចុច <strong>«ចម្លង SQL»</strong> រួច paste ចូលក្នុង <strong>Supabase Dashboard ➔ SQL Editor ➔ Run</strong> ជាការស្រេច!
+      </p>
+      <textarea id="sql-schema-code" class="form-textarea" rows="14" readonly style="font-family: monospace; font-size: 0.75rem; background: #050a12; color: #85e8ba;">-- 1. Create RSVPs table
+create table if not exists public.rsvps (
+  id uuid default gen_random_uuid() primary key,
+  name text not null,
+  phone text default '',
+  attendance text not null default 'attending',
+  count integer default 1,
+  wishes text default '',
+  submitted_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+-- 2. Create Wishes table
+create table if not exists public.wishes (
+  id uuid default gen_random_uuid() primary key,
+  name text not null,
+  date_display text default 'ថ្មីៗនេះ',
+  message text not null,
+  created_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+-- 3. Create Invitation Config table
+create table if not exists public.invitation_config (
+  id text primary key,
+  config_json jsonb not null,
+  updated_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+-- Enable RLS & Public Access Policies for E-Invitation
+alter table public.rsvps enable row level security;
+alter table public.wishes enable row level security;
+alter table public.invitation_config enable row level security;
+
+create policy "Public full access on rsvps" on public.rsvps for all using (true) with check (true);
+create policy "Public full access on wishes" on public.wishes for all using (true) with check (true);
+create policy "Public full access on config" on public.invitation_config for all using (true) with check (true);
+
+-- Insert Complete Wedding Invitation Configuration Seed
+insert into public.invitation_config (id, config_json, updated_at)
+values (
+  'wedding_main',
+  '{
+    "blessingVerse": "☸ ជយោ ហោតុ សព្វទា ☸",
+    "invitationTitle": "សិរីសួស្តី អាពាហ៍ពិពាហ៍",
+    "invitationHeader": "លិខិតអញ្ជើញ",
+    "invitationGreeting": "យើងខ្ញុំសូមគោរពអញ្ជើញ",
+    "defaultGuestName": "ឯកឧត្តម លោកជំទាវ លោក លោកស្រី ភ្ញៀវកិត្តិយស",
+    "invitationSubtext": "ចូលរួមជាអធិបតី និងជាភ្ញៀវកិត្តិយស ក្នុងពិធីមង្គលការកូនប្រុស-កូនស្រីរបស់យើងខ្ញុំ",
+    "groomName": "ជា វិបុល",
+    "brideName": "ស៊ុន ទេវី",
+    "groomFather": "ជា សុខា",
+    "groomMother": "ឃឹម សុភាព",
+    "brideFather": "ស៊ុន វណ្ណា",
+    "brideMother": "អ៊ុច ចរិយា",
+    "solarDate": "ថ្ងៃអាទិត្យ ទី១៥ ខែវិច្ឆិកា ឆ្នាំ២០២៦",
+    "lunarDate": "ត្រូវនឹងថ្ងៃ ៥កើត ខែកត្តិក ឆ្នាំរោង ឆស័ក ព.ស. ២៥៧០",
+    "targetDateTime": "2026-11-15T07:00:00+07:00",
+    "couplePhoto": "assets/images/couple.jpg",
+    "venueName": "មជ្ឈមណ្ឌលសន្និបាត និងពិព័រណ៍កោះពេជ្រ (អគារ G)",
+    "venueAddress": "📍 ទីតាំង៖ កោះពេជ្រ សង្កាត់ទន្លេបាសាក់ ខណ្ឌចំការមន រាជធានីភ្នំពេញ\\n(Koh Pich Exhibition Center, Building G, Phnom Penh)",
+    "mapsUrl": "https://maps.google.com/?q=Koh+Pich+Convention+and+Exhibition+Center+Building+G+Phnom+Penh",
+    "bankAccName": "CHEA VIBOL & SUN DEVI",
+    "bankAccNum": "001 888 999 (USD)",
+    "bankName": "ABA Bank / Bakong",
+    "qrImage": "",
+    "thankYouText": "សូមថ្លែងអំណរគុណយ៉ាងជ្រាលជ្រៅចំពោះវត្តមានដ៏ឧត្តុង្គឧត្តមរបស់លោកអ្នក",
+    "footerDesignCredit": "Designed with Khmer Traditional Heritage & Modern Elegance",
+    "schedule": [
+      { "time": "07:00 AM", "title": "ពិធីហែជំនូន និងសែនព្រេន", "desc": "Groom''s Procession & Ancestor Blessing Ceremony" },
+      { "time": "09:30 AM", "title": "ពិធីកាត់សក់បង្កក់សិរី", "desc": "Traditional Hair Cutting & Purification Ceremony" },
+      { "time": "02:00 PM", "title": "ពិធីសំពះផ្ទឹម និងបង្វិលពពិល", "desc": "Sacred Knot Tying & Popil Twirling Blessing" },
+      { "time": "05:30 PM", "title": "ពិធីទទួលទានភោជនាហារ និងរាំកម្សាន្ត", "desc": "Grand Evening Wedding Banquet & Celebration" }
+    ]
+  }'::jsonb,
+  now()
+)
+on conflict (id) do update set config_json = excluded.config_json, updated_at = now();
+
+-- Insert Default Guestbook Wishes
+insert into public.wishes (name, date_display, message, created_at)
+values
+  ('ឯកឧត្តម លី សុផាត', 'ថ្មីៗនេះ', 'សូមប្រសិទ្ធពរជ័យមង្គល សិរីសួស្តី វិបុលសុខគ្រប់ប្រការដល់គូស្វាមីភរិយាថ្មី ស្រឡាញ់គ្នារហូតដល់ចាស់កោងខ្នង!', now() - interval '2 hours'),
+  ('លោកជំទាវ ម៉េង គន្ធា', 'ថ្មីៗនេះ', 'អបអរសាទរពិធីមង្គលការ! សូមឱ្យគ្រួសារថ្មីពោរពេញដោយសុភមង្គល ទ្រព្យសម្បត្តិហូរហៀរ និងត្រជាក់ត្រជុំដូចទឹកអង្គរ។', now() - interval '1 hour'),
+  ('មិត្តភក្តិរួមការងារ (ABA Team)', 'ថ្មីៗនេះ', 'Congratulations Vibol & Devi! Wishing you both a lifetime of eternal love, prosperity, and happiness!', now());
+</textarea>
+    </div>
+
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <!-- Main logic script -->
+  <script src="../js/supabase.js"></script>
+  <script>
+    // Toast helper
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      if (!toast) return;
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 🌐 Smart API Base URL: detect Live Server (port 5500) vs Python server (port 8080)
+      const API_BASE = (window.location.port === '8080' || window.location.protocol === 'file:')
+        ? '' // Same-origin when served by Python server
+        : 'http://localhost:8080'; // Redirect to Python API when on Live Server
+
+      const urlInput = document.getElementById('supabase-url');
+      const keyInput = document.getElementById('supabase-key');
+      const statusPill = document.getElementById('status-pill');
+      const form = document.getElementById('supabase-config-form');
+
+      // Load saved credentials
+      const savedUrl = localStorage.getItem('supabase_url') || 'https://htooctdmmtcpujkfhbna.supabase.co';
+      const savedKey = localStorage.getItem('supabase_anon_key') || '';
+
+      urlInput.value = savedUrl;
+      keyInput.value = savedKey;
+
+      async function updateConnectionState() {
+        const url = urlInput.value.trim();
+        const key = keyInput.value.trim();
+
+        if (!url || !key) {
+          statusPill.className = 'status-pill status-disconnected';
+          statusPill.innerHTML = '⚪ មិនទាន់ភ្ជាប់ (Offline / Local)';
+          return false;
+        }
+
+        statusPill.className = 'status-pill';
+        statusPill.style.background = 'rgba(243, 156, 18, 0.2)';
+        statusPill.style.color = '#f39c12';
+        statusPill.style.border = '1px solid #f39c12';
+        statusPill.innerHTML = '⏳ កំពុងពិនិត្យ...';
+
+        try {
+          const res = await window.appSupabase.testConnection(url, key);
+          if (res.success) {
+            statusPill.className = 'status-pill status-connected';
+            statusPill.innerHTML = '🟢 បានភ្ជាប់ (Connected)';
+            loadCloudData();
+            return true;
+          } else {
+            statusPill.className = 'status-pill status-disconnected';
+            statusPill.innerHTML = '🔴 បរាជ័យ (Error: ' + escapeHtml(res.message.slice(0, 30)) + ')';
+            return false;
+          }
+        } catch (e) {
+          statusPill.className = 'status-pill status-disconnected';
+          statusPill.innerHTML = '🔴 បរាជ័យក្នុងការភ្ជាប់';
+          return false;
+        }
+      }
+
+      // Initial check
+      if (savedUrl && savedKey) {
+        updateConnectionState();
+      } else {
+        statusPill.className = 'status-pill status-disconnected';
+        statusPill.innerHTML = '⚪ មិនទាន់ភ្ជាប់ (Offline / Local)';
+        loadLocalDataPreview();
+      }
+
+      // Save & Connect
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const url = urlInput.value.trim();
+        const key = keyInput.value.trim();
+        if (!url || !key) {
+          showToast('សូមបញ្ចូល Supabase Project URL និង Anon Key');
+          return;
+        }
+        window.appSupabase.setCredentials(url, key);
+        const ok = await updateConnectionState();
+        if (ok) {
+          showToast('⚡ បានភ្ជាប់ទៅ Supabase Cloud ដោយជោគជ័យ!');
+        } else {
+          showToast('⚠️ ការតភ្ជាប់មិនជោគជ័យ សូមពិនិត្យមើល URL និង Key');
+        }
+      });
+
+      // Test Connection Button
+      document.getElementById('btn-test-conn').addEventListener('click', async () => {
+        const url = urlInput.value.trim();
+        const key = keyInput.value.trim();
+        if (!url || !key) {
+          showToast('សូមបញ្ចូល Supabase Project URL និង Anon Key ដើម្បីតេស្ត');
+          return;
+        }
+        showToast('⏳ កំពុងសាកល្បងភ្ជាប់...');
+        const res = await window.appSupabase.testConnection(url, key);
+        if (res.success) {
+          showToast('✅ ' + res.message);
+          updateConnectionState();
+        } else {
+          showToast('❌ បរាជ័យ៖ ' + res.message);
+        }
+      });
+
+      // Disconnect Button
+      document.getElementById('btn-disconnect').addEventListener('click', () => {
+        if (confirm('តើអ្នកពិតជាចង់ផ្តាច់ការភ្ជាប់ Supabase Cloud មែនទេ?')) {
+          window.appSupabase.clearCredentials();
+          keyInput.value = '';
+          updateConnectionState();
+          showToast('❌ បានផ្តាច់ការភ្ជាប់ Supabase Cloud');
+        }
+      });
+
+      // Copy SQL Button
+      document.getElementById('btn-copy-sql').addEventListener('click', () => {
+        const sql = document.getElementById('sql-schema-code').value;
+        navigator.clipboard.writeText(sql).then(() => {
+          showToast('📋 បានចម្លង SQL Schema ដោយជោគជ័យ!');
+        }).catch(() => {
+          showToast('📋 បានជ្រើសរើស SQL Schema');
+        });
+      });
+
+      // Push Local Database to Supabase Cloud
+      document.getElementById('btn-sync-all').addEventListener('click', async () => {
+        if (!window.appSupabase.isConfigured || !window.appSupabase.client) {
+          showToast('⚠️ សូមភ្ជាប់ Supabase Cloud ជាមុនសិន!');
+          return;
+        }
+        showToast('⏳ កំពុងបញ្ជូនទិន្នន័យពី Local Database ឡើងទៅ Cloud...');
+        try {
+          const res = await fetch(`${API_BASE}/api/rsvps`);
+          const rsvps = res.ok ? await res.json() : [];
+          for (const r of rsvps) {
+            await window.appSupabase.client.from('rsvps').insert([{
+              name: r.name,
+              phone: r.phone || '',
+              attendance: r.attendance,
+              count: parseInt(r.count || 1),
+              wishes: r.wishes || '',
+              submitted_at: r.submittedAt || new Date().toISOString()
+            }]);
+          }
+
+          const wishRes = await fetch(`${API_BASE}/api/wishes`);
+          const wishes = wishRes.ok ? await wishRes.json() : [];
+          for (const w of wishes) {
+            await window.appSupabase.client.from('wishes').insert([{
+              name: w.name,
+              date_display: w.date_display || w.date || 'ថ្មីៗនេះ',
+              message: w.message,
+              created_at: new Date().toISOString()
+            }]);
+          }
+
+          showToast('✅ បានបញ្ជូនទិន្នន័យទាំងអស់ឡើង Cloud ដោយជោគជ័យ!');
+          loadCloudData();
+        } catch (err) {
+          showToast('❌ បរាជ័យក្នុងការ Sync: ' + err.message);
+        }
+      });
+
+      // Pull Cloud Data into Local Database File
+      document.getElementById('btn-pull-cloud').addEventListener('click', async () => {
+        if (!window.appSupabase.isConfigured || !window.appSupabase.client) {
+          showToast('⚠️ សូមភ្ជាប់ Supabase Cloud ជាមុនសិន!');
+          return;
+        }
+        showToast('⏳ កំពុងទាញយកទិន្នន័យពី Cloud...');
+        try {
+          const cloudRsvps = await window.appSupabase.fetchRsvps();
+          for (const r of cloudRsvps) {
+            await fetch(`${API_BASE}/api/rsvp`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(r)
+            });
+          }
+          showToast('✅ បានទាញយកទិន្នន័យ Cloud មករក្សាទុកក្នុង Local Database File រួចរាល់!');
+          loadCloudData();
+        } catch (err) {
+          showToast('❌ បរាជ័យក្នុងការទាញយក: ' + err.message);
+        }
+      });
+
+      // Tab switcher
+      const tabBtns = document.querySelectorAll('.nav-tab-btn');
+      const tabPanes = document.querySelectorAll('.tab-content-pane');
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          tabBtns.forEach(b => b.classList.remove('active'));
+          tabPanes.forEach(p => p.style.display = 'none');
+          btn.classList.add('active');
+          const targetId = btn.getAttribute('data-tab');
+          const targetPane = document.getElementById(targetId);
+          if (targetPane) targetPane.style.display = 'block';
+        });
+      });
+
+      document.getElementById('btn-refresh-tables').addEventListener('click', () => {
+        if (window.appSupabase.isConfigured) {
+          loadCloudData();
+        } else {
+          loadLocalDataPreview();
+        }
+        showToast('🔄 បាន Refresh ទិន្នន័យ');
+      });
+
+      // Load Cloud Data into UI
+      async function loadCloudData() {
+        if (!window.appSupabase.client) return;
+
+        // 1. RSVPs
+        try {
+          const { data: rsvps, error: rError } = await window.appSupabase.client
+            .from('rsvps')
+            .select('*')
+            .order('submitted_at', { ascending: false });
+
+          const rTbody = document.getElementById('cloud-rsvps-tbody');
+          const rCount = document.getElementById('count-cloud-rsvps');
+
+          if (!rError && Array.isArray(rsvps)) {
+            rCount.textContent = rsvps.length;
+            if (rsvps.length === 0) {
+              rTbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">មិនទាន់មានទិន្នន័យ RSVP ក្នុង Supabase Cloud នៅឡើយ</td></tr>';
+            } else {
+              rTbody.innerHTML = rsvps.map(r => `
+                <tr>
+                  <td style="color: var(--text-muted); font-size: 0.75rem;">${escapeHtml(r.submitted_at ? new Date(r.submitted_at).toLocaleString('km-KH') : '-')}</td>
+                  <td style="font-weight: 700; color: #85e8ba;">${escapeHtml(r.name || '')}</td>
+                  <td>${escapeHtml(r.phone || '-')}</td>
+                  <td>
+                    <span style="display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; ${r.attendance === 'attending' ? 'background: rgba(46,204,113,0.2); color: #2ecc71;' : 'background: rgba(255,107,107,0.2); color: #ff6b6b;'}">
+                      ${r.attendance === 'attending' ? 'ចូលរួម' : 'មិនអាចចូលរួម'}
+                    </span>
+                  </td>
+                  <td>${escapeHtml(String(r.count || 0))} នាក់</td>
+                  <td style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(r.wishes || '-')}</td>
+                </tr>
+              `).join('');
+            }
+          }
+        } catch (e) {
+          console.warn('Error fetching cloud rsvps:', e);
+        }
+
+        // 2. Wishes
+        try {
+          const { data: wishes, error: wError } = await window.appSupabase.client
+            .from('wishes')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+          const wTbody = document.getElementById('cloud-wishes-tbody');
+          const wCount = document.getElementById('count-cloud-wishes');
+
+          if (!wError && Array.isArray(wishes)) {
+            wCount.textContent = wishes.length;
+            if (wishes.length === 0) {
+              wTbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-muted); padding: 20px;">មិនទាន់មានពាក្យជូនពរក្នុង Cloud នៅឡើយ</td></tr>';
+            } else {
+              wTbody.innerHTML = wishes.map(w => `
+                <tr>
+                  <td style="font-weight: 700; color: #85e8ba;">${escapeHtml(w.name || '')}</td>
+                  <td style="color: var(--text-muted);">${escapeHtml(w.date_display || 'ថ្មីៗនេះ')}</td>
+                  <td>${escapeHtml(w.message || '')}</td>
+                </tr>
+              `).join('');
+            }
+          }
+        } catch (e) {
+          console.warn('Error fetching cloud wishes:', e);
+        }
+
+        // 3. Config
+        try {
+          const { data: cfg, error: cError } = await window.appSupabase.client
+            .from('invitation_config')
+            .select('*')
+            .eq('id', 'wedding_main')
+            .single();
+
+          const pre = document.getElementById('cloud-config-pre');
+          if (!cError && cfg && cfg.config_json) {
+            pre.textContent = JSON.stringify(cfg.config_json, null, 2);
+          } else {
+            pre.textContent = 'ពុំទាន់មាន Config ក្នុង Cloud (អាចចុចបញ្ជូនទិន្នន័យ Local ឡើង Cloud បាន)';
+          }
+        } catch (e) {}
+      }
+
+      // Fallback local preview if offline
+      async function loadLocalDataPreview() {
+        try {
+          const res = await fetch(`${API_BASE}/api/rsvps`);
+          if (res.ok) {
+            const rsvps = await res.json();
+            document.getElementById('count-cloud-rsvps').textContent = rsvps.length;
+            const rTbody = document.getElementById('cloud-rsvps-tbody');
+            if (rsvps.length > 0) {
+              rTbody.innerHTML = rsvps.map(r => `
+                <tr>
+                  <td style="color: var(--text-muted); font-size: 0.75rem;">${escapeHtml(r.submittedAt ? new Date(r.submittedAt).toLocaleString('km-KH') : '-')}</td>
+                  <td style="font-weight: 700; color: var(--primary-gold-light);">${escapeHtml(r.name || '')}</td>
+                  <td>${escapeHtml(r.phone || '-')}</td>
+                  <td>
+                    <span style="display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; ${r.attendance === 'attending' ? 'background: rgba(46,204,113,0.2); color: #2ecc71;' : 'background: rgba(255,107,107,0.2); color: #ff6b6b;'}">
+                      ${r.attendance === 'attending' ? 'ចូលរួម' : 'មិនអាចចូលរួម'}
+                    </span>
+                  </td>
+                  <td>${escapeHtml(String(r.count || 0))} នាក់</td>
+                  <td style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(r.wishes || '-')}</td>
+                </tr>
+              `).join('');
+            }
+          }
+
+          const wishRes = await fetch(`${API_BASE}/api/wishes`);
+          if (wishRes.ok) {
+            const wishes = await wishRes.json();
+            document.getElementById('count-cloud-wishes').textContent = wishes.length;
+            const wTbody = document.getElementById('cloud-wishes-tbody');
+            if (wishes.length > 0) {
+              wTbody.innerHTML = wishes.map(w => `
+                <tr>
+                  <td style="font-weight: 700; color: var(--primary-gold-light);">${escapeHtml(w.name || '')}</td>
+                  <td style="color: var(--text-muted);">${escapeHtml(w.date_display || w.date || 'ថ្មីៗនេះ')}</td>
+                  <td>${escapeHtml(w.message || '')}</td>
+                </tr>
+              `).join('');
+            }
+          }
+
+          const cfgRes = await fetch(`${API_BASE}/api/config`);
+          if (cfgRes.ok) {
+            const cfg = await cfgRes.json();
+            document.getElementById('cloud-config-pre').textContent = JSON.stringify(cfg, null, 2);
+          }
+        } catch (e) {}
+      }
+    });
+  </script>
+</body>
+</html>

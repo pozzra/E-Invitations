@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>សិរីសួស្តី អាពាហ៍ពិពាហ៍ | Khmer Wedding E-Invitation</title>
+  <meta name="description" content="លិខិតអញ្ជើញអាពាហ៍ពិពាហ៍បែបខ្មែរឌីជីថល (Khmer Royal E-Invitation) រចនាបទក្បាច់ខ្មែរពណ៌មាស ថ្លៃថ្នូរ និងប្រណិត">
+  
+  <!-- OpenGraph for Social Sharing (Facebook, Telegram) -->
+  <meta property="og:title" content="សិរីសួស្តី អាពាហ៍ពិពាហ៍ | ជា វិបុល ❤️ ស៊ុន ទេវី">
+  <meta property="og:description" content="សូមគោរពអញ្ជើញចូលរួមជាអធិបតី និងជាភ្ញៀវកិត្តិយស ក្នុងពិធីសិរីមង្គលអាពាហ៍ពិពាហ៍">
+  <meta property="og:image" content="assets/images/couple.jpg">
+  <meta property="og:type" content="website">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Floating Particle & Glitter Canvas -->
+  <canvas id="particle-canvas"></canvas>
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Floating Quick Actions (Music Player, Calendar, Share) -->
+  <div class="floating-actions">
+    <button class="action-btn" id="btn-toggle-music" title="ចាក់/បិទតន្ត្រី" aria-label="Toggle Traditional Music">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 18V5l12-2v13"></path>
+        <circle cx="6" cy="18" r="3"></circle>
+        <circle cx="18" cy="16" r="3"></circle>
+      </svg>
+    </button>
+    <button class="action-btn" id="btn-share" title="ចែករំលែក" aria-label="Share Invitation">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="18" cy="5" r="3"></circle>
+        <circle cx="6" cy="12" r="3"></circle>
+        <circle cx="18" cy="19" r="3"></circle>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+      </svg>
+    </button>
+  </div>
+
+  <!-- ==========================================================================
+       Interactive Envelope Screen (Unseal Ceremony)
+       ========================================================================== -->
+  <div class="envelope-screen" id="envelope-screen">
+    <div class="envelope-container">
+      <div class="envelope-card" id="envelope-trigger">
+        <div class="envelope-kbach-top"></div>
+
+        <div class="envelope-header">
+          <div class="envelope-badge" id="display-envelope-badge">E-INVITATION • លិខិតអញ្ជើញ</div>
+          <h1 class="envelope-title" id="display-envelope-title">សិរីសួស្តី អាពាហ៍ពិពាហ៍</h1>
+        </div>
+
+        <div class="envelope-seal-wrapper">
+          <div class="seal-pulse-ring"></div>
+          <img src="assets/images/golden_seal.jpg" alt="ត្រាមាសខ្មែរ" class="envelope-seal-img" id="seal-img">
+        </div>
+
+        <div class="envelope-guest-tag">
+          <span class="envelope-guest-label" id="display-envelope-guest-label">សូមគោរពអញ្ជើញ៖</span>
+          <div class="envelope-guest-name" id="envelope-guest-name">ភ្ញៀវកិត្តិយសដ៏ខ្ពង់ខ្ពស់</div>
+        </div>
+
+        <div class="envelope-open-hint">
+          <span id="display-envelope-hint">✨ ចុចត្រាមាសដើម្បីបើកសំបុត្រ ✨</span>
+        </div>
+
+        <div class="envelope-kbach-bottom"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       Main Invitation Content (Viewport Mobile Center)
+       ========================================================================== -->
+  <div class="app-viewport">
+    <main class="invitation-body">
+
+      <!-- Hero Section -->
+      <section class="hero-section">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <div class="sacred-verse" id="display-sacred-verse">☸ ជយោ ហោតុ សព្វទា ☸</div>
+          <div class="invitation-badge" id="display-hero-badge">សិរីសួស្តី អាពាហ៍ពិពាហ៍</div>
+          
+          <h2 class="hero-title" id="display-hero-title">លិខិតអញ្ជើញ</h2>
+
+          <!-- Personalized Guest Greeting -->
+          <div class="guest-personal-card shimmer-sweep">
+            <p class="guest-greeting-text" id="display-greeting-text">យើងខ្ញុំសូមគោរពអញ្ជើញ</p>
+            <h3 class="guest-highlight-name" id="hero-guest-name">ឯកឧត្តម លោកជំទាវ លោក លោកស្រី ភ្ញៀវកិត្តិយស</h3>
+            <p class="guest-greeting-text" id="display-invitation-subtext" style="margin-top: 4px;">ចូលរួមជាអធិបតី និងជាភ្ញៀវកិត្តិយស ក្នុងពិធីមង្គលការកូនប្រុស-កូនស្រីរបស់យើងខ្ញុំ</p>
+          </div>
+
+          <!-- Couple Names -->
+          <div class="couple-intro-banner">
+            <span class="couple-name" id="hero-groom-name">ជា វិបុល</span>
+            <span class="couple-heart">❤️</span>
+            <span class="couple-name" id="hero-bride-name">ស៊ុន ទេវី</span>
+          </div>
+
+          <div class="event-date-hero">
+            <strong id="hero-solar-date">ថ្ងៃអាទិត្យ ទី១៥ ខែវិច្ឆិកា ឆ្នាំ២០២៦</strong>
+            <span class="lunar-date" id="hero-lunar-date">ត្រូវនឹងថ្ងៃ ៥កើត ខែកត្តិក ឆ្នាំរោង ឆស័ក ព.ស. ២៥៧០</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Countdown Timer Section -->
+      <section class="content-section" style="padding-top: 10px;">
+        <div class="card-glass reveal-on-scroll">
+          <div class="section-kbach-header">
+            <div class="kbach-ornament"></div>
+            <h3 class="section-title">រាប់ថយក្រោយដល់ថ្ងៃសិរីមង្គល</h3>
+            <p class="section-subtitle">Countdown to Auspicious Day</p>
+          </div>
+
+          <div class="countdown-grid">
+            <div class="countdown-box reveal-on-scroll reveal-delay-1">
+              <span class="countdown-num" id="cd-days">00</span>
+              <span class="countdown-label">ថ្ងៃ (Days)</span>
+            </div>
+            <div class="countdown-box reveal-on-scroll reveal-delay-2">
+              <span class="countdown-num" id="cd-hours">00</span>
+              <span class="countdown-label">ម៉ោង (Hours)</span>
+            </div>
+            <div class="countdown-box reveal-on-scroll reveal-delay-3">
+              <span class="countdown-num" id="cd-mins">00</span>
+              <span class="countdown-label">នាទី (Mins)</span>
+            </div>
+            <div class="countdown-box reveal-on-scroll reveal-delay-4">
+              <span class="countdown-num" id="cd-secs">00</span>
+              <span class="countdown-label">វិនាទី (Secs)</span>
+            </div>
+          </div>
+
+          <button class="btn-gold-secondary ripple-effect" id="btn-add-calendar" style="margin-top: 18px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <span>កត់ត្រាក្នុងប្រតិទិន (Add to Calendar)</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Parents of Both Sides & Couple Spotlight -->
+      <section class="content-section">
+        <div class="card-glass reveal-on-scroll">
+          <div class="section-kbach-header">
+            <div class="kbach-ornament"></div>
+            <h3 class="section-title">មាតាបិតាទាំងសងខាង</h3>
+            <p class="section-subtitle">The Honorable Parents</p>
+          </div>
+
+          <div class="parents-grid">
+            <div class="parents-col">
+              <div class="parents-role">មាតាបិតាខាងកូនប្រុស</div>
+              <div class="parent-name">លោក <strong id="name-groom-father">ជា សុខា</strong></div>
+              <div class="parent-name">លោកស្រី <strong id="name-groom-mother">ឃឹម សុភាព</strong></div>
+            </div>
+            <div class="parents-col">
+              <div class="parents-role">មាតាបិតាខាងកូនស្រី</div>
+              <div class="parent-name">លោក <strong id="name-bride-father">ស៊ុន វណ្ណា</strong></div>
+              <div class="parent-name">លោកស្រី <strong id="name-bride-mother">អ៊ុច ចរិយា</strong></div>
+            </div>
+          </div>
+
+          <!-- Couple Portrait -->
+          <div class="couple-portrait-wrap">
+            <div class="couple-img-frame shimmer-sweep">
+              <img src="assets/images/couple.jpg" id="couple-portrait-img" alt="រូបថតគូស្វាមីភរិយាថ្មី ជា វិបុល និង ស៊ុន ទេវី" class="couple-img">
+            </div>
+          </div>
+
+          <div class="couple-badges-row">
+            <div class="couple-badge-card reveal-on-scroll reveal-delay-1">
+              <span class="role-tag">កូនប្រុសនាម (Groom)</span>
+              <h4 class="person-name" id="badge-groom-name">ជា វិបុល</h4>
+            </div>
+            <div class="couple-badge-card reveal-on-scroll reveal-delay-2">
+              <span class="role-tag">កូនស្រីនាម (Bride)</span>
+              <h4 class="person-name" id="badge-bride-name">ស៊ុន ទេវី</h4>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================================
+           Wedding Video Album & Love Story Showcase
+           ====================================================================== -->
+      <section class="content-section" id="section-video-album">
+        <div class="card-glass reveal-on-scroll">
+          <div class="section-kbach-header">
+            <div class="kbach-ornament"></div>
+            <h3 class="section-title" id="video-album-title">វីដេអូអនុស្សាវរីយ៍ & សាច់រឿងស្នេហា</h3>
+            <p class="section-subtitle" id="video-album-subtitle">Cinematic Wedding Video & Love Story</p>
+          </div>
+
+          <p class="video-album-desc" id="video-album-desc">
+            សូមទស្សនាវីដេអូអនុស្សាវរីយ៍ដ៏មានអត្ថន័យ និងសាច់រឿងនៃក្តីស្រឡាញ់របស់គូស្វាមីភរិយាថ្មី
+          </p>
+
+          <!-- Main Cinema Video Player Container -->
+          <div class="video-showcase-box">
+            <div class="video-frame-glow"></div>
+            
+            <!-- Traditional Corner Kbach Ornaments -->
+            <div class="kbach-corner kbach-corner-tl"></div>
+            <div class="kbach-corner kbach-corner-tr"></div>
+            <div class="kbach-corner kbach-corner-bl"></div>
+            <div class="kbach-corner kbach-corner-br"></div>
+
+            <div class="video-player-wrapper" id="video-player-wrapper">
+              <video id="wedding-video-player" class="wedding-video-element" playsinline controls preload="metadata" poster="assets/images/couple.jpg">
+                <source id="wedding-video-source" src="" type="video/mp4">
+                កម្មវិធីរុករករបស់អ្នកមិនគាំទ្រការចាក់វីដេអូនោះទេ (Your browser does not support HTML5 video)
+              </video>
+
+              <!-- Video Play Overlay with Ripple Pulse Animation -->
+              <div class="video-play-overlay" id="video-play-overlay">
+                <div class="video-pulse-ring"></div>
+                <button class="video-play-trigger ripple-effect" id="btn-video-play-trigger" aria-label="Play Wedding Video">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                  </svg>
+                </button>
+                <div class="video-overlay-text">ចុចដើម្បីទស្សនាវីដេអូ (Play Video)</div>
+              </div>
+            </div>
+
+            <!-- Video Quick Controls / Cinema Theater Mode Trigger -->
+            <div class="video-control-bar">
+              <div class="video-tag-pill">
+                <span>🎬</span> <span id="video-tag-label">Wedding Highlights & Story</span>
+              </div>
+              <button class="btn-theater-mode ripple-effect" id="btn-theater-mode" title="ទស្សនាទំហំធំពេញអេក្រង់ (Theater Mode)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="15 3 21 3 21 9"></polyline>
+                  <polyline points="9 21 3 21 3 15"></polyline>
+                  <line x1="21" y1="3" x2="14" y2="10"></line>
+                  <line x1="3" y1="21" x2="10" y2="14"></line>
+                </svg>
+                <span>ពង្រីកពេញអេក្រង់ (Cinema)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Ceremony Schedule Timeline -->
+      <section class="content-section">
+        <div class="card-glass reveal-on-scroll">
+          <div class="section-kbach-header">
+            <div class="kbach-ornament"></div>
+            <h3 class="section-title">កាលវិភាគកម្មវិធីសិរីមង្គល</h3>
+            <p class="section-subtitle">Wedding Ceremony Schedule</p>
+          </div>
+
+          <div class="timeline-list" id="timeline-list-container">
+            <div class="timeline-item reveal-on-scroll reveal-delay-1">
+              <div class="timeline-dot"></div>
+              <div class="timeline-time">07:00 AM</div>
+              <div class="timeline-ceremony">ពិធីហែជំនូន និងសែនព្រេន</div>
+              <div class="timeline-desc">Groom's Procession & Ancestor Blessing Ceremony</div>
+            </div>
+
+            <div class="timeline-item reveal-on-scroll reveal-delay-2">
+              <div class="timeline-dot"></div>
+              <div class="timeline-time">09:30 AM</div>
+              <div class="timeline-ceremony">ពិធីកាត់សក់បង្កក់សិរី</div>
+              <div class="timeline-desc">Traditional Hair Cutting & Purification Ceremony</div>
+            </div>
+
+            <div class="timeline-item reveal-on-scroll reveal-delay-3">
+              <div class="timeline-dot"></div>
+              <div class="timeline-time">02:00 PM</div>
+              <div class="timeline-ceremony">ពិធីសំពះផ្ទឹម និងបង្វិលពពិល</div>
+              <div class="timeline-desc">Sacred Knot Tying & Popil Twirling Blessing</div>
+            </div>
+
+            <div class="timeline-item reveal-on-scroll reveal-delay-4">
+              <div class="timeline-dot"></div>
+              <div class="timeline-time">05:30 PM</div>
+              <div class="timeline-ceremony">ពិធីទទួលទានភោជនាហារ និងរាំកម្សាន្ត</div>
+              <div class="timeline-desc">Grand Evening Wedding Banquet & Celebration</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Location & Navigation Section -->
+      <section class="content-section">
+        <div class="card-glass reveal-on-scroll" style="text-align: center;">
+          <div class="section-kbach-header">
+            <div class="kbach-ornament"></div>
+            <h3 class="section-title">ទីតាំងប្រារព្ធពិធី</h3>
+            <p class="section-subtitle">Ceremony & Banquet Venue</p>
+          </div>
+
+          <h4 class="location-venue-name" id="display-venue-name">មជ្ឈមណ្ឌលសន្និបាត និងពិព័រណ៍កោះពេជ្រ (អគារ G)</h4>
+          <p class="location-address" id="display-venue-address">
+            📍 ទីតាំង៖ កោះពេជ្រ សង្កាត់ទន្លេបាសាក់ ខណ្ឌចំការមន រាជធានីភ្នំពេញ<br>
+            (Koh Pich Exhibition Center, Building G, Phnom Penh)
+          </p>
+
+          <a href="https://maps.google.com/?q=Koh+Pich+Convention+and+Exhibition+Center+Building+G+Phnom+Penh" id="btn-maps-link" target="_blank" rel="noopener noreferrer" class="btn-gold-primary ripple-effect">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <span>បើកមើលផែនទី (Google Maps)</span>
+          </a>
+        </div>
+      </section>
+
+      <!-- Digital Gift / Online Blessing QR Modal Trigger -->
+      <section class="content-section">
+        <div class="card-glass reveal-on-scroll" style="text-align: center;">
+          <div class="section-kbach-header">
+            <div class="kbach-ornament"></div>
+            <h3 class="section-title">ចំណងដៃអាពាហ៍ពិពាហ៍ឌីជីថល</h3>
+            <p class="section-subtitle">Wedding Gift & Blessings</p>
+          </div>
+          <p style="font-size: 0.88rem; color: var(--text-cream); margin-bottom: 16px;">
+            ដើម្បីជាការងាយស្រួលសម្រាប់ភ្ញៀវកិត្តិយសដែលនៅឆ្ងាយ ឬចង់ផ្ញើចំណងដៃជូនពរតាមរយៈធនាគារ (ABA / Bakong KHQR)
+          </p>
+
+          <button class="btn-gold-primary ripple-effect" id="btn-open-qr-modal">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            <span>ស្កេន QR Code ចងដៃ (Digital Blessing)</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Interactive RSVP Form Section -->
+      <section class="content-section" id="section-rsvp">
+        <div class="card-glass reveal-on-scroll">
+          <div class="section-kbach-header">
+            <div class="kbach-ornament"></div>
+            <h3 class="section-title">ការបញ្ជាក់ការចូលរួម (RSVP)</h3>
+            <p class="section-subtitle">Please Confirm Your Attendance</p>
+          </div>
+
+          <form id="rsvp-form">
+            <div class="form-group">
+              <label class="form-label" for="guest-name-input">ឈ្មោះភ្ញៀវកិត្តិយស (Full Name) *</label>
+              <input type="text" id="guest-name-input" class="form-input" placeholder="សូមបញ្ចូលឈ្មោះរបស់លោកអ្នក" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="guest-phone-input">លេខទូរស័ព្ទ ឬ Telegram (Contact Number)</label>
+              <input type="tel" id="guest-phone-input" class="form-input" placeholder="012 345 678">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">ការចូលរួម (Attendance Status) *</label>
+              <div class="rsvp-status-selector">
+                <label class="radio-tile-label active ripple-effect" id="label-attending">
+                  <input type="radio" name="attendance" value="attending" checked>
+                  <span>🎉 ខ្ញុំនឹងចូលរួម (Attending)</span>
+                </label>
+                <label class="radio-tile-label ripple-effect" id="label-declining">
+                  <input type="radio" name="attendance" value="declined">
+                  <span>🙏 មិនអាចចូលរួម (Regret)</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group" id="group-guest-count">
+              <label class="form-label" for="guest-count-select">ចំនួនភ្ញៀវចូលរួម (Number of Guests)</label>
+              <select id="guest-count-select" class="form-select">
+                <option value="1">១ នាក់ (1 Person)</option>
+                <option value="2" selected>២ នាក់ (2 Persons)</option>
+                <option value="3">៣ នាក់ (3 Persons)</option>
+                <option value="4">៤ នាក់ (4 Persons)</option>
+                <option value="5">៥ នាក់ឡើងទៅ (5+ Persons)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="guest-wishes-input">សារជូនពរដល់គូស្វាមីភរិយា (Wedding Wishes)</label>
+              <textarea id="guest-wishes-input" class="form-textarea" rows="3" placeholder="សូមជូនពរឱ្យមានសុភមង្គល និងស្រឡាញ់គ្នារហូតដល់ចាស់កោងខ្នង..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-gold-primary ripple-effect" style="margin-top: 10px;">
+              <span>ផ្ញើការបញ្ជាក់ (Submit RSVP)</span>
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- Wishes & Guestbook Wall Section -->
+      <section class="content-section">
+        <div class="card-glass reveal-on-scroll">
+          <div class="section-kbach-header">
+            <div class="kbach-ornament"></div>
+            <h3 class="section-title">សៀវភៅជូនពរឌីជីថល</h3>
+            <p class="section-subtitle">Guestbook & Warm Wishes</p>
+          </div>
+
+          <div class="wishes-container" id="wishes-wall">
+            <!-- Dynamically populated or default wishes -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Generate Custom Guest Link Tool (Admin Only - /generate or ?generate) -->
+      <section class="content-section" id="section-admin-generate" style="display: none;">
+        <div class="card-glass" style="text-align: center; border: 1.5px solid var(--primary-gold); background: rgba(30, 10, 20, 0.85);">
+          <div class="section-kbach-header">
+            <div class="kbach-ornament"></div>
+            <span class="role-tag" style="background: rgba(229, 185, 85, 0.25); color: var(--primary-gold-light); margin-bottom: 8px;">👑 ផ្ទាំងគ្រប់គ្រងម្ចាស់ដើមការ (Admin VIP Portal)</span>
+            <h3 class="section-title">បង្កើតតំណភ្ជាប់អញ្ជើញផ្ទាល់ខ្លួន</h3>
+            <p class="section-subtitle">Generate Personalized VIP Link</p>
+          </div>
+          
+          <p style="font-size: 0.88rem; color: var(--text-cream); margin-bottom: 16px; line-height: 1.6;">
+            ម្ចាស់ដើមការអាចវាយបញ្ចូលឈ្មោះភ្ញៀវ ដើម្បីបង្កើត Link ពិសេសដែលមានឈ្មោះភ្ញៀវបង្ហាញលើសំបុត្រផ្ទាល់!
+          </p>
+
+          <div style="display: flex; flex-direction: column; gap: 12px; max-width: 420px; margin: 0 auto;">
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="custom-link-name-input" class="form-input" placeholder="ឧ. ឯកឧត្តម សុខ សាន" style="font-size: 0.95rem;">
+              <button class="btn-gold-primary ripple-effect" id="btn-generate-link" style="width: auto; padding: 12px 20px; white-space: nowrap;">
+                <span>ចម្លង Link</span>
+              </button>
+            </div>
+
+            <!-- Generated Result Preview Box -->
+            <div id="generated-link-box" style="display: none; background: rgba(0,0,0,0.5); border: 1px dashed var(--primary-gold); border-radius: var(--radius-sm); padding: 12px; text-align: left;">
+              <div style="font-size: 0.78rem; color: var(--primary-gold-light); margin-bottom: 4px;">🔗 តំណភ្ជាប់ដែលបានបង្កើត៖</div>
+              <div id="generated-link-url" style="font-size: 0.82rem; color: #fff; word-break: break-all; font-family: monospace; user-select: all;"></div>
+              <div style="display: flex; gap: 8px; margin-top: 10px;">
+                <button class="btn-gold-secondary ripple-effect" id="btn-preview-link" style="padding: 8px 14px; font-size: 0.82rem; margin-top: 0;">
+                  👁️ បើកមើលសំបុត្រ (Preview)
+                </button>
+                <button class="btn-gold-secondary ripple-effect" id="btn-copy-again" style="padding: 8px 14px; font-size: 0.82rem; margin-top: 0;">
+                  📋 ចម្លងម្តងទៀត
+                </button>
+              </div>
+            </div>
+
+            <!-- VIP Guest Created List -->
+            <div style="margin-top: 16px; text-align: left;">
+              <div style="font-size: 0.82rem; font-weight: 700; color: var(--primary-gold-light); margin-bottom: 8px;">
+                📋 បញ្ជីភ្ញៀវដែលបានបង្កើត Link រួច (VIP Guest Links):
+              </div>
+              <div id="vip-guest-list" style="max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="footer-section">
+        <div class="footer-lotus">🪷</div>
+        <p id="display-footer-thankyou">សូមថ្លែងអំណរគុណយ៉ាងជ្រាលជ្រៅចំពោះវត្តមានដ៏ឧត្តុង្គឧត្តមរបស់លោកអ្នក</p>
+        <p id="display-footer-credit" style="margin-top: 6px; font-size: 0.75rem; color: var(--primary-gold-dark);">
+          Designed with Khmer Traditional Heritage & Modern Elegance
+        </p>
+      </footer>
+
+    </main>
+  </div>
+
+  <!-- ==========================================================================
+       Digital Gift Modal (KHQR / ABA)
+       ========================================================================== -->
+  <div class="modal-overlay" id="qr-modal">
+    <div class="modal-card">
+      <button class="modal-close-btn" id="btn-close-qr-modal">&times;</button>
+      
+      <div class="section-kbach-header" style="margin-bottom: 14px;">
+        <h3 class="section-title" style="font-size: 1.15rem;">ចំណងដៃអាពាហ៍ពិពាហ៍</h3>
+        <p class="section-subtitle">Scan KHQR to Send Blessing</p>
+      </div>
+
+      <div class="qr-card-box" id="qr-box-container">
+        <!-- Custom Uploaded QR Code Image -->
+        <img id="display-qr-img" src="" alt="KHQR Code" style="display: none; width: 200px; height: 200px; object-fit: contain; border-radius: 8px;">
+        <!-- High fidelity Default SVG KHQR / Bakong Code -->
+        <svg id="default-qr-svg" class="qr-code-img" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <rect width="200" height="200" fill="#ffffff" rx="10"/>
+          <!-- KHQR Header Banner -->
+          <rect x="15" y="15" width="170" height="26" fill="#e12431" rx="4"/>
+          <text x="100" y="33" fill="#ffffff" font-family="'Battambang', sans-serif" font-weight="bold" font-size="12" text-anchor="middle">KHQR BAKONG / ABA</text>
+          
+          <!-- Stylized QR Pattern Matrix -->
+          <!-- Top Left Finder -->
+          <rect x="25" y="52" width="40" height="40" fill="#111111" rx="4"/>
+          <rect x="31" y="58" width="28" height="28" fill="#ffffff" rx="2"/>
+          <rect x="37" y="64" width="16" height="16" fill="#111111" rx="1"/>
+
+          <!-- Top Right Finder -->
+          <rect x="135" y="52" width="40" height="40" fill="#111111" rx="4"/>
+          <rect x="141" y="58" width="28" height="28" fill="#ffffff" rx="2"/>
+          <rect x="147" y="64" width="16" height="16" fill="#111111" rx="1"/>
+
+          <!-- Bottom Left Finder -->
+          <rect x="25" y="135" width="40" height="40" fill="#111111" rx="4"/>
+          <rect x="31" y="141" width="28" height="28" fill="#ffffff" rx="2"/>
+          <rect x="37" y="147" width="16" height="16" fill="#111111" rx="1"/>
+
+          <!-- QR Data Dots & Grid Art -->
+          <g fill="#111111">
+            <rect x="74" y="55" width="8" height="8"/>
+            <rect x="88" y="55" width="8" height="16"/>
+            <rect x="104" y="60" width="8" height="8"/>
+            <rect x="118" y="55" width="8" height="12"/>
+            <rect x="74" y="75" width="16" height="8"/>
+            <rect x="100" y="75" width="8" height="18"/>
+            <rect x="115" y="80" width="12" height="8"/>
+
+            <!-- Center Gold Lotus Icon Overlay -->
+            <circle cx="100" cy="115" r="16" fill="#d4af37"/>
+            <path d="M100 105 C96 112 94 116 100 123 C106 116 104 112 100 105 Z" fill="#ffffff"/>
+            <path d="M93 113 C91 118 94 122 100 124" stroke="#ffffff" stroke-width="1.5" fill="none"/>
+            <path d="M107 113 C109 118 106 122 100 124" stroke="#ffffff" stroke-width="1.5" fill="none"/>
+
+            <rect x="74" y="140" width="8" height="18"/>
+            <rect x="90" y="145" width="16" height="8"/>
+            <rect x="115" y="135" width="8" height="12"/>
+            <rect x="135" y="135" width="8" height="8"/>
+            <rect x="150" y="145" width="18" height="8"/>
+            <rect x="145" y="160" width="12" height="12"/>
+            <rect x="74" y="165" width="18" height="12"/>
+            <rect x="100" y="165" width="8" height="8"/>
+            <rect x="115" y="160" width="15" height="15"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="account-info-box">
+        <div class="acc-name" id="display-acc-name">CHEA VIBOL & SUN DEVI</div>
+        <div class="acc-num" id="bank-acc-num" style="cursor: pointer;" title="ចុចដើម្បីបើក App ធនាគារ (Click to open Bank App)">001 888 999 (USD) <span style="font-size: 0.7rem; opacity: 0.7;">🏦</span></div>
+        <div id="display-bank-name" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px;">ABA Bank / Bakong</div>
+      </div>
+
+      <div style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 12px;">
+        <button class="btn-gold-primary ripple-effect" id="btn-open-bank-app" style="width: auto; padding: 12px 16px; white-space: nowrap;">
+          <span>🏦 បើក App ធនាគារ (Open Bank App)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       Cinema Theater Modal (Full-Screen Video Lightbox)
+       ========================================================================== -->
+  <div class="theater-modal" id="theater-modal">
+    <div class="theater-card">
+      <button class="theater-close-btn" id="btn-close-theater" title="បិទ (Close)">&times;</button>
+      <div style="font-family: var(--font-khmer-sub); font-size: 0.95rem; color: var(--primary-gold-light); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+        <span>🎬</span> <span id="theater-title-display">វីដេអូអនុស្សាវរីយ៍អាពាហ៍ពិពាហ៍ (Wedding Highlights)</span>
+      </div>
+      <div class="video-player-wrapper" style="max-height: 75vh;">
+        <video id="theater-video-player" class="wedding-video-element" controls playsinline>
+          <source id="theater-video-source" src="" type="video/mp4">
+        </video>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       Database Connection & Test Data Modal (Admins / Testing)
+       ========================================================================== -->
+  <div class="modal-overlay" id="db-test-modal" style="display: none;">
+    <div class="modal-card" style="max-width: 600px; text-align: left; max-height: 85vh; overflow-y: auto;">
+      <button class="modal-close-btn" id="btn-close-db-test">&times;</button>
+      
+      <div class="section-kbach-header" style="margin-bottom: 12px; text-align: center;">
+        <h3 class="section-title" style="font-size: 1.15rem;">🗄️ តេស្តការភ្ជាប់ Database & បង្ហាញទិន្នន័យ</h3>
+        <p class="section-subtitle">Database Connection Test & Live Data Inspector</p>
+      </div>
+
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
+        <button class="btn-gold-primary ripple-effect" id="btn-modal-test-db" style="padding: 8px 14px; font-size: 0.8rem; width: auto; margin: 0;">
+          ⚡ សាកល្បងភ្ជាប់ Server DB
+        </button>
+        <button class="btn-gold-secondary ripple-effect" id="btn-modal-test-supabase" style="padding: 8px 14px; font-size: 0.8rem; width: auto; margin: 0;">
+          ⚡ ភ្ជាប់ Supabase Cloud
+        </button>
+        <button class="btn-gold-secondary ripple-effect" id="btn-modal-fetch-data" style="padding: 8px 14px; font-size: 0.8rem; width: auto; margin: 0; border-color: #2ecc71; color: #2ecc71;">
+          📥 ទាញយកទិន្នន័យ (Fetch Data)
+        </button>
+      </div>
+
+      <!-- Test Status Box -->
+      <div id="modal-db-status-box" class="db-test-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <span style="font-size: 0.82rem; font-weight: 700; color: var(--primary-gold-light);">ស្ថានភាពតភ្ជាប់ (Connection Status):</span>
+          <span id="modal-db-status-badge" class="db-status-badge connected">🟢 ត្រៀមរួចរាល់ (Ready)</span>
+        </div>
+        <div id="modal-db-status-detail" style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.5;">
+          ចុចប៊ូតុងខាងលើ ដើម្បីសាកល្បងទាញទិន្នន័យពិតប្រាកដចេញពី Database។
+        </div>
+      </div>
+
+      <!-- Live Data Viewer Container -->
+      <div id="modal-db-data-container" style="margin-top: 14px; display: none;">
+        <div style="font-size: 0.85rem; font-weight: 700; color: var(--primary-gold); margin-bottom: 8px; display: flex; justify-content: space-between;">
+          <span>📋 ទិន្នន័យទទួលបានពី Database (Live Fetched Data):</span>
+          <span id="modal-db-counts" style="font-size: 0.75rem; color: var(--text-muted);"></span>
+        </div>
+        
+        <div id="modal-db-data-content" style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+          <!-- Dynamically filled with RSVPs, Wishes, and Config -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-notice" id="toast-notice">សារជូនដំណឹង</div>
+
+  <!-- Audio, Supabase, and App Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

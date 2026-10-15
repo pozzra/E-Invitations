@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ផ្ទាំងគ្រប់គ្រងបង្កើត VIP Link | Admin E-Invitation</title>
+  <meta name="description" content="ផ្ទាំងគ្រប់គ្រងសម្រាប់ម្ចាស់ដើមការ បង្កើតតំណភ្ជាប់សំបុត្រអញ្ជើញ VIP ផ្ទាល់ខ្លួន">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .admin-container {
+      max-width: 520px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: var(--bg-overlay);
+      padding: 30px 20px 60px 20px;
+    }
+    .badge-admin {
+      background: rgba(229, 185, 85, 0.2);
+      border: 1px solid var(--primary-gold);
+      color: var(--primary-gold-light);
+      padding: 4px 16px;
+      border-radius: var(--radius-full);
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+    .tab-btn-row {
+      display: flex;
+      gap: 10px;
+      margin: 18px 0;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(229, 185, 85, 0.3);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      cursor: pointer;
+      font-family: var(--font-khmer-sub);
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+    }
+    .tab-btn.active {
+      background: rgba(229, 185, 85, 0.2);
+      border-color: var(--primary-gold);
+      color: var(--primary-gold-light);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Particle & Glitter Canvas -->
+  <canvas id="particle-canvas"></canvas>
+
+  <div class="admin-container">
+    
+    <!-- Top Nav / Back to Main Page -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <a href="../" class="btn-gold-secondary ripple-effect" style="width: auto; padding: 6px 14px; font-size: 0.8rem; text-decoration: none; margin-top: 0;">
+        ← ទៅកាន់សំបុត្រអញ្ជើញដើម
+      </a>
+      <span class="badge-admin">ADMIN PORTAL</span>
+    </div>
+
+    <!-- Main Card -->
+    <div class="card-glass" style="border: 1.5px solid var(--primary-gold); padding: 28px 20px;">
+      <div class="section-kbach-header">
+        <div class="kbach-ornament"></div>
+        <h1 class="section-title" style="font-size: 1.35rem;">បង្កើតតំណភ្ជាប់អញ្ជើញផ្ទាល់ខ្លួន</h1>
+        <p class="section-subtitle">Generate Personalized VIP Link</p>
+      </div>
+
+      <p style="font-size: 0.88rem; color: var(--text-cream); text-align: center; margin-bottom: 16px; line-height: 1.6;">
+        ម្ចាស់ដើមការអាចវាយបញ្ចូលឈ្មោះភ្ញៀវ ដើម្បីបង្កើត Link ពិសេសដែលមានឈ្មោះភ្ញៀវបង្ហាញលើសំបុត្រផ្ទាល់!
+      </p>
+
+      <!-- Tabs (Single / Batch) -->
+      <div class="tab-btn-row">
+        <button class="tab-btn active" id="tab-single">បង្កើតម្តងម្នាក់ (Single)</button>
+        <button class="tab-btn" id="tab-batch">បង្កើតច្រើននាក់ (Batch)</button>
+      </div>
+
+      <!-- Single Guest Form -->
+      <div id="panel-single">
+        <div class="form-group">
+          <label class="form-label" for="admin-guest-name">ឈ្មោះ ឬគោរមងារភ្ញៀវកិត្តិយស (Guest Name)</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="admin-guest-name" class="form-input" placeholder="ឧ. ឯកឧត្តម សុខ សាន">
+            <button class="btn-gold-primary ripple-effect" id="btn-create-single" style="width: auto; padding: 12px 20px; white-space: nowrap;">
+              <span>ចម្លង Link</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Batch Guest Form -->
+      <div id="panel-batch" style="display: none;">
+        <div class="form-group">
+          <label class="form-label" for="admin-batch-names">បញ្ចូលបញ្ជីឈ្មោះភ្ញៀវ (១ ជួរឈ្មោះម្នាក់)</label>
+          <textarea id="admin-batch-names" class="form-textarea" rows="4" placeholder="ឯកឧត្តម សុខ សាន&#10;លោកជំទាវ ម៉េង គន្ធា&#10;លោក ជា វិចិត្រ"></textarea>
+          <button class="btn-gold-primary ripple-effect" id="btn-create-batch" style="margin-top: 10px;">
+            <span>⚡ បង្កើត Link ទាំងអស់ (Generate All)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Result Box -->
+      <div id="result-box" style="display: none; background: rgba(0,0,0,0.5); border: 1.5px dashed var(--primary-gold); border-radius: var(--radius-sm); padding: 14px; margin-top: 16px; text-align: left;">
+        <div style="font-size: 0.82rem; font-weight: 700; color: var(--primary-gold-light); margin-bottom: 6px;">
+          🎉 តំណភ្ជាប់ដែលបានបង្កើតថ្មីៗ៖
+        </div>
+        <div id="result-url" style="font-size: 0.85rem; color: #fff; word-break: break-all; font-family: monospace; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 4px; user-select: all;"></div>
+        
+        <div style="display: flex; gap: 8px; margin-top: 10px;">
+          <button class="btn-gold-secondary ripple-effect" id="btn-preview-res" style="padding: 8px 12px; font-size: 0.8rem; margin-top: 0;">
+            👁️ បើកមើលសំបុត្រ
+          </button>
+          <button class="btn-gold-secondary ripple-effect" id="btn-copy-res" style="padding: 8px 12px; font-size: 0.8rem; margin-top: 0;">
+            📋 ចម្លងម្តងទៀត
+          </button>
+          <button class="btn-gold-secondary ripple-effect" id="btn-share-telegram" style="padding: 8px 12px; font-size: 0.8rem; margin-top: 0;">
+            ✈️ ផ្ញើ Telegram
+          </button>
+        </div>
+      </div>
+
+      <!-- Saved Guests History -->
+      <div style="margin-top: 24px; text-align: left;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <span style="font-size: 0.88rem; font-weight: 700; color: var(--primary-gold-light);">
+            📋 បញ្ជីភ្ញៀវ VIP ដែលបានបង្កើតរួច (<span id="vip-count">0</span>):
+          </span>
+          <button id="btn-clear-vip" style="background: none; border: none; color: #ff6b6b; font-size: 0.75rem; cursor: pointer;">
+            លុបទាំងអស់
+          </button>
+        </div>
+        
+        <div id="vip-list-container" style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+          <!-- List items dynamically generated -->
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-notice" id="toast-notice">សារជូនដំណឹង</div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const tabSingle = document.getElementById('tab-single');
+      const tabBatch = document.getElementById('tab-batch');
+      const panelSingle = document.getElementById('panel-single');
+      const panelBatch = document.getElementById('panel-batch');
+
+      tabSingle.addEventListener('click', () => {
+        tabSingle.classList.add('active');
+        tabBatch.classList.remove('active');
+        panelSingle.style.display = 'block';
+        panelBatch.style.display = 'none';
+      });
+
+      tabBatch.addEventListener('click', () => {
+        tabBatch.classList.add('active');
+        tabSingle.classList.remove('active');
+        panelBatch.style.display = 'block';
+        panelSingle.style.display = 'none';
+      });
+
+      function getBaseUrl() {
+        const root = window.location.origin + window.location.pathname.replace(/\/generate(?:\/index\.html)?\/?$/, '');
+        return root.endsWith('/') ? root : root + '/';
+      }
+
+      function getGuests() {
+        try {
+          const s = localStorage.getItem('khmer_vip_guests');
+          return s ? JSON.parse(s) : [
+            { name: 'ឯកឧត្តម លី សុផាត', createdAt: '១៤ តុលា ២០២៦' },
+            { name: 'លោកជំទាវ ម៉េង គន្ធា', createdAt: '១៤ តុលា ២០២៦' }
+          ];
+        } catch {
+          return [];
+        }
+      }
+
+      function saveGuests(arr) {
+        localStorage.setItem('khmer_vip_guests', JSON.stringify(arr));
+        renderList();
+      }
+
+      let latestUrl = '';
+
+      function renderList() {
+        const listEl = document.getElementById('vip-list-container');
+        const countEl = document.getElementById('vip-count');
+        const guests = getGuests();
+        const baseUrl = getBaseUrl();
+        countEl.textContent = guests.length;
+
+        if (guests.length === 0) {
+          listEl.innerHTML = '<div style="font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 12px;">មិនទាន់មានភ្ញៀវនៅឡើយ</div>';
+          return;
+        }
+
+        listEl.innerHTML = guests.map((g, idx) => {
+          const link = `${baseUrl}?to=${encodeURIComponent(g.name)}`;
+          return `
+            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.04); border: 1px solid rgba(229,185,85,0.2); border-radius: var(--radius-sm); padding: 8px 12px; gap: 8px;">
+              <div style="flex: 1; overflow: hidden;">
+                <div style="font-size: 0.88rem; font-weight: 700; color: var(--primary-gold-light); text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">${escapeHtml(g.name)}</div>
+                <div style="font-size: 0.72rem; color: var(--text-muted);">${escapeHtml(g.createdAt || '')}</div>
+              </div>
+              <div style="display: flex; gap: 6px;">
+                <button class="btn-gold-secondary ripple-effect btn-copy" data-url="${escapeHtml(link)}" style="padding: 4px 10px; font-size: 0.75rem; margin-top: 0; width: auto;">
+                  📋 ចម្លង
+                </button>
+                <a href="${escapeHtml(link)}" target="_blank" class="btn-gold-secondary ripple-effect" style="padding: 4px 10px; font-size: 0.75rem; margin-top: 0; width: auto; text-decoration: none;">
+                  👁️ មើល
+                </a>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        listEl.querySelectorAll('.btn-copy').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const u = btn.getAttribute('data-url');
+            navigator.clipboard.writeText(u).then(() => {
+              showToast('✅ បានចម្លង Link រួចរាល់!');
+            });
+          });
+        });
+      }
+
+      function showResult(url, name) {
+        latestUrl = url;
+        const box = document.getElementById('result-box');
+        const urlEl = document.getElementById('result-url');
+        urlEl.textContent = url;
+        box.style.display = 'block';
+        navigator.clipboard.writeText(url).then(() => {
+          showToast(`✅ បានបង្កើត និងចម្លង Link សម្រាប់៖ "${name}"`);
+        }).catch(() => {
+          showToast(`✅ បានបង្កើត Link រួចរាល់!`);
+        });
+      }
+
+      // Single Create
+      document.getElementById('btn-create-single').addEventListener('click', () => {
+        const inp = document.getElementById('admin-guest-name');
+        const name = inp.value.trim();
+        if (!name) {
+          showToast('សូមបញ្ចូលឈ្មោះភ្ញៀវជាមុនសិន');
+          return;
+        }
+        const baseUrl = getBaseUrl();
+        const url = `${baseUrl}?to=${encodeURIComponent(name)}`;
+        const guests = getGuests();
+        guests.unshift({ name, createdAt: 'ទើបតែបង្កើត' });
+        saveGuests(guests);
+        showResult(url, name);
+      });
+
+      // Batch Create
+      document.getElementById('btn-create-batch').addEventListener('click', () => {
+        const area = document.getElementById('admin-batch-names');
+        const lines = area.value.split('\n').map(l => l.trim()).filter(Boolean);
+        if (lines.length === 0) {
+          showToast('សូមបញ្ចូលបញ្ជីឈ្មោះភ្ញៀវយ៉ាងហោច ១ នាក់');
+          return;
+        }
+        const baseUrl = getBaseUrl();
+        const guests = getGuests();
+        lines.forEach(name => {
+          guests.unshift({ name, createdAt: 'ទើបតែបង្កើត' });
+        });
+        saveGuests(guests);
+        area.value = '';
+        showToast(`🎉 បានបង្កើត Link ជោគជ័យសម្រាប់ភ្ញៀវ ${lines.length} នាក់!`);
+      });
+
+      // Clear All
+      document.getElementById('btn-clear-vip').addEventListener('click', () => {
+        if (confirm('តើអ្នកពិតជាចង់លុបបញ្ជីភ្ញៀវដែលបានបង្កើតទាំងអស់មែនទេ?')) {
+          saveGuests([]);
+          showToast('🗑️ បានលុបបញ្ជីភ្ញៀវទាំងអស់');
+        }
+      });
+
+      document.getElementById('btn-preview-res').addEventListener('click', () => {
+        if (latestUrl) window.open(latestUrl, '_blank');
+      });
+
+      document.getElementById('btn-copy-res').addEventListener('click', () => {
+        if (latestUrl) {
+          navigator.clipboard.writeText(latestUrl).then(() => {
+            showToast('📋 បានចម្លងម្តងទៀតរួចរាល់!');
+          });
+        }
+      });
+
+      document.getElementById('btn-share-telegram').addEventListener('click', () => {
+        if (latestUrl) {
+          const tMsg = encodeURIComponent(`សូមគោរពអញ្ជើញចូលរួមជាអធិបតី និងជាភ្ញៀវកិត្តិយស ក្នុងពិធីសិរីមង្គលអាពាហ៍ពិពាហ៍របស់យើងខ្ញុំ៖ ${latestUrl}`);
+          window.open(`https://t.me/share/url?url=${encodeURIComponent(latestUrl)}&text=${tMsg}`, '_blank');
+        }
+      });
+
+      function showToast(msg) {
+        const toast = document.getElementById('toast-notice');
+        if (!toast) return;
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3200);
+      }
+
+      function escapeHtml(s) {
+        const div = document.createElement('div');
+        div.innerText = s;
+        return div.innerHTML;
+      }
+
+      renderList();
+    });
+  </script>
+</body>
+</html>

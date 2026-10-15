@@ -1,0 +1,2381 @@
+<!DOCTYPE html>
+<html lang="km">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ផ្ទាំងគ្រប់គ្រង E-Invitation | Admin Control Panel</title>
+  <meta name="description" content="ផ្ទាំងគ្រប់គ្រងទូទៅសម្រាប់កែសម្រួលព័ត៌មានលិខិតអញ្ជើញ E-Invitation">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    body {
+      background-color: #060913;
+    }
+
+    .admin-wrapper {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 24px 16px 80px 16px;
+      min-height: 100vh;
+    }
+
+    /* Auth Modal / Screen */
+    .login-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, #260714 0%, #0c0409 60%, #030104 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 99999;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 380px;
+      background: rgba(22, 10, 20, 0.95);
+      border: 1.5px solid var(--primary-gold);
+      border-radius: var(--radius-md);
+      padding: 32px 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 35px rgba(229, 185, 85, 0.3);
+      text-align: center;
+    }
+
+    /* Admin Navigation Bar */
+    .admin-topbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      background: rgba(22, 14, 28, 0.7);
+      border: 1px solid rgba(229, 185, 85, 0.3);
+      border-radius: var(--radius-md);
+      margin-bottom: 20px;
+      backdrop-filter: blur(10px);
+    }
+
+    .admin-top-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* Tab Navigation */
+    .nav-tabs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .tab-btn-lux {
+      padding: 10px 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(229, 185, 85, 0.25);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-family: var(--font-khmer-sub);
+      font-size: 0.82rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .tab-btn-lux:hover {
+      background: rgba(229, 185, 85, 0.15);
+      color: var(--primary-gold-light);
+    }
+
+    .tab-btn-lux.active {
+      background: var(--gold-gradient);
+      color: #1a0508;
+      font-weight: 700;
+      border-color: var(--primary-gold);
+      box-shadow: 0 0 15px rgba(229, 185, 85, 0.4);
+    }
+
+    /* Form Sections */
+    .admin-tab-pane {
+      display: none;
+    }
+
+    .admin-tab-pane.active {
+      display: block;
+      animation: tabFadeIn 0.3s ease;
+    }
+
+    @keyframes tabFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    @media (min-width: 600px) {
+      .form-grid-2 {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    /* Table Styling */
+    .data-table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(229, 185, 85, 0.2);
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.82rem;
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .data-table th {
+      background: rgba(229, 185, 85, 0.15);
+      color: var(--primary-gold-light);
+      font-family: var(--font-khmer-sub);
+      white-space: nowrap;
+    }
+
+    .data-table tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .stat-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .badge-attending {
+      background: rgba(46, 204, 113, 0.2);
+      border: 1px solid #2ecc71;
+      color: #2ecc71;
+    }
+
+    .badge-declined {
+      background: rgba(231, 76, 60, 0.2);
+      border: 1px solid #e74c3c;
+      color: #e74c3c;
+    }
+
+    .timeline-edit-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(229, 185, 85, 0.2);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Floating Particle Canvas -->
+  <canvas id="particle-canvas"></canvas>
+
+  <!-- ==========================================================================
+       Login Screen (Username: admin / Password: admin889900)
+       ========================================================================== -->
+  <div class="login-overlay" id="login-overlay">
+    <div class="login-card">
+      <div class="section-kbach-header">
+        <div class="kbach-ornament"></div>
+        <div style="font-size: 0.8rem; letter-spacing: 2px; color: var(--primary-gold); margin-bottom: 6px;">
+          E-INVITATION SYSTEM</div>
+        <h2 class="section-title" style="font-size: 1.3rem;">ផ្ទាំងគ្រប់គ្រង Admin</h2>
+        <p class="section-subtitle">សូមបញ្ចូលគណនីដើម្បីគ្រប់គ្រង</p>
+      </div>
+
+      <form id="login-form" style="margin-top: 20px;">
+        <div class="form-group">
+          <label class="form-label" for="login-username">ឈ្មោះអ្នកប្រើប្រាស់ (Username)</label>
+          <input type="text" id="login-username" class="form-input" placeholder="admin" required
+            autocomplete="username">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="login-password">ពាក្យសម្ងាត់ (Password)</label>
+          <input type="password" id="login-password" class="form-input" placeholder="••••••••" required
+            autocomplete="current-password">
+        </div>
+
+        <button type="submit" class="btn-gold-primary ripple-effect" style="margin-top: 10px;">
+          <span>ចូលគ្រប់គ្រង (Login)</span>
+        </button>
+      </form>
+      <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 16px;">
+        ព័ត៌មានលំនាំដើម៖ User: <code>admin</code> | Pass: <code>admin889900</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       Admin Control Dashboard
+       ========================================================================== -->
+  <div class="admin-wrapper" id="admin-dashboard" style="display: none;">
+
+    <!-- Top Action Bar -->
+    <div class="admin-topbar">
+      <div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 1.2rem;">👑</span>
+          <h2 style="font-family: var(--font-khmer-sub); font-size: 1.15rem; color: var(--primary-gold-light);">
+            ផ្ទាំងគ្រប់គ្រង E-Invitation</h2>
+        </div>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Admin Panel Control Center</span>
+      </div>
+
+      <div class="admin-top-actions">
+        <a href="../" target="_blank" class="btn-gold-secondary ripple-effect"
+          style="width: auto; padding: 8px 14px; font-size: 0.82rem; margin-top: 0; text-decoration: none;">
+          👁️ មើលសំបុត្រផ្ទាល់
+        </a>
+
+        <button class="btn-gold-primary ripple-effect" id="btn-save-all"
+          style="width: auto; padding: 8px 18px; font-size: 0.82rem; margin-top: 0;">
+          💾 រក្សាទុក (Save)
+        </button>
+        <button id="btn-logout" class="btn-gold-secondary"
+          style="width: auto; padding: 8px 12px; font-size: 0.82rem; margin-top: 0; border-color: #ff6b6b; color: #ff6b6b;">
+          🚪 ចាកចេញ
+        </button>
+      </div>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="nav-tabs-grid">
+      <button class="tab-btn-lux active" data-tab="tab-couple">💑 គូស្វាមី & មាតាបិតា</button>
+      <button class="tab-btn-lux" data-tab="tab-video">🎬 វីដេអូ & អាល់ប៊ុម</button>
+      <button class="tab-btn-lux" data-tab="tab-dates">🗓️ កាលបរិច្ឆេទ & ម៉ោង</button>
+      <button class="tab-btn-lux" data-tab="tab-schedule">📜 កាលវិភាគកម្មវិធី</button>
+      <button class="tab-btn-lux" data-tab="tab-venue">📍 ទីតាំង & ផែនទី</button>
+      <button class="tab-btn-lux" data-tab="tab-gift">💳 ធនាគារ & KHQR</button>
+      <button class="tab-btn-lux" data-tab="tab-rsvp">💌 បញ្ជាក់វត្តមាន RSVP</button>
+      <button class="tab-btn-lux" data-tab="tab-wishes">📖 សៀវភៅជូនពរឌីជីថល</button>
+      <button class="tab-btn-lux" data-tab="tab-general">⚙️ អត្ថបទរួម & តន្ត្រី</button>
+      <button class="tab-btn-lux" data-tab="tab-database" style="display: none;">🗄️ តេស្ត Database</button>
+      <button class="tab-btn-lux" data-tab="tab-viplinks">👑 បង្កើត VIP Links</button>
+    </div>
+
+    <!-- ==========================================================================
+         TAB 1: Couple & Parents
+         ========================================================================== -->
+    <div class="admin-tab-pane active" id="tab-couple">
+      <div class="card-glass">
+        <h3 class="section-title" style="font-size: 1.15rem; margin-bottom: 16px;">💑 ព័ត៌មានគូស្វាមីភរិយា & មាតាបិតា
+        </h3>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">ឈ្មោះកូនប្រុស (Groom Name)</label>
+            <input type="text" id="cfg-groom-name" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label">ឈ្មោះកូនស្រី (Bride Name)</label>
+            <input type="text" id="cfg-bride-name" class="form-input">
+          </div>
+        </div>
+
+        <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 16px 0; padding-top: 16px;">
+          <h4 style="font-size: 0.9rem; color: var(--primary-gold); margin-bottom: 12px;">មាតាបិតាខាងកូនប្រុស (Groom's
+            Parents)</h4>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">ឈ្មោះឪពុក (Father's Name)</label>
+              <input type="text" id="cfg-groom-father" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">ឈ្មោះម្តាយ (Mother's Name)</label>
+              <input type="text" id="cfg-groom-mother" class="form-input">
+            </div>
+          </div>
+        </div>
+
+        <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 16px 0; padding-top: 16px;">
+          <h4 style="font-size: 0.9rem; color: var(--primary-gold); margin-bottom: 12px;">មាតាបិតាខាងកូនស្រី (Bride's
+            Parents)</h4>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">ឈ្មោះឪពុក (Father's Name)</label>
+              <input type="text" id="cfg-bride-father" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">ឈ្មោះម្តាយ (Mother's Name)</label>
+              <input type="text" id="cfg-bride-mother" class="form-input">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 10px;">
+          <label class="form-label">រូបថតគូស្វាមីភរិយា (Couple Photo Path or URL)</label>
+          <input type="text" id="cfg-couple-photo" class="form-input" placeholder="assets/images/couple.jpg">
+          <div style="margin-top: 8px;">
+            <label class="form-label" style="font-size: 0.8rem; color: var(--text-muted);">ឬជ្រើសរើសរូបភាពពីកុំព្យូទ័រ
+              (Upload New Image):</label>
+            <input type="file" id="cfg-photo-file" accept="image/*" class="form-input" style="padding: 8px;">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================================
+         TAB: Video & Album (Upload, Link & Animated Preview)
+         ========================================================================== -->
+    <div class="admin-tab-pane" id="tab-video">
+      <div class="card-glass">
+        <div class="section-kbach-header">
+          <div class="kbach-ornament"></div>
+          <h3 class="section-title" style="font-size: 1.15rem;">🎬 វីដេអូអនុស្សាវរីយ៍ & អាល់ប៊ុមស្នេហា</h3>
+          <p class="section-subtitle">Wedding Video Album & Highlights</p>
+        </div>
+
+        <p style="font-size: 0.85rem; color: var(--text-cream); margin-bottom: 16px;">
+          លោកអ្នកអាចផ្ទុកវីដេអូ (MP4/WebM) ពីកុំព្យូទ័រ ឬដាក់តំណភ្ជាប់វីដេអូ (Video URL) ដើម្បីបង្ហាញជូនភ្ញៀវទស្សនា។
+        </p>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">ចំណងជើងវីដេអូ (Video Title)</label>
+            <input type="text" id="cfg-video-title" class="form-input" placeholder="វីដេអូអនុស្សាវរីយ៍ & សាច់រឿងស្នេហា">
+          </div>
+          <div class="form-group">
+            <label class="form-label">ចំណងជើងរង (Video Subtitle)</label>
+            <input type="text" id="cfg-video-subtitle" class="form-input"
+              placeholder="Cinematic Wedding Video & Love Story">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">ការពិពណ៌នាវីដេអូ (Video Description)</label>
+          <textarea id="cfg-video-desc" class="form-textarea" rows="2"
+            placeholder="សូមទស្សនាវីដេអូអនុស្សាវរីយ៍ដ៏មានអត្ថន័យ និងសាច់រឿងនៃក្តីស្រឡាញ់..."></textarea>
+        </div>
+
+        <div class="form-group"
+          style="background: rgba(229,185,85,0.05); border: 1.5px dashed var(--primary-gold); border-radius: var(--radius-sm); padding: 16px;">
+          <label class="form-label" style="color: var(--primary-gold-light); font-weight: 700;">
+            📤 ផ្ទុកវីដេអូឡើងពីកុំព្យូទ័រ (Upload Video File):
+          </label>
+          <input type="file" id="cfg-video-file" accept="video/mp4,video/webm,video/quicktime,video/ogg"
+            class="form-input" style="padding: 10px;">
+          <div id="video-upload-status" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 6px;">
+            គាំទ្រ MP4, WebM, MOV (អាចផ្ទុកឡើង និងរក្សាទុកក្នុង <code>assets/videos/</code>)
+          </div>
+          <div id="video-progress-bar-container"
+            style="display: none; width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-top: 8px; overflow: hidden;">
+            <div id="video-progress-bar"
+              style="width: 0%; height: 100%; background: var(--gold-gradient); transition: width 0.3s ease;"></div>
+          </div>
+        </div>
+
+        <div class="form-grid-2" style="margin-top: 12px;">
+          <div class="form-group">
+            <label class="form-label">ឬបញ្ចូល Video URL ផ្ទាល់ (Direct MP4 URL)</label>
+            <input type="text" id="cfg-video-url" class="form-input" placeholder="assets/videos/... ឬ https://...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">រូបភាពគម្របវីដេអូ (Poster / Thumbnail URL)</label>
+            <input type="text" id="cfg-video-poster" class="form-input" placeholder="assets/images/couple.jpg">
+          </div>
+        </div>
+
+        <!-- Live Animated Video Preview in Admin -->
+        <div style="margin-top: 20px; border-top: 1px dashed rgba(229,185,85,0.25); padding-top: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h4
+              style="font-size: 0.95rem; color: var(--primary-gold-light); display: flex; align-items: center; gap: 8px;">
+              <span>✨</span> ទិដ្ឋភាពជាក់ស្តែង និងចលនា (Live Preview with Animations)
+            </h4>
+            <span id="preview-video-status" style="font-size: 0.75rem; color: var(--text-muted);"></span>
+          </div>
+
+          <!-- Video Showcase Frame with Glowing Pulse and Traditional Corners -->
+          <div class="video-showcase-box" style="max-width: 580px; margin: 0 auto;">
+            <div class="video-frame-glow"></div>
+            <div class="kbach-corner kbach-corner-tl"></div>
+            <div class="kbach-corner kbach-corner-tr"></div>
+            <div class="kbach-corner kbach-corner-bl"></div>
+            <div class="kbach-corner kbach-corner-br"></div>
+
+            <div class="video-player-wrapper" style="position: relative;">
+              <video id="admin-video-preview" class="wedding-video-element" controls playsinline
+                poster="assets/images/couple.jpg">
+                <source id="admin-video-source" src="" type="video/mp4">
+              </video>
+              <div id="admin-video-overlay" class="video-play-overlay">
+                <div class="video-pulse-ring"></div>
+                <div class="video-play-trigger">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                  </svg>
+                </div>
+                <div class="video-overlay-text">ចាក់មើលវីដេអូតេស្ត (Test Play)</div>
+              </div>
+            </div>
+
+            <div class="video-control-bar">
+              <span class="video-tag-pill">🎬 <span id="admin-preview-tag">Wedding Highlights</span></span>
+              <span style="font-size: 0.75rem; color: var(--primary-gold-light);">🌟 Animated Khmer Frame Active</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ========================================================================
+         TAB 2: Dates & Countdown
+         ========================================================================== -->
+    <div class="admin-tab-pane" id="tab-dates">
+      <div class="card-glass">
+        <h3 class="section-title" style="font-size: 1.15rem; margin-bottom: 16px;">🗓️ កាលបរិច្ឆេទ & នាឡិការាប់ថយក្រោយ
+        </h3>
+
+        <div class="form-group">
+          <label class="form-label">ថ្ងៃខែឆ្នាំសកល (Solar Date Display)</label>
+          <input type="text" id="cfg-solar-date" class="form-input" placeholder="ថ្ងៃអាទិត្យ ទី១៥ ខែវិច្ឆិកា ឆ្នាំ២០២៦">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">ថ្ងៃខែឆ្នាំចន្ទគតិខ្មែរ (Khmer Lunar Date Display)</label>
+          <input type="text" id="cfg-lunar-date" class="form-input"
+            placeholder="ត្រូវនឹងថ្ងៃ ៥កើត ខែកត្តិក ឆ្នាំរោង ឆស័ក ព.ស. ២៥៧០">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">កាលបរិច្ឆេទ និងម៉ោងសម្រាប់រាប់ថយក្រោយ (Countdown Target Date & Time)</label>
+          <input type="datetime-local" id="cfg-target-time" class="form-input">
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+            * ប្រព័ន្ធនឹងរាប់ថយក្រោយដល់កាលបរិច្ឆេទដែលបានជ្រើសរើសនេះ។
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================================================
+         TAB 3: Ceremony Schedule Timeline
+         ========================================================================== -->
+    <div class="admin-tab-pane" id="tab-schedule">
+      <div class="card-glass">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h3 class="section-title" style="font-size: 1.15rem;">📜 កាលវិភាគកម្មវិធីសិរីមង្គល</h3>
+          <button class="btn-gold-secondary ripple-effect" id="btn-add-schedule-item"
+            style="width: auto; padding: 6px 14px; font-size: 0.8rem; margin-top: 0;">
+            + បន្ថែមកម្មវិធី
+          </button>
+        </div>
+
+        <div id="schedule-edit-list">
+          <!-- Dynamically populated timeline items for editing -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================================================
+         TAB 4: Venue & Maps
+         ========================================================================== -->
+    <div class="admin-tab-pane" id="tab-venue">
+      <div class="card-glass">
+        <h3 class="section-title" style="font-size: 1.15rem; margin-bottom: 16px;">📍 ទីតាំងប្រារព្ធពិធី & ផែនទី Google
+          Maps</h3>
+
+        <div class="form-group">
+          <label class="form-label">ឈ្មោះទីតាំង (Venue Name)</label>
+          <input type="text" id="cfg-venue-name" class="form-input"
+            placeholder="មជ្ឈមណ្ឌលសន្និបាត និងពិព័រណ៍កោះពេជ្រ (អគារ G)">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">អាសយដ្ឋានលម្អិត (Venue Address)</label>
+          <textarea id="cfg-venue-address" class="form-textarea" rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">តំណភ្ជាប់ Google Maps (Maps Navigation URL)</label>
+          <input type="url" id="cfg-maps-url" class="form-input" placeholder="https://maps.google.com/?q=...">
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================================================
+         TAB 5: Bank & KHQR Gift
+         ========================================================================== -->
+    <div class="admin-tab-pane" id="tab-gift">
+      <div class="card-glass">
+        <h3 class="section-title" style="font-size: 1.15rem; margin-bottom: 16px;">💳 ចំណងដៃអាពាហ៍ពិពាហ៍ (KHQR & ធនាគារ)
+        </h3>
+
+        <div class="form-group">
+          <label class="form-label">ឈ្មោះម្ចាស់គណនី (Account Name)</label>
+          <input type="text" id="cfg-bank-accname" class="form-input" placeholder="CHEA VIBOL & SUN DEVI">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">លេខគណនីធនាគារ (Account Number)</label>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <input type="text" id="cfg-bank-accnum" class="form-input" placeholder="001 888 999 (USD)"
+              style="flex: 1; min-width: 200px;">
+            <button type="button" id="btn-copy-bank-accnum" class="btn-gold-secondary ripple-effect"
+              style="width: auto; padding: 12px 16px; white-space: nowrap;" title="ចម្លងលេខគណនី">
+              📋 ចម្លងលេខ
+            </button>
+            <button type="button" id="btn-open-bank-app" class="btn-gold-primary ripple-effect"
+              style="width: auto; padding: 12px 16px; white-space: nowrap;" title="បើក App ធនាគារ">
+              🏦 បើក App
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 10px;">
+          <label class="form-label">តំណភ្ជាប់បើក App ធនាគារ (Bank App Deep Link URL)</label>
+          <input type="url" id="cfg-bank-applink" class="form-input"
+            placeholder="aba://pay?account=001888999 ឬ https://app.aba.com/transfer/001888999">
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+            ឧទាហរណ៍: ABA: <code>aba://pay?account=001888999</code> | ACLEDA:
+            <code>acleda://transfer?acc=001888999</code> | Wing: <code>wing://pay?to=001888999</code>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">ឈ្មោះធនាគារ / ប្រព័ន្ធ (Bank / System Name)</label>
+          <input type="text" id="cfg-bank-name" class="form-input" placeholder="ABA Bank / Bakong">
+        </div>
+
+        <div class="form-group"
+          style="margin-top: 14px; border-top: 1px dashed rgba(229,185,85,0.25); padding-top: 14px;">
+          <label class="form-label">រូបភាព QR Code សម្រាប់ទទួលចំណងដៃ (QR Code Image)</label>
+          <input type="text" id="cfg-qr-image" class="form-input"
+            placeholder="assets/images/qr.jpg ឬ Link រូបភាព / Data URL">
+          <div style="margin-top: 8px;">
+            <label class="form-label" style="font-size: 0.8rem; color: var(--text-muted);">ឬជ្រើសរើសរូបភាព QR Code
+              ពីកុំព្យូទ័រ (Upload QR Image):</label>
+            <input type="file" id="cfg-qr-file" accept="image/*" class="form-input" style="padding: 8px;">
+          </div>
+          <!-- QR Code Preview -->
+          <div style="margin-top: 14px; text-align: center;">
+            <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 6px;">រូបភាព QR
+              Code បច្ចុប្បន្ន (Current QR Preview)៖</span>
+            <div
+              style="display: inline-block; background: #ffffff; padding: 12px; border-radius: 8px; border: 1.5px solid var(--primary-gold); box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
+              <img id="cfg-qr-preview" src="" alt="QR Preview"
+                style="width: 170px; height: 170px; object-fit: contain; display: none; margin: 0 auto;">
+              <div id="cfg-qr-placeholder"
+                style="width: 170px; height: 170px; display: flex; align-items: center; justify-content: center; color: #555; font-size: 0.75rem; text-align: center; border: 1px dashed #ccc; border-radius: 6px; line-height: 1.4;">
+                មិនទាន់មានរូបភាព QR<br>(ប្រើ KHQR SVG លំនាំដើម)
+              </div>
+            </div>
+            <div style="margin-top: 8px;">
+              <button type="button" id="btn-remove-qr" class="btn-gold-secondary"
+                style="width: auto; padding: 4px 12px; font-size: 0.75rem; color: #ff6b6b; border-color: #ff6b6b; display: inline-block;">
+                🗑️ លុបរូបភាព QR (ប្រើ SVG លំនាំដើម)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================================================
+         TAB 6: Live RSVP & Manual Confirmation Form
+         ========================================================================== -->
+    <div class="admin-tab-pane" id="tab-rsvp">
+      <!-- 1. Manual RSVP Form for Admin -->
+      <div class="card-glass" style="margin-bottom: 24px;">
+        <div class="section-kbach-header" style="margin-bottom: 16px;">
+          <h3 class="section-title" style="font-size: 1.15rem;">ការបញ្ជាក់ការចូលរួម (RSVP)</h3>
+          <p class="section-subtitle">Please Confirm Your Attendance (Admin Entry)</p>
+        </div>
+
+        <form id="admin-manual-rsvp-form">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">ឈ្មោះភ្ញៀវកិត្តិយស (Full Name) *</label>
+              <input type="text" id="admin-rsvp-name" class="form-input" placeholder="សូមបញ្ចូលឈ្មោះរបស់លោកអ្នក"
+                required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">លេខទូរស័ព្ទ ឬ Telegram (Contact Number)</label>
+              <input type="tel" id="admin-rsvp-phone" class="form-input" placeholder="012 345 678">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">ការចូលរួម (Attendance Status) *</label>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 6px;">
+              <label
+                style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #2ecc71; font-weight: 600;">
+                <input type="radio" name="admin-attendance" value="attending" checked style="accent-color: #2ecc71;">
+                <span>🎉 ខ្ញុំនឹងចូលរួម (Attending)</span>
+              </label>
+              <label
+                style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #e74c3c; font-weight: 600;">
+                <input type="radio" name="admin-attendance" value="declined" style="accent-color: #e74c3c;">
+                <span>🙏 មិនអាចចូលរួម (Regret)</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group" id="admin-group-guest-count">
+            <label class="form-label">ចំនួនភ្ញៀវចូលរួម (Number of Guests)</label>
+            <select id="admin-rsvp-count" class="form-input" style="cursor: pointer;">
+              <option value="1">១ នាក់ (1 Person)</option>
+              <option value="2" selected>២ នាក់ (2 Persons)</option>
+              <option value="3">៣ នាក់ (3 Persons)</option>
+              <option value="4">៤ នាក់ (4 Persons)</option>
+              <option value="5">៥ នាក់ (5 Persons)</option>
+              <option value="6">៦ នាក់ (6 Persons)</option>
+              <option value="8">៨ នាក់ (8 Persons)</option>
+              <option value="10">១០ នាក់ (1 Table / 10 Persons)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">សារជូនពរដល់គូស្វាមីភរិយា (Wedding Wishes)</label>
+            <textarea id="admin-rsvp-wishes" class="form-input" rows="3"
+              placeholder="សូមជូនពរឱ្យមានសុភមង្គល និងស្រឡាញ់គ្នារហូតដល់ចាស់កោងខ្នង..."></textarea>
+          </div>
+
+          <button type="submit" class="btn-gold-primary ripple-effect" style="margin-top: 10px;">
+            <span>ផ្ញើការបញ្ជាក់ (Submit RSVP)</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- 2. RSVP Guest List Table -->
+      <div class="card-glass">
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+          <div>
+            <h3 class="section-title" style="font-size: 1.15rem;">💌 បញ្ជីភ្ញៀវបញ្ជាក់វត្តមាន (RSVP List)</h3>
+            <span style="font-size: 0.78rem; color: var(--text-muted);">ភ្ញៀវសរុប៖ <strong id="rsvp-total-guests"
+                style="color: var(--primary-gold-light);">0</strong> នាក់</span>
+          </div>
+
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-gold-secondary ripple-effect" id="btn-export-rsvp"
+              style="width: auto; padding: 6px 12px; font-size: 0.8rem; margin-top: 0;">
+              📥 Export CSV
+            </button>
+            <button class="btn-gold-secondary" id="btn-clear-rsvps"
+              style="width: auto; padding: 6px 12px; font-size: 0.8rem; margin-top: 0; color: #ff6b6b; border-color: #ff6b6b;">
+              🗑️ សម្អាតទាំងអស់
+            </button>
+          </div>
+        </div>
+
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>កាលបរិច្ឆេទ</th>
+                <th>ឈ្មោះភ្ញៀវ</th>
+                <th>លេខទូរស័ព្ទ / Telegram</th>
+                <th>ស្ថានភាព</th>
+                <th>ចំនួន</th>
+                <th>ពាក្យជូនពរ</th>
+                <th style="text-align: center;">សកម្មភាព</th>
+              </tr>
+            </thead>
+            <tbody id="rsvp-table-body">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================================================
+         TAB 7: Guestbook & Warm Wishes Manager
+         ========================================================================== -->
+    <div class="admin-tab-pane" id="tab-wishes">
+      <!-- 1. Add New Wish Form -->
+      <div class="card-glass" style="margin-bottom: 24px;">
+        <div class="section-kbach-header" style="margin-bottom: 16px;">
+          <h3 class="section-title" style="font-size: 1.15rem;">សៀវភៅជូនពរឌីជីថល</h3>
+          <p class="section-subtitle">Guestbook & Warm Wishes Manager</p>
+        </div>
+
+        <form id="admin-add-wish-form">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">ឈ្មោះភ្ញៀវ ឬគណៈអធិបតី (Guest / VIP Name) *</label>
+              <input type="text" id="admin-wish-name" class="form-input" placeholder="ឧ. ឯកឧត្តម លី សុផាត" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">កាលបរិច្ឆេទបង្ហាញ (Display Date)</label>
+              <input type="text" id="admin-wish-date" class="form-input" placeholder="ថ្មីៗនេះ ឬ ទើបតែផ្ញើ"
+                value="ថ្មីៗនេះ">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">សារជូនពរដល់គូស្វាមីភរិយា (Wedding Wishes Message) *</label>
+            <textarea id="admin-wish-msg" class="form-input" rows="3"
+              placeholder="សូមប្រសិទ្ធពរជ័យមង្គល សិរីសួស្តី វិបុលសុខគ្រប់ប្រការដល់គូស្វាមីភរិយាថ្មី..."
+              required></textarea>
+          </div>
+
+          <button type="submit" class="btn-gold-primary ripple-effect" style="margin-top: 10px;">
+            <span>➕ បន្ថែមពាក្យជូនពរ (Add Wish to Guestbook)</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- 2. Wishes Wall List & Moderation -->
+      <div class="card-glass">
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+          <div>
+            <h3 class="section-title" style="font-size: 1.15rem;">📖 បញ្ជីពាក្យជូនពរក្នុងសៀវភៅឌីជីថល</h3>
+            <span style="font-size: 0.78rem; color: var(--text-muted);">ពាក្យជូនពរសរុប៖ <strong id="wishes-total-count"
+                style="color: var(--primary-gold-light);">0</strong> កំណត់ត្រា</span>
+          </div>
+
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn-gold-secondary" id="btn-reset-default-wishes"
+              style="width: auto; padding: 6px 12px; font-size: 0.8rem; margin-top: 0; color: var(--primary-gold-light);">
+              🔄 ផ្ទុកពាក្យជូនពរគំរូ 3 ដើម
+            </button>
+            <button class="btn-gold-secondary" id="btn-clear-wishes"
+              style="width: auto; padding: 6px 12px; font-size: 0.8rem; margin-top: 0; color: #ff6b6b; border-color: #ff6b6b;">
+              🗑️ សម្អាតទាំងអស់
+            </button>
+          </div>
+        </div>
+
+        <div id="admin-wishes-list" style="display: flex; flex-direction: column; gap: 12px;">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================================================
+         TAB: General, Media & Text Customization
+         ========================================================================== -->
+    <div class="admin-tab-pane" id="tab-general">
+      <div class="card-glass">
+        <h3 class="section-title" style="font-size: 1.15rem; margin-bottom: 16px;">⚙️ ការកំណត់អត្ថបទរួម & តន្ត្រី
+          (General, Media & Texts)</h3>
+
+        <!-- 1. Blessings & Header Texts -->
+        <div style="margin-bottom: 20px;">
+          <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 12px;">🪷 បាលីប្រសិទ្ធពរ &
+            ចំណងជើងលិខិតអញ្ជើញ</h4>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">បាលីប្រសិទ្ធពរ (Sacred Verse)</label>
+              <input type="text" id="cfg-blessing-verse" class="form-input" placeholder="☸ ជយោ ហោតុ សព្វទា ☸">
+            </div>
+            <div class="form-group">
+              <label class="form-label">ចំណងជើងកម្មវិធី (Title / Badge)</label>
+              <input type="text" id="cfg-invitation-title" class="form-input" placeholder="សិរីសួស្តី អាពាហ៍ពិពាហ៍">
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">ចំណងជើងធំ (Hero Header)</label>
+              <input type="text" id="cfg-invitation-header" class="form-input" placeholder="លិខិតអញ្ជើញ">
+            </div>
+            <div class="form-group">
+              <label class="form-label">ពាក្យណែនាំបើកស្រោមសំបុត្រ 3D (Envelope Open Hint)</label>
+              <input type="text" id="cfg-envelope-hint" class="form-input" placeholder="✨ ចុចត្រាមាសដើម្បីបើកសំបុត្រ ✨">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">ពាក្យផ្ដើមគោរពអញ្ជើញ (Greeting Text)</label>
+            <input type="text" id="cfg-invitation-greeting" class="form-input" placeholder="យើងខ្ញុំសូមគោរពអញ្ជើញ">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">អត្ថបទអញ្ជើញពិស្តារ (Invitation Subtext)</label>
+            <textarea id="cfg-invitation-subtext" class="form-input" rows="2"
+              placeholder="ចូលរួមជាអធិបតី និងជាភ្ញៀវកិត្តិយស ក្នុងពិធីមង្គលការកូនប្រុស-កូនស្រីរបស់យើងខ្ញុំ"></textarea>
+          </div>
+        </div>
+
+        <!-- 2. Background Music & Audio Controls -->
+        <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
+          <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 12px;">🎵 តន្ត្រីកំដរមង្គលការ
+            (Background Music)</h4>
+
+          <div class="form-group">
+            <label class="form-label">តំណភ្ជាប់ឯកសារចម្រៀង (Audio URL or Path)</label>
+            <input type="text" id="cfg-bgmusic-url" class="form-input"
+              placeholder="assets/audio/bg_music.mp3 ឬបញ្ចូល URL ចម្រៀង">
+            <div style="margin-top: 8px;">
+              <label class="form-label" style="font-size: 0.8rem; color: var(--text-muted);">ឬជ្រើសរើសបទចម្រៀង mp3
+                ពីកុំព្យូទ័រ (Upload Audio File):</label>
+              <input type="file" id="cfg-music-file" accept="audio/*" class="form-input" style="padding: 8px;">
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Golden Seal Image -->
+        <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
+          <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 12px;">🏅 រូបភាពត្រាមាសខ្មែរ 3D
+            (Golden Seal)</h4>
+
+          <div class="form-group">
+            <label class="form-label">រូបភាពត្រាមាស (Golden Seal Image Path or URL)</label>
+            <input type="text" id="cfg-seal-image" class="form-input" placeholder="assets/images/golden_seal.jpg">
+            <div style="margin-top: 8px;">
+              <label class="form-label"
+                style="font-size: 0.8rem; color: var(--text-muted);">ឬជ្រើសរើសរូបភាពត្រាថ្មីពីកុំព្យូទ័រ (Upload Seal
+                Image):</label>
+              <input type="file" id="cfg-seal-file" accept="image/*" class="form-input" style="padding: 8px;">
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Footer & Thank You Text -->
+        <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
+          <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 12px;">🙏 សារថ្លែងអំណរគុណចុងក្រោយ
+            (Footer Messages)</h4>
+
+          <div class="form-group">
+            <label class="form-label">សារថ្លែងអំណរគុណ (Thank You Message)</label>
+            <input type="text" id="cfg-thankyou-text" class="form-input"
+              placeholder="សូមថ្លែងអំណរគុណយ៉ាងជ្រាលជ្រៅចំពោះវត្តមានដ៏ឧត្តុង្គឧត្តមរបស់លោកអ្នក">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Footer Design Credit</label>
+            <input type="text" id="cfg-footer-credit" class="form-input"
+              placeholder="Designed with Khmer Traditional Heritage & Modern Elegance">
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ==========================================================================
+         TAB 7: VIP Link Generator
+         ========================================================================== -->
+    <div class="admin-tab-pane" id="tab-viplinks">
+      <div class="card-glass">
+        <h3 class="section-title" style="font-size: 1.15rem; margin-bottom: 16px;">👑 បង្កើតតំណភ្ជាប់អញ្ជើញ VIP
+          ផ្ទាល់ខ្លួន</h3>
+        <p style="font-size: 0.85rem; color: var(--text-cream); margin-bottom: 16px;">
+          វាយបញ្ចូលឈ្មោះភ្ញៀវដើម្បីបង្កើត Link ពិសេសដែលមានឈ្មោះភ្ញៀវបង្ហាញលើសំបុត្រផ្ទាល់!
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">ឈ្មោះ ឬគោរមងារភ្ញៀវកិត្តិយស (Guest Name)</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="admin-guest-name-input" class="form-input" placeholder="ឧ. ឯកឧត្តម សុខ សាន">
+            <button class="btn-gold-primary ripple-effect" id="btn-admin-generate-link"
+              style="width: auto; padding: 12px 20px; white-space: nowrap;">
+              <span>ចម្លង Link</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Generated VIP link output -->
+        <div id="admin-vip-output"
+          style="display: none; background: rgba(0,0,0,0.5); border: 1.5px dashed var(--primary-gold); border-radius: var(--radius-sm); padding: 12px; margin-top: 14px;">
+          <div style="font-size: 0.78rem; color: var(--primary-gold-light); margin-bottom: 4px;">🔗
+            តំណភ្ជាប់ដែលបានបង្កើត៖</div>
+          <div id="admin-vip-url"
+            style="font-size: 0.82rem; color: #fff; word-break: break-all; font-family: monospace; user-select: all;">
+          </div>
+        </div>
+
+        <!-- Saved VIP List -->
+        <div style="margin-top: 20px;">
+          <div style="font-size: 0.82rem; font-weight: 700; color: var(--primary-gold-light); margin-bottom: 8px;">
+            📋 បញ្ជីភ្ញៀវ VIP ដែលបានបង្កើត៖
+          </div>
+          <div id="admin-vip-history"
+            style="max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: Database Diagnostic & Cloud Sync -->
+    <div class="admin-tab-pane" id="tab-database">
+      <div class="card-glass" style="border: 1.5px solid #3ecf8e; margin-bottom: 20px;">
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+          <div>
+            <h3 class="section-title" style="font-size: 1.15rem; color: #3ecf8e;">🗄️ ត្រួតពិនិត្យ Database & Test Data
+            </h3>
+            <p class="section-subtitle">Database Connection Diagnostic & Live Data Inspector</p>
+          </div>
+          <div id="admin-db-status-pill" class="status-pill status-connected"
+            style="background: rgba(46, 204, 113, 0.2); border: 1px solid #2ecc71; color: #2ecc71;">
+            🟢 Database Ready
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;">
+          <button type="button" class="btn-gold-primary ripple-effect" id="btn-admin-test-server-db"
+            style="width: auto; padding: 10px 18px; font-size: 0.85rem; background: linear-gradient(135deg, #3ecf8e 0%, #2bb874 100%); color: #051a10;">
+            ⚡ តេស្ត Server DB (/api/test-db)
+          </button>
+          <button type="button" class="btn-gold-secondary ripple-effect" id="btn-admin-test-cloud"
+            style="width: auto; padding: 10px 18px; font-size: 0.85rem; margin-top: 0; border-color: #3ecf8e; color: #3ecf8e;">
+            🔄 តេស្ត Supabase Cloud
+          </button>
+          <button type="button" class="btn-gold-secondary ripple-effect" id="btn-admin-fetch-all"
+            style="width: auto; padding: 10px 18px; font-size: 0.85rem; margin-top: 0; border-color: var(--primary-gold); color: var(--primary-gold-light);">
+            📥 ទាញយកទិន្នន័យពិត (Fetch Live Data)
+          </button>
+          <a href="../databasecloud/" target="_blank" class="btn-gold-secondary"
+            style="width: auto; padding: 10px 18px; font-size: 0.85rem; margin-top: 0; text-decoration: none;">
+            🌐 បើក Supabase Explorer ➔
+          </a>
+        </div>
+
+        <!-- Diagnostic Output Card -->
+        <div id="admin-db-diagnostic-box" class="db-test-box" style="margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span
+              style="font-weight: 700; color: var(--primary-gold-light); font-size: 0.85rem;">ស្ថានភាពតភ្ជាប់បច្ចុប្បន្ន
+              (Connection Status):</span>
+            <span id="admin-db-latency" style="font-size: 0.75rem; color: #2ecc71; font-weight: 700;">Ping: 0ms</span>
+          </div>
+          <div id="admin-db-diagnostic-details" style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.6;">
+            ចុចប៊ូតុង <strong>«តេស្ត Server DB»</strong> ឬ <strong>«ទាញយកទិន្នន័យពិត»</strong> ដើម្បីត្រួតពិនិត្យ
+            និងបង្ហាញទិន្នន័យចេញពី Database។
+          </div>
+        </div>
+
+        <!-- Live Data Container with Tabs -->
+        <div style="border-top: 1px dashed rgba(62, 207, 142, 0.3); padding-top: 16px;">
+          <div
+            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap;">
+            <h4 style="font-size: 0.95rem; color: var(--primary-gold-light);">
+              📋 ទិន្នន័យពិតក្នុង Database (Live Records in DB)
+            </h4>
+            <div id="admin-db-record-counts" style="font-size: 0.8rem; color: #85e8ba;"></div>
+          </div>
+
+          <div id="admin-db-live-display"
+            style="max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+            <div style="font-size: 0.78rem; color: var(--text-muted); text-align: center; padding: 12px;">
+              ចុច «ទាញយកទិន្នន័យពិត» ដើម្បីបង្ហាញ RSVPs, Wishes និង Config ផ្ទាល់ពី Database
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Supabase Cloud Credentials Card -->
+      <div class="card-glass" style="border: 1px solid rgba(62, 207, 142, 0.4);">
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+          <div>
+            <h4 style="font-size: 1rem; color: #3ecf8e;">⚡ ការកំណត់ Supabase Cloud Credentials</h4>
+            <p style="font-size: 0.78rem; color: var(--text-muted);">ភ្ជាប់ Cloud Database សម្រាប់រក្សាទុក RSVP
+              និងពាក្យជូនពរ Real-time</p>
+          </div>
+          <div id="supabase-status-badge"
+            style="padding: 4px 14px; border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 700; background: rgba(255,255,255,0.06); border: 1px solid var(--text-muted); color: var(--text-muted);">
+            ⚪ មិនទាន់ភ្ជាប់ (Offline / Local)
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Supabase Project URL</label>
+          <input type="url" id="cfg-supabase-url" class="form-input" placeholder="https://your-project.supabase.co">
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+            យកពី Supabase Dashboard ➔ Project Settings ➔ API ➔ Project URL
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Supabase Anon Public API Key</label>
+          <input type="password" id="cfg-supabase-key" class="form-input"
+            placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+            យកពី Supabase Dashboard ➔ Project Settings ➔ API ➔ Project API keys (anon public)
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap;">
+          <button class="btn-gold-primary ripple-effect" id="btn-save-supabase"
+            style="width: auto; padding: 10px 18px; font-size: 0.85rem; background: linear-gradient(135deg, #3ecf8e 0%, #2bb874 100%); color: #051a10;">
+            ⚡ រក្សាទុក & ភ្ជាប់ (Connect)
+          </button>
+          <button class="btn-gold-secondary ripple-effect" id="btn-test-supabase"
+            style="width: auto; padding: 10px 18px; font-size: 0.85rem; margin-top: 0; border-color: #3ecf8e; color: #3ecf8e;">
+            🔄 សាកល្បងភ្ជាប់ (Test)
+          </button>
+          <button class="btn-gold-secondary" id="btn-disconnect-supabase"
+            style="width: auto; padding: 10px 18px; font-size: 0.85rem; margin-top: 0; border-color: #ff6b6b; color: #ff6b6b;">
+            ❌ ផ្តាច់ការភ្ជាប់
+          </button>
+        </div>
+
+        <!-- Ready SQL Schema Box -->
+        <div style="margin-top: 24px; border-top: 1px dashed rgba(62, 207, 142, 0.3); padding-top: 18px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 0.85rem; font-weight: 700; color: #3ecf8e;">
+              📜 SQL Schema សម្រាប់បង្កើត Tables ក្នុង Supabase:
+            </span>
+            <button class="btn-gold-secondary ripple-effect" id="btn-copy-sql"
+              style="padding: 4px 12px; font-size: 0.75rem; margin-top: 0; width: auto;">
+              📋 ចម្លង SQL
+            </button>
+          </div>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px;">
+            គ្រាន់តែចុច <strong>«ចម្លង SQL»</strong> រួច paste ចូលក្នុង <strong>Supabase Dashboard ➔ SQL Editor ➔
+              Run</strong> ជាការស្រេច!
+          </p>
+          <textarea id="sql-schema-code" class="form-textarea" rows="12" readonly
+            style="font-family: monospace; font-size: 0.75rem; background: #050a12; color: #85e8ba;">-- 1. Create RSVPs table
+create table if not exists public.rsvps (
+  id uuid default gen_random_uuid() primary key,
+  name text not null,
+  phone text default '',
+  attendance text not null default 'attending',
+  count integer default 1,
+  wishes text default '',
+  submitted_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+-- 2. Create Wishes table
+create table if not exists public.wishes (
+  id uuid default gen_random_uuid() primary key,
+  name text not null,
+  date_display text default 'ថ្មីៗនេះ',
+  message text not null,
+  created_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+-- 3. Create Invitation Config table
+create table if not exists public.invitation_config (
+  id text primary key,
+  config_json jsonb not null,
+  updated_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+-- Enable RLS & Public Access Policies for E-Invitation
+alter table public.rsvps enable row level security;
+alter table public.wishes enable row level security;
+alter table public.invitation_config enable row level security;
+
+create policy "Public full access on rsvps" on public.rsvps for all using (true) with check (true);
+create policy "Public full access on wishes" on public.wishes for all using (true) with check (true);
+create policy "Public full access on config" on public.invitation_config for all using (true) with check (true);
+
+-- Insert Complete Wedding Invitation Configuration Seed
+insert into public.invitation_config (id, config_json, updated_at)
+values (
+  'wedding_main',
+  '{
+    "blessingVerse": "☸ ជយោ ហោតុ សព្វទា ☸",
+    "invitationTitle": "សិរីសួស្តី អាពាហ៍ពិពាហ៍",
+    "invitationHeader": "លិខិតអញ្ជើញ",
+    "invitationGreeting": "យើងខ្ញុំសូមគោរពអញ្ជើញ",
+    "defaultGuestName": "ឯកឧត្តម លោកជំទាវ លោក លោកស្រី ភ្ញៀវកិត្តិយស",
+    "invitationSubtext": "ចូលរួមជាអធិបតី និងជាភ្ញៀវកិត្តិយស ក្នុងពិធីមង្គលការកូនប្រុស-កូនស្រីរបស់យើងខ្ញុំ",
+    "groomName": "ជា វិបុល",
+    "brideName": "ស៊ុន ទេវី",
+    "groomFather": "ជា សុខា",
+    "groomMother": "ឃឹម សុភាព",
+    "brideFather": "ស៊ុន វណ្ណា",
+    "brideMother": "អ៊ុច ចរិយា",
+    "solarDate": "ថ្ងៃអាទិត្យ ទី១៥ ខែវិច្ឆិកា ឆ្នាំ២០២៦",
+    "lunarDate": "ត្រូវនឹងថ្ងៃ ៥កើត ខែកត្តិក ឆ្នាំរោង ឆស័ក ព.ស. ២៥៧០",
+    "targetDateTime": "2026-11-15T07:00:00+07:00",
+    "couplePhoto": "assets/images/couple.jpg",
+    "venueName": "មជ្ឈមណ្ឌលសន្និបាត និងពិព័រណ៍កោះពេជ្រ (អគារ G)",
+    "venueAddress": "📍 ទីតាំង៖ កោះពេជ្រ សង្កាត់ទន្លេបាសាក់ ខណ្ឌចំការមន រាជធានីភ្នំពេញ\\n(Koh Pich Exhibition Center, Building G, Phnom Penh)",
+    "mapsUrl": "https://maps.google.com/?q=Koh+Pich+Convention+and+Exhibition+Center+Building+G+Phnom+Penh",
+    "bankAccName": "CHEA VIBOL & SUN DEVI",
+    "bankAccNum": "001 888 999 (USD)",
+    "bankName": "ABA Bank / Bakong",
+    "qrImage": "",
+    "thankYouText": "សូមថ្លែងអំណរគុណយ៉ាងជ្រាលជ្រៅចំពោះវត្តមានដ៏ឧត្តុង្គឧត្តមរបស់លោកអ្នក",
+    "footerDesignCredit": "Designed with Khmer Traditional Heritage & Modern Elegance",
+    "schedule": [
+      { "time": "07:00 AM", "title": "ពិធីហែជំនូន និងសែនព្រេន", "desc": "Groom''s Procession & Ancestor Blessing Ceremony" },
+      { "time": "09:30 AM", "title": "ពិធីកាត់សក់បង្កក់សិរី", "desc": "Traditional Hair Cutting & Purification Ceremony" },
+      { "time": "02:00 PM", "title": "ពិធីសំពះផ្ទឹម និងបង្វិលពពិល", "desc": "Sacred Knot Tying & Popil Twirling Blessing" },
+      { "time": "05:30 PM", "title": "ពិធីទទួលទានភោជនាហារ និងរាំកម្សាន្ត", "desc": "Grand Evening Wedding Banquet & Celebration" }
+    ]
+  }'::jsonb,
+  now()
+)
+on conflict (id) do update set config_json = excluded.config_json, updated_at = now();
+
+-- Insert Default Guestbook Wishes
+insert into public.wishes (name, date_display, message, created_at)
+values
+  ('ឯកឧត្តម លី សុផាត', 'ថ្មីៗនេះ', 'សូមប្រសិទ្ធពរជ័យមង្គល សិរីសួស្តី វិបុលសុខគ្រប់ប្រការដល់គូស្វាមីភរិយាថ្មី ស្រឡាញ់គ្នារហូតដល់ចាស់កោងខ្នង!', now() - interval '2 hours'),
+  ('លោកជំទាវ ម៉េង គន្ធា', 'ថ្មីៗនេះ', 'អបអរសាទរពិធីមង្គលការ! សូមឱ្យគ្រួសារថ្មីពោរពេញដោយសុភមង្គល ទ្រព្យសម្បត្តិហូរហៀរ និងត្រជាក់ត្រជុំដូចទឹកអង្គរ។', now() - interval '1 hour'),
+  ('មិត្តភក្តិរួមការងារ (ABA Team)', 'ថ្មីៗនេះ', 'Congratulations Vibol & Devi! Wishing you both a lifetime of eternal love, prosperity, and happiness!', now());</textarea>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-notice" id="toast-notice">សារជូនដំណឹង</div>
+
+  <!-- Supabase SDK & Admin Script Logic -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // 🌐 Smart API Base URL: redirect to Python server on port 8080 when
+      //    opened via VS Code Live Server (port 5500) or any non-8080 port.
+      const API_BASE = (window.location.port === '8080' || window.location.protocol === 'file:')
+        ? '' // Same-origin: relative paths work fine
+        : 'http://localhost:8080'; // Live Server / other dev ports → point to Python API
+
+      // 🔄 Auto-load Supabase credentials from localStorage on page load
+      if (window.appSupabase) {
+        window.appSupabase.loadCredentials();
+      }
+
+      // 1. Authentication Gate
+      const loginOverlay = document.getElementById('login-overlay');
+      const adminDashboard = document.getElementById('admin-dashboard');
+      const loginForm = document.getElementById('login-form');
+      const btnLogout = document.getElementById('btn-logout');
+
+      const AUTH_USER = 'admin';
+      const AUTH_PASS = 'admin889900';
+
+      function checkAuth() {
+        const isAuth = sessionStorage.getItem('khmer_admin_auth') === 'true';
+        if (isAuth) {
+          loginOverlay.style.display = 'none';
+          adminDashboard.style.display = 'block';
+
+          // 🔄 Auto-connect Supabase from stored credentials (in case not loaded yet)
+          if (window.appSupabase && !window.appSupabase.isConfigured) {
+            window.appSupabase.loadCredentials();
+            console.log('[Admin] Supabase auto-connected on login ✅');
+          }
+
+          // Update Supabase status badge
+          updateSupabaseStatusUi();
+
+          loadConfigurationToForm();
+          loadRsvpList();
+          loadWishesList();
+          loadVipHistory();
+        } else {
+          loginOverlay.style.display = 'flex';
+          adminDashboard.style.display = 'none';
+
+          // Still update badge on login screen
+          updateSupabaseStatusUi();
+        }
+      }
+
+      if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const u = document.getElementById('login-username').value.trim();
+          const p = document.getElementById('login-password').value.trim();
+
+          if (u === AUTH_USER && p === AUTH_PASS) {
+            sessionStorage.setItem('khmer_admin_auth', 'true');
+            showToast('✅ ចូលគ្រប់គ្រងបានជោគជ័យ!');
+            checkAuth();
+          } else {
+            showToast('❌ ឈ្មោះ ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវឡើយ!');
+          }
+        });
+      }
+
+      if (btnLogout) {
+        btnLogout.addEventListener('click', () => {
+          sessionStorage.removeItem('khmer_admin_auth');
+          showToast('👋 បានចាកចេញពីប្រព័ន្ធ');
+          checkAuth();
+        });
+      }
+
+      // 2. Tabs Switcher
+      const tabBtns = document.querySelectorAll('.tab-btn-lux');
+      const tabPanes = document.querySelectorAll('.admin-tab-pane');
+
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          tabBtns.forEach(b => b.classList.remove('active'));
+          tabPanes.forEach(p => p.classList.remove('active'));
+
+          btn.classList.add('active');
+          const targetId = btn.getAttribute('data-tab');
+          const targetPane = document.getElementById(targetId);
+          if (targetPane) {
+            targetPane.classList.add('active');
+            if (targetId === 'tab-rsvp') loadRsvpList();
+            if (targetId === 'tab-wishes') loadWishesList();
+          }
+        });
+      });
+
+      // 3. Default Config Definition
+      const defaultConfig = {
+        groomName: 'ជា វិបុល',
+        brideName: 'ស៊ុន ទេវី',
+        groomFather: 'ជា សុខា',
+        groomMother: 'ឃឹម សុភាព',
+        brideFather: 'ស៊ុន វណ្ណា',
+        brideMother: 'អ៊ុច ចរិយា',
+        solarDate: 'ថ្ងៃអាទិត្យ ទី១៥ ខែវិច្ឆិកា ឆ្នាំ២០២៦',
+        lunarDate: 'ត្រូវនឹងថ្ងៃ ៥កើត ខែកត្តិក ឆ្នាំរោង ឆស័ក ព.ស. ២៥៧០',
+        targetDateTime: '2026-11-15T07:00',
+        venueName: 'មជ្ឈមណ្ឌលសន្និបាត និងពិព័រណ៍កោះពេជ្រ (អគារ G)',
+        venueAddress: '📍 ទីតាំង៖ កោះពេជ្រ សង្កាត់ទន្លេបាសាក់ ខណ្ឌចំការមន រាជធានីភ្នំពេញ\n(Koh Pich Exhibition Center, Building G, Phnom Penh)',
+        mapsUrl: 'https://maps.google.com/?q=Koh+Pich+Convention+and+Exhibition+Center+Building+G+Phnom+Penh',
+        bankAccName: 'CHEA VIBOL & SUN DEVI',
+        bankAccNum: '001 888 999 (USD)',
+        bankName: 'ABA Bank / Bakong',
+        qrImage: '',
+        couplePhoto: 'assets/images/couple.jpg',
+        blessingVerse: '☸ ជយោ ហោតុ សព្វទា ☸',
+        invitationTitle: 'សិរីសួស្តី អាពាហ៍ពិពាហ៍',
+        invitationHeader: 'លិខិតអញ្ជើញ',
+        envelopeBadge: 'E-INVITATION • លិខិតអញ្ជើញ',
+        envelopeHint: '✨ ចុចត្រាមាសដើម្បីបើកសំបុត្រ ✨',
+        invitationGreeting: 'យើងខ្ញុំសូមគោរពអញ្ជើញ',
+        invitationSubtext: 'ចូលរួមជាអធិបតី និងជាភ្ញៀវកិត្តិយស ក្នុងពិធីមង្គលការកូនប្រុស-កូនស្រីរបស់យើងខ្ញុំ',
+        sealImage: 'assets/images/golden_seal.jpg',
+        bgMusicUrl: 'assets/audio/bg_music.mp3',
+        thankYouText: 'សូមថ្លែងអំណរគុណយ៉ាងជ្រាលជ្រៅចំពោះវត្តមានដ៏ឧត្តុង្គឧត្តមរបស់លោកអ្នក',
+        footerCredit: 'Designed with Khmer Traditional Heritage & Modern Elegance',
+        schedule: [
+          { time: '07:00 AM', title: 'ពិធីហែជំនូន និងសែនព្រេន', desc: "Groom's Procession & Ancestor Blessing Ceremony" },
+          { time: '09:30 AM', title: 'ពិធីកាត់សក់បង្កក់សិរី', desc: 'Traditional Hair Cutting & Purification Ceremony' },
+          { time: '02:00 PM', title: 'ពិធីសំពះផ្ទឹម និងបង្វិលពពិល', desc: 'Sacred Knot Tying & Popil Twirling Blessing' },
+          { time: '05:30 PM', title: 'ពិធីទទួលទានភោជនាហារ និងរាំកម្សាន្ត', desc: 'Grand Evening Wedding Banquet & Celebration' }
+        ],
+        videoTitle: 'វីដេអូអនុស្សាវរីយ៍ & សាច់រឿងស្នេហា',
+        videoSubtitle: 'Cinematic Wedding Video & Love Story',
+        videoDesc: 'សូមទស្សនាវីដេអូអនុស្សាវរីយ៍ដ៏មានអត្ថន័យ និងសាច់រឿងនៃក្តីស្រឡាញ់របស់គូស្វាមីភរិយាថ្មី',
+        videoUrl: '',
+        videoPoster: 'assets/images/couple.jpg',
+        bankAppLink: ''
+      };
+
+      function getConfig() {
+        try {
+          const s = localStorage.getItem('khmer_invitation_config');
+          return s ? Object.assign({}, defaultConfig, JSON.parse(s)) : defaultConfig;
+        } catch {
+          return defaultConfig;
+        }
+      }
+
+      let currentSchedule = [];
+
+      function updateQrPreview(url) {
+        const preview = document.getElementById('cfg-qr-preview');
+        const placeholder = document.getElementById('cfg-qr-placeholder');
+        if (!preview || !placeholder) return;
+        if (url && url.trim()) {
+          preview.src = url.trim();
+          preview.style.display = 'block';
+          placeholder.style.display = 'none';
+        } else {
+          preview.src = '';
+          preview.style.display = 'none';
+          placeholder.style.display = 'flex';
+        }
+      }
+
+      function loadConfigurationToForm() {
+        const cfg = getConfig();
+        currentSchedule = Array.isArray(cfg.schedule) ? JSON.parse(JSON.stringify(cfg.schedule)) : defaultConfig.schedule;
+
+        document.getElementById('cfg-groom-name').value = cfg.groomName || '';
+        document.getElementById('cfg-bride-name').value = cfg.brideName || '';
+        document.getElementById('cfg-groom-father').value = cfg.groomFather || '';
+        document.getElementById('cfg-groom-mother').value = cfg.groomMother || '';
+        document.getElementById('cfg-bride-father').value = cfg.brideFather || '';
+        document.getElementById('cfg-bride-mother').value = cfg.brideMother || '';
+        document.getElementById('cfg-couple-photo').value = cfg.couplePhoto || '';
+
+        document.getElementById('cfg-solar-date').value = cfg.solarDate || '';
+        document.getElementById('cfg-lunar-date').value = cfg.lunarDate || '';
+        if (cfg.targetDateTime) {
+          document.getElementById('cfg-target-time').value = cfg.targetDateTime.slice(0, 16);
+        }
+
+        document.getElementById('cfg-venue-name').value = cfg.venueName || '';
+        document.getElementById('cfg-venue-address').value = cfg.venueAddress || '';
+        document.getElementById('cfg-maps-url').value = cfg.mapsUrl || '';
+
+        document.getElementById('cfg-bank-accname').value = cfg.bankAccName || '';
+        document.getElementById('cfg-bank-accnum').value = cfg.bankAccNum || '';
+        document.getElementById('cfg-bank-name').value = cfg.bankName || '';
+        document.getElementById('cfg-bank-applink').value = cfg.bankAppLink || '';
+
+        const qrVal = cfg.qrImage || '';
+        document.getElementById('cfg-qr-image').value = qrVal;
+        updateQrPreview(qrVal);
+
+        // General, Blessings, Media & Footer texts
+        if (document.getElementById('cfg-blessing-verse')) document.getElementById('cfg-blessing-verse').value = cfg.blessingVerse || '';
+        if (document.getElementById('cfg-invitation-title')) document.getElementById('cfg-invitation-title').value = cfg.invitationTitle || '';
+        if (document.getElementById('cfg-invitation-header')) document.getElementById('cfg-invitation-header').value = cfg.invitationHeader || '';
+        if (document.getElementById('cfg-envelope-hint')) document.getElementById('cfg-envelope-hint').value = cfg.envelopeHint || '';
+        if (document.getElementById('cfg-invitation-greeting')) document.getElementById('cfg-invitation-greeting').value = cfg.invitationGreeting || '';
+        if (document.getElementById('cfg-invitation-subtext')) document.getElementById('cfg-invitation-subtext').value = cfg.invitationSubtext || '';
+        if (document.getElementById('cfg-bgmusic-url')) document.getElementById('cfg-bgmusic-url').value = cfg.bgMusicUrl || '';
+        if (document.getElementById('cfg-seal-image')) document.getElementById('cfg-seal-image').value = cfg.sealImage || '';
+        if (document.getElementById('cfg-thankyou-text')) document.getElementById('cfg-thankyou-text').value = cfg.thankYouText || '';
+        if (document.getElementById('cfg-footer-credit')) document.getElementById('cfg-footer-credit').value = cfg.footerCredit || '';
+
+        // Video Album Fields
+        if (document.getElementById('cfg-video-title')) document.getElementById('cfg-video-title').value = cfg.videoTitle || '';
+        if (document.getElementById('cfg-video-subtitle')) document.getElementById('cfg-video-subtitle').value = cfg.videoSubtitle || '';
+        if (document.getElementById('cfg-video-desc')) document.getElementById('cfg-video-desc').value = cfg.videoDesc || '';
+        if (document.getElementById('cfg-video-url')) document.getElementById('cfg-video-url').value = cfg.videoUrl || '';
+        if (document.getElementById('cfg-video-poster')) document.getElementById('cfg-video-poster').value = cfg.videoPoster || '';
+        updateAdminVideoPreview(cfg.videoUrl || '', cfg.videoPoster || '');
+
+        renderScheduleEditor();
+      }
+
+      // Schedule Editor
+      function renderScheduleEditor() {
+        const container = document.getElementById('schedule-edit-list');
+        if (!container) return;
+
+        container.innerHTML = currentSchedule.map((item, idx) => `
+          <div class="timeline-edit-item">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 0.82rem; font-weight: 700; color: var(--primary-gold-light);">#${idx + 1}</span>
+              <button class="btn-remove-sch" data-idx="${idx}" style="background: none; border: none; color: #ff6b6b; cursor: pointer; font-size: 0.8rem;">
+                ✕ លុប
+              </button>
+            </div>
+            <div class="form-grid-2">
+              <div class="form-group" style="margin-bottom: 8px;">
+                <label class="form-label" style="font-size: 0.75rem;">ម៉ោង (Time)</label>
+                <input type="text" class="form-input sch-time" data-idx="${idx}" value="${escapeHtml(item.time || '')}">
+              </div>
+              <div class="form-group" style="margin-bottom: 8px;">
+                <label class="form-label" style="font-size: 0.75rem;">ឈ្មោះពិធី (Ceremony Title)</label>
+                <input type="text" class="form-input sch-title" data-idx="${idx}" value="${escapeHtml(item.title || '')}">
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" style="font-size: 0.75rem;">ការពិពណ៌នា / អង់គ្លេស (Subtitle / Description)</label>
+              <input type="text" class="form-input sch-desc" data-idx="${idx}" value="${escapeHtml(item.desc || '')}">
+            </div>
+          </div>
+        `).join('');
+
+        // Listeners for inputs
+        container.querySelectorAll('.sch-time').forEach(el => {
+          el.addEventListener('input', e => currentSchedule[e.target.dataset.idx].time = e.target.value);
+        });
+        container.querySelectorAll('.sch-title').forEach(el => {
+          el.addEventListener('input', e => currentSchedule[e.target.dataset.idx].title = e.target.value);
+        });
+        container.querySelectorAll('.sch-desc').forEach(el => {
+          el.addEventListener('input', e => currentSchedule[e.target.dataset.idx].desc = e.target.value);
+        });
+        container.querySelectorAll('.btn-remove-sch').forEach(el => {
+          el.addEventListener('click', e => {
+            currentSchedule.splice(parseInt(e.target.dataset.idx), 1);
+            renderScheduleEditor();
+          });
+        });
+      }
+
+      document.getElementById('btn-add-schedule-item').addEventListener('click', () => {
+        currentSchedule.push({ time: '12:00 PM', title: 'កម្មវិធីថ្មី', desc: 'New Ceremony Description' });
+        renderScheduleEditor();
+      });
+
+      // Handle Couple Image File Upload Preview
+      const photoFileInput = document.getElementById('cfg-photo-file');
+      if (photoFileInput) {
+        photoFileInput.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (re) => {
+              document.getElementById('cfg-couple-photo').value = re.target.result;
+              showToast('📸 បានផ្ទុករូបភាពថ្មីរួចរាល់!');
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      }
+
+      // Handle Seal Image Upload
+      const sealFileInput = document.getElementById('cfg-seal-file');
+      if (sealFileInput) {
+        sealFileInput.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (re) => {
+              document.getElementById('cfg-seal-image').value = re.target.result;
+              showToast('🏅 បានផ្ទុករូបភាពត្រាមាសរួចរាល់!');
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      }
+
+      // Handle Audio Upload
+      const musicFileInput = document.getElementById('cfg-music-file');
+      if (musicFileInput) {
+        musicFileInput.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (re) => {
+              document.getElementById('cfg-bgmusic-url').value = re.target.result;
+              showToast('🎵 បានផ្ទុកបទចម្រៀងរួចរាល់!');
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      }
+
+      // Handle QR Code Image Upload & Preview
+      const qrFileInput = document.getElementById('cfg-qr-file');
+      if (qrFileInput) {
+        qrFileInput.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (re) => {
+              const dataUrl = re.target.result;
+              document.getElementById('cfg-qr-image').value = dataUrl;
+              updateQrPreview(dataUrl);
+              showToast('💳 បានផ្ទុករូបភាព QR Code រួចរាល់!');
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      }
+
+      const qrTextInput = document.getElementById('cfg-qr-image');
+      if (qrTextInput) {
+        qrTextInput.addEventListener('input', (e) => {
+          updateQrPreview(e.target.value);
+        });
+      }
+
+      const btnRemoveQr = document.getElementById('btn-remove-qr');
+      if (btnRemoveQr) {
+        btnRemoveQr.addEventListener('click', () => {
+          document.getElementById('cfg-qr-image').value = '';
+          if (qrFileInput) qrFileInput.value = '';
+          updateQrPreview('');
+          showToast('🗑️ បានសម្អាតរូបភាព QR (ប្រើប្រាស់ KHQR SVG លំនាំដើម)');
+        });
+      }
+
+      // Bank Account Number - Copy & Open Bank App
+      const btnCopyBankAccnum = document.getElementById('btn-copy-bank-accnum');
+      if (btnCopyBankAccnum) {
+        btnCopyBankAccnum.addEventListener('click', () => {
+          const accNum = document.getElementById('cfg-bank-accnum').value.trim();
+          if (!accNum) {
+            showToast('⚠️ សូមបញ្ចូលលេខគណនីមុន');
+            return;
+          }
+          navigator.clipboard.writeText(accNum).then(() => {
+            showToast('📋 បានចម្លងលេខគណនី: ' + accNum);
+          }).catch(() => {
+            showToast('❌ មិនអាចចម្លងបាន');
+          });
+        });
+      }
+
+      const btnOpenBankApp = document.getElementById('btn-open-bank-app');
+      if (btnOpenBankApp) {
+        btnOpenBankApp.addEventListener('click', () => {
+          const appLink = document.getElementById('cfg-bank-applink').value.trim();
+          if (!appLink) {
+            showToast('⚠️ សូមបញ្ចូលតំណភ្ជាប់បើក App ធនាគារមុន');
+            return;
+          }
+          window.open(appLink, '_blank');
+          showToast('🏦 បើក App ធនាគារ...');
+        });
+      }
+
+      // ── Video Preview & Upload Handling ──────────────────────────────────────────
+      function updateAdminVideoPreview(url, poster) {
+        const preview = document.getElementById('admin-video-preview');
+        const source = document.getElementById('admin-video-source');
+        const statusEl = document.getElementById('preview-video-status');
+        const overlay = document.getElementById('admin-video-overlay');
+        if (!preview || !source) return;
+
+        if (poster) preview.poster = poster;
+        if (url && url.trim()) {
+          source.src = url.trim();
+          preview.load();
+          if (statusEl) statusEl.innerHTML = '<span style="color:#2ecc71">🟢 វីដេអូភ្ជាប់រួចរាល់ (Ready)</span>';
+        } else {
+          source.src = '';
+          if (statusEl) statusEl.innerHTML = '<span style="color:var(--text-muted)">⚪ មិនទាន់មានវីដេអូ</span>';
+        }
+        if (overlay) overlay.classList.remove('hidden');
+      }
+
+      const videoUrlInput = document.getElementById('cfg-video-url');
+      if (videoUrlInput) {
+        videoUrlInput.addEventListener('input', (e) => {
+          updateAdminVideoPreview(e.target.value, document.getElementById('cfg-video-poster')?.value);
+        });
+      }
+
+      const videoPosterInput = document.getElementById('cfg-video-poster');
+      if (videoPosterInput) {
+        videoPosterInput.addEventListener('input', (e) => {
+          updateAdminVideoPreview(document.getElementById('cfg-video-url')?.value, e.target.value);
+        });
+      }
+
+      const videoFileInput = document.getElementById('cfg-video-file');
+      const videoUploadStatus = document.getElementById('video-upload-status');
+      const videoProgBar = document.getElementById('video-progress-bar');
+      const videoProgContainer = document.getElementById('video-progress-bar-container');
+
+      if (videoFileInput) {
+        videoFileInput.addEventListener('change', async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          if (videoProgContainer) videoProgContainer.style.display = 'block';
+          if (videoProgBar) videoProgBar.style.width = '35%';
+          if (videoUploadStatus) videoUploadStatus.innerHTML = `⏳ កំពុងអានឯកសារ <strong>${escapeHtml(file.name)}</strong> (${(file.size / (1024 * 1024)).toFixed(1)} MB)...`;
+
+          const reader = new FileReader();
+          reader.onload = async (re) => {
+            const base64Data = re.target.result;
+            if (videoProgBar) videoProgBar.style.width = '75%';
+            if (videoUploadStatus) videoUploadStatus.innerHTML = `⚡ កំពុងរក្សាទុកក្នុង Server...`;
+
+            try {
+              const res = await fetch(`${API_BASE}/api/upload-video`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  filename: file.name,
+                  base64Data: base64Data
+                })
+              });
+
+              if (videoProgBar) videoProgBar.style.width = '100%';
+
+              if (res.ok) {
+                const data = await res.json();
+                const uploadedUrl = data.url;
+                document.getElementById('cfg-video-url').value = uploadedUrl;
+                updateAdminVideoPreview(uploadedUrl, document.getElementById('cfg-video-poster')?.value);
+                if (videoUploadStatus) videoUploadStatus.innerHTML = `✅ បានផ្ទុកឡើងជោគជ័យ៖ <code>${uploadedUrl}</code>`;
+                showToast('🎬 បានផ្ទុកវីដេអូថ្មីជោគជ័យ!');
+              } else {
+                throw new Error('Upload API returned error');
+              }
+            } catch (err) {
+              console.warn('Direct upload failed, using local Blob preview:', err);
+              const localBlobUrl = URL.createObjectURL(file);
+              document.getElementById('cfg-video-url').value = localBlobUrl;
+              updateAdminVideoPreview(localBlobUrl, document.getElementById('cfg-video-poster')?.value);
+              if (videoUploadStatus) videoUploadStatus.innerHTML = `⚠️ បានផ្ទុកជា Local Object URL សម្រាប់ Preview`;
+              showToast('🎬 បានកំណត់វីដេអូសម្រាប់ Preview');
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      // Handle Video Test Play in Admin
+      const adminVideoEl = document.getElementById('admin-video-preview');
+      const adminOverlayEl = document.getElementById('admin-video-overlay');
+      if (adminOverlayEl && adminVideoEl) {
+        adminOverlayEl.addEventListener('click', () => {
+          adminVideoEl.play().then(() => {
+            adminOverlayEl.classList.add('hidden');
+          }).catch(err => {
+            console.warn('Video play error:', err);
+            showToast('🎬 សូមផ្ទុកវីដេអូជាមុនសិន');
+          });
+        });
+        adminVideoEl.addEventListener('pause', () => {
+          if (adminVideoEl.currentTime === 0 || adminVideoEl.ended) {
+            adminOverlayEl.classList.remove('hidden');
+          }
+        });
+        adminVideoEl.addEventListener('ended', () => {
+          adminOverlayEl.classList.remove('hidden');
+        });
+      }
+
+      // Save All Configuration
+      document.getElementById('btn-save-all').addEventListener('click', () => {
+        const newConfig = {
+          groomName: document.getElementById('cfg-groom-name').value.trim(),
+          brideName: document.getElementById('cfg-bride-name').value.trim(),
+          groomFather: document.getElementById('cfg-groom-father').value.trim(),
+          groomMother: document.getElementById('cfg-groom-mother').value.trim(),
+          brideFather: document.getElementById('cfg-bride-father').value.trim(),
+          brideMother: document.getElementById('cfg-bride-mother').value.trim(),
+          solarDate: document.getElementById('cfg-solar-date').value.trim(),
+          lunarDate: document.getElementById('cfg-lunar-date').value.trim(),
+          targetDateTime: document.getElementById('cfg-target-time').value,
+          venueName: document.getElementById('cfg-venue-name').value.trim(),
+          venueAddress: document.getElementById('cfg-venue-address').value.trim(),
+          mapsUrl: document.getElementById('cfg-maps-url').value.trim(),
+          bankAccName: document.getElementById('cfg-bank-accname').value.trim(),
+          bankAccNum: document.getElementById('cfg-bank-accnum').value.trim(),
+          bankName: document.getElementById('cfg-bank-name').value.trim(),
+          bankAppLink: document.getElementById('cfg-bank-applink').value.trim(),
+          qrImage: document.getElementById('cfg-qr-image').value.trim(),
+          couplePhoto: document.getElementById('cfg-couple-photo').value.trim(),
+          blessingVerse: document.getElementById('cfg-blessing-verse') ? document.getElementById('cfg-blessing-verse').value.trim() : defaultConfig.blessingVerse,
+          invitationTitle: document.getElementById('cfg-invitation-title') ? document.getElementById('cfg-invitation-title').value.trim() : defaultConfig.invitationTitle,
+          invitationHeader: document.getElementById('cfg-invitation-header') ? document.getElementById('cfg-invitation-header').value.trim() : defaultConfig.invitationHeader,
+          envelopeHint: document.getElementById('cfg-envelope-hint') ? document.getElementById('cfg-envelope-hint').value.trim() : defaultConfig.envelopeHint,
+          invitationGreeting: document.getElementById('cfg-invitation-greeting') ? document.getElementById('cfg-invitation-greeting').value.trim() : defaultConfig.invitationGreeting,
+          invitationSubtext: document.getElementById('cfg-invitation-subtext') ? document.getElementById('cfg-invitation-subtext').value.trim() : defaultConfig.invitationSubtext,
+          bgMusicUrl: document.getElementById('cfg-bgmusic-url') ? document.getElementById('cfg-bgmusic-url').value.trim() : defaultConfig.bgMusicUrl,
+          sealImage: document.getElementById('cfg-seal-image') ? document.getElementById('cfg-seal-image').value.trim() : defaultConfig.sealImage,
+          thankYouText: document.getElementById('cfg-thankyou-text') ? document.getElementById('cfg-thankyou-text').value.trim() : defaultConfig.thankYouText,
+          footerCredit: document.getElementById('cfg-footer-credit') ? document.getElementById('cfg-footer-credit').value.trim() : defaultConfig.footerCredit,
+          videoTitle: document.getElementById('cfg-video-title') ? document.getElementById('cfg-video-title').value.trim() : defaultConfig.videoTitle,
+          videoSubtitle: document.getElementById('cfg-video-subtitle') ? document.getElementById('cfg-video-subtitle').value.trim() : defaultConfig.videoSubtitle,
+          videoDesc: document.getElementById('cfg-video-desc') ? document.getElementById('cfg-video-desc').value.trim() : defaultConfig.videoDesc,
+          videoUrl: document.getElementById('cfg-video-url') ? document.getElementById('cfg-video-url').value.trim() : defaultConfig.videoUrl,
+          videoPoster: document.getElementById('cfg-video-poster') ? document.getElementById('cfg-video-poster').value.trim() : defaultConfig.videoPoster,
+          videoAlbum: {
+            enabled: true,
+            title: document.getElementById('cfg-video-title') ? document.getElementById('cfg-video-title').value.trim() : defaultConfig.videoTitle,
+            subtitle: document.getElementById('cfg-video-subtitle') ? document.getElementById('cfg-video-subtitle').value.trim() : defaultConfig.videoSubtitle,
+            desc: document.getElementById('cfg-video-desc') ? document.getElementById('cfg-video-desc').value.trim() : defaultConfig.videoDesc,
+            videoUrl: document.getElementById('cfg-video-url') ? document.getElementById('cfg-video-url').value.trim() : defaultConfig.videoUrl,
+            posterUrl: document.getElementById('cfg-video-poster') ? document.getElementById('cfg-video-poster').value.trim() : defaultConfig.videoPoster
+          },
+          schedule: currentSchedule
+        };
+
+        localStorage.setItem('khmer_invitation_config', JSON.stringify(newConfig));
+
+        // Save to Server DB (/api/config)
+        fetch(`${API_BASE}/api/config`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newConfig)
+        }).catch(err => console.warn('Saving to /api/config failed:', err));
+
+        // Save to Supabase Cloud if connected
+        if (window.appSupabase && window.appSupabase.isConfigured) {
+          window.appSupabase.saveConfig(newConfig);
+        }
+
+        showToast('💾 បានរក្សាទុកការកែប្រែទាំងអស់ដោយជោគជ័យ!');
+      });
+
+      // ── Database Connection Diagnostics & Live Data Viewer ────────────────────────
+      const btnAdminTestServerDb = document.getElementById('btn-admin-test-server-db');
+      const btnAdminTestCloud = document.getElementById('btn-admin-test-cloud');
+      const btnAdminFetchAll = document.getElementById('btn-admin-fetch-all');
+      const btnTopDbTest = document.getElementById('btn-top-db-test');
+      const adminDbStatusPill = document.getElementById('admin-db-status-pill');
+      const adminDbLatency = document.getElementById('admin-db-latency');
+      const adminDbDetails = document.getElementById('admin-db-diagnostic-details');
+      const adminDbLiveDisplay = document.getElementById('admin-db-live-display');
+      const adminDbRecordCounts = document.getElementById('admin-db-record-counts');
+
+      function switchToDatabaseTab() {
+        tabBtns.forEach(b => b.classList.remove('active'));
+        tabPanes.forEach(p => p.classList.remove('active'));
+        const dbTabBtn = document.querySelector('[data-tab="tab-database"]');
+        const dbPane = document.getElementById('tab-database');
+        if (dbTabBtn) dbTabBtn.classList.add('active');
+        if (dbPane) dbPane.classList.add('active');
+      }
+
+      if (btnTopDbTest) {
+        btnTopDbTest.addEventListener('click', () => {
+          switchToDatabaseTab();
+          runAdminServerDbTest();
+        });
+      }
+
+      async function runAdminServerDbTest() {
+        if (!adminDbStatusPill) return;
+        adminDbStatusPill.className = 'status-pill';
+        adminDbStatusPill.style.background = 'rgba(241, 196, 15, 0.2)';
+        adminDbStatusPill.style.color = '#f1c40f';
+        adminDbStatusPill.textContent = '⏳ កំពុងតេស្ត...';
+
+        const t0 = performance.now();
+        try {
+          const res = await fetch(`${API_BASE}/api/test-db`);
+          const latency = Math.round(performance.now() - t0);
+          if (res.ok) {
+            const data = await res.json();
+            adminDbStatusPill.className = 'status-pill status-connected';
+            adminDbStatusPill.style.background = 'rgba(46, 204, 113, 0.2)';
+            adminDbStatusPill.style.color = '#2ecc71';
+            adminDbStatusPill.textContent = `🟢 Connected`;
+            if (adminDbLatency) adminDbLatency.textContent = `Ping: ${latency}ms`;
+            if (adminDbDetails) {
+              adminDbDetails.innerHTML = `
+                ✅ <strong>ជោគជ័យ!</strong> បានតភ្ជាប់ទៅ Database ឯកសារ <code>${escapeHtml(data.databasePath || 'database/invitation_data.json')}</code> (${data.databaseSizeBytes || 0} bytes)<br>
+                ស្ថិតិទិន្នន័យ៖ RSVPs: <strong>${data.counts?.rsvps ?? 0} នាក់</strong> | Wishes: <strong>${data.counts?.wishes ?? 0} នាក់</strong> | Config Fields: <strong>${data.counts?.configFields ?? 0}</strong>
+              `;
+            }
+            renderAdminDbData(data.data, data.counts);
+            showToast(`⚡ ភ្ជាប់ Database ជោគជ័យ (${latency}ms)!`);
+          } else {
+            throw new Error(`HTTP ${res.status}`);
+          }
+        } catch (err) {
+          adminDbStatusPill.className = 'status-pill status-disconnected';
+          adminDbStatusPill.style.background = 'rgba(231, 76, 60, 0.2)';
+          adminDbStatusPill.style.color = '#e74c3c';
+          adminDbStatusPill.textContent = '🔴 Failed';
+          if (adminDbDetails) {
+            adminDbDetails.innerHTML = `❌ បរាជ័យក្នុងការតភ្ជាប់ Server DB: <code>${escapeHtml(err.message)}</code>`;
+          }
+          showToast('❌ មិនអាចភ្ជាប់ Database Server បានទេ');
+        }
+      }
+
+      function renderAdminDbData(dbData, counts) {
+        if (!adminDbLiveDisplay) return;
+        if (counts && adminDbRecordCounts) {
+          adminDbRecordCounts.textContent = `សរុប RSVPs: ${counts.rsvps} | Wishes: ${counts.wishes}`;
+        }
+
+        const rsvps = dbData?.rsvps || [];
+        const wishes = dbData?.wishes || [];
+
+        let html = '';
+        html += `<div style="font-size:0.85rem; font-weight:700; color:#85e8ba; margin-top:6px;">💌 ពាក្យជូនពរចុងក្រោយក្នុង Database (Wishes)</div>`;
+        if (wishes.length === 0) {
+          html += `<div style="font-size:0.78rem; color:var(--text-muted);">គ្មានពាក្យជូនពរ</div>`;
+        } else {
+          wishes.slice(0, 5).forEach(w => {
+            html += `
+              <div class="db-data-card">
+                <div style="display:flex; justify-content:space-between; font-size:0.82rem; font-weight:700; color:var(--primary-gold-light);">
+                  <span>👤 ${escapeHtml(w.name || 'ភ្ញៀវ')}</span>
+                  <span style="font-size:0.72rem; color:var(--text-muted);">${escapeHtml(w.date || w.date_display || '')}</span>
+                </div>
+                <div style="font-size:0.78rem; color:var(--text-cream); margin-top:2px;">${escapeHtml(w.message || '')}</div>
+              </div>
+            `;
+          });
+        }
+
+        html += `<div style="font-size:0.85rem; font-weight:700; color:#5dade2; margin-top:10px;">📋 បញ្ជី RSVPs ចុងក្រោយក្នុង Database</div>`;
+        if (rsvps.length === 0) {
+          html += `<div style="font-size:0.78rem; color:var(--text-muted);">គ្មាន RSVP</div>`;
+        } else {
+          rsvps.slice(0, 5).forEach(r => {
+            const isAttending = r.attendance === 'attending';
+            html += `
+              <div class="db-data-card">
+                <div style="display:flex; justify-content:space-between; font-size:0.82rem; font-weight:700; color:#fff;">
+                  <span>👤 ${escapeHtml(r.name || 'ភ្ញៀវ')} (${escapeHtml(r.phone || 'គ្មានលេខ')})</span>
+                  <span style="color:${isAttending ? '#2ecc71' : '#e74c3c'}; font-size:0.75rem;">${isAttending ? '✅ ចូលរួម' : '❌ មិនចូលរួម'} (${r.count || 1} នាក់)</span>
+                </div>
+                ${r.wishes ? `<div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">💬 ${escapeHtml(r.wishes)}</div>` : ''}
+              </div>
+            `;
+          });
+        }
+
+        adminDbLiveDisplay.innerHTML = html;
+      }
+
+      if (btnAdminTestServerDb) btnAdminTestServerDb.addEventListener('click', runAdminServerDbTest);
+      if (btnAdminFetchAll) btnAdminFetchAll.addEventListener('click', runAdminServerDbTest);
+      if (btnAdminTestCloud) {
+        btnAdminTestCloud.addEventListener('click', () => {
+          if (typeof testSupabaseConnection === 'function') testSupabaseConnection();
+        });
+      }
+
+      // 4. RSVP Manager (Synced with Supabase Cloud & LocalStorage)
+      async function loadRsvpList() {
+        const tbody = document.getElementById('rsvp-table-body');
+        const countDisplay = document.getElementById('rsvp-total-guests');
+        if (!tbody) return;
+
+        let rsvps = [];
+        if (window.appSupabase) {
+          rsvps = await window.appSupabase.fetchRsvps();
+        } else {
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('khmer_wedding_rsvp_')) {
+              try { rsvps.push(JSON.parse(localStorage.getItem(key))); } catch { }
+            }
+          }
+          rsvps.sort((a, b) => new Date(b.submittedAt || 0) - new Date(a.submittedAt || 0));
+        }
+
+        let totalHeadcount = 0;
+        rsvps.forEach(r => {
+          if (r.attendance === 'attending') {
+            totalHeadcount += parseInt(r.count || 1);
+          }
+        });
+        countDisplay.textContent = totalHeadcount;
+
+        if (rsvps.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">មិនទាន់មានភ្ញៀវចុះឈ្មោះបញ្ជាក់វត្តមាននៅឡើយ</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = rsvps.map((r, idx) => {
+          const isAttending = r.attendance === 'attending';
+          const dateStr = r.submittedAt ? new Date(r.submittedAt).toLocaleDateString('km-KH') : 'ថ្មីៗ';
+          return `
+            <tr>
+              <td style="color: var(--text-muted);">${escapeHtml(dateStr)}</td>
+              <td style="font-weight: 700; color: var(--primary-gold-light);">${escapeHtml(r.name || '')}</td>
+              <td>${escapeHtml(r.phone || '-')}</td>
+              <td>
+                <span class="stat-badge ${isAttending ? 'badge-attending' : 'badge-declined'}">
+                  ${isAttending ? 'ចូលរួម' : 'មិនអាចចូលរួម'}
+                </span>
+              </td>
+              <td>${escapeHtml(String(r.count || 0))} នាក់</td>
+              <td style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escapeHtml(r.wishes || '')}">
+                ${escapeHtml(r.wishes || '-')}
+              </td>
+              <td style="text-align: center;">
+                <button class="btn-del-rsvp" data-name="${escapeHtml(r.name)}" data-time="${escapeHtml(r.submittedAt || '')}" style="background: none; border: 1px solid rgba(255,107,107,0.3); color: #ff6b6b; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem;" title="លុបចោល">
+                  🗑️ លុប
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        // Single RSVP Delete listener
+        tbody.querySelectorAll('.btn-del-rsvp').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const nameToDel = e.currentTarget.getAttribute('data-name');
+            const timeToDel = e.currentTarget.getAttribute('data-time');
+            if (confirm(`តើអ្នកពិតជាចង់លុបការចុះឈ្មោះរបស់ "${nameToDel}" មែនទេ?`)) {
+              // Delete locally
+              for (let i = localStorage.length - 1; i >= 0; i--) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('khmer_wedding_rsvp_')) {
+                  try {
+                    const parsed = JSON.parse(localStorage.getItem(key));
+                    if (parsed.name === nameToDel && (!timeToDel || parsed.submittedAt === timeToDel)) {
+                      localStorage.removeItem(key);
+                    }
+                  } catch { }
+                }
+              }
+              // Delete from Supabase
+              if (window.appSupabase) {
+                await window.appSupabase.deleteRsvp(nameToDel, timeToDel);
+              }
+              loadRsvpList();
+              showToast(`🗑️ បានលុបការចុះឈ្មោះរបស់ "${nameToDel}"`);
+            }
+          });
+        });
+      }
+
+      // Handle Manual RSVP Form Submission by Admin
+      const manualRsvpForm = document.getElementById('admin-manual-rsvp-form');
+      if (manualRsvpForm) {
+        // Toggle Guest Count visibility when declined
+        const attendanceRadios = manualRsvpForm.querySelectorAll('input[name="admin-attendance"]');
+        const guestCountGroup = document.getElementById('admin-group-guest-count');
+        attendanceRadios.forEach(r => {
+          r.addEventListener('change', (e) => {
+            if (guestCountGroup) {
+              guestCountGroup.style.display = e.target.value === 'attending' ? 'block' : 'none';
+            }
+          });
+        });
+
+        manualRsvpForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const name = document.getElementById('admin-rsvp-name').value.trim();
+          const phone = document.getElementById('admin-rsvp-phone').value.trim();
+          const attendance = manualRsvpForm.querySelector('input[name="admin-attendance"]:checked').value;
+          const count = document.getElementById('admin-rsvp-count').value;
+          const wishesText = document.getElementById('admin-rsvp-wishes').value.trim();
+
+          if (!name) {
+            showToast('សូមបញ្ចូលឈ្មោះភ្ញៀវ');
+            return;
+          }
+
+          const rsvpData = {
+            name,
+            phone,
+            attendance,
+            count: attendance === 'attending' ? parseInt(count) : 0,
+            wishes: wishesText,
+            submittedAt: new Date().toISOString()
+          };
+
+          // Save RSVP to LocalStorage
+          const rsvpKey = `khmer_wedding_rsvp_${Date.now()}`;
+          localStorage.setItem(rsvpKey, JSON.stringify(rsvpData));
+
+          // Sync to Supabase
+          if (window.appSupabase) {
+            await window.appSupabase.submitRsvp(rsvpData);
+          }
+
+          // If wishes provided, also save to Guestbook (សៀវភៅជូនពរឌីជីថល)
+          if (wishesText) {
+            const currentWishes = getAdminWishes();
+            const newWish = {
+              name,
+              date: 'ទើបតែផ្ញើ',
+              message: wishesText
+            };
+            currentWishes.unshift(newWish);
+            localStorage.setItem('khmer_wedding_wishes', JSON.stringify(currentWishes));
+            if (window.appSupabase) {
+              window.appSupabase.submitWish(newWish);
+            }
+            loadWishesList();
+          }
+
+          manualRsvpForm.reset();
+          loadRsvpList();
+          showToast(`🎉 បានកត់ត្រាការបញ្ជាក់វត្តមានរបស់ "${name}" ដោយជោគជ័យ!`);
+        });
+      }
+
+      // Export RSVPs to CSV
+      document.getElementById('btn-export-rsvp').addEventListener('click', async () => {
+        let rsvps = [];
+        if (window.appSupabase) {
+          rsvps = await window.appSupabase.fetchRsvps();
+        } else {
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('khmer_wedding_rsvp_')) {
+              try { rsvps.push(JSON.parse(localStorage.getItem(key))); } catch { }
+            }
+          }
+        }
+
+        if (rsvps.length === 0) {
+          showToast('គ្មានទិន្នន័យ RSVP សម្រាប់ Export ឡើយ');
+          return;
+        }
+
+        let csv = '\uFEFFកាលបរិច្ឆេទ,ឈ្មោះភ្ញៀវ,លេខទូរស័ព្ទ,ស្ថានភាព,ចំនួនអ្នកចូលរួម,សារជូនពរ\n';
+        rsvps.forEach(r => {
+          const isAtt = r.attendance === 'attending' ? 'ចូលរួម' : 'មិនអាចចូលរួម';
+          csv += `"${r.submittedAt || ''}","${r.name || ''}","${r.phone || ''}","${isAtt}","${r.count || 0}","${(r.wishes || '').replace(/"/g, '""')}"\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `RSVP_Guests_${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('📥 បាន Export CSV ដោយជោគជ័យ!');
+      });
+
+      // Clear All RSVPs
+      document.getElementById('btn-clear-rsvps').addEventListener('click', async () => {
+        if (confirm('តើអ្នកពិតជាចង់លុបទិន្នន័យ RSVP ទាំងអស់មែនទេ?')) {
+          for (let i = localStorage.length - 1; i >= 0; i--) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('khmer_wedding_rsvp_')) {
+              localStorage.removeItem(key);
+            }
+          }
+          if (window.appSupabase) {
+            await window.appSupabase.clearAllRsvps();
+          }
+          loadRsvpList();
+          showToast('🗑️ បានសម្អាតទិន្នន័យ RSVP ទាំងអស់');
+        }
+      });
+
+      // ==========================================================================
+      // 5. Guestbook & Warm Wishes Manager (សៀវភៅជូនពរឌីជីថល)
+      // ==========================================================================
+      const defaultWishesList = [
+        {
+          name: 'ឯកឧត្តម លី សុផាត',
+          date: 'ថ្មីៗនេះ',
+          message: 'សូមប្រសិទ្ធពរជ័យមង្គល សិរីសួស្តី វិបុលសុខគ្រប់ប្រការដល់គូស្វាមីភរិយាថ្មី ស្រឡាញ់គ្នារហូតដល់ចាស់កោងខ្នង!'
+        },
+        {
+          name: 'លោកជំទាវ ម៉េង គន្ធា',
+          date: 'ថ្មីៗនេះ',
+          message: 'អបអរសាទរពិធីមង្គលការ! សូមឱ្យគ្រួសារថ្មីពោរពេញដោយសុភមង្គល ទ្រព្យសម្បត្តិហូរហៀរ និងត្រជាក់ត្រជុំដូចទឹកអង្គរ។'
+        },
+        {
+          name: 'មិត្តភក្តិរួមការងារ (ABA Team)',
+          date: 'ថ្មីៗនេះ',
+          message: 'Congratulations Vibol & Devi! Wishing you both a lifetime of eternal love, prosperity, and happiness!'
+        }
+      ];
+
+      function getAdminWishes() {
+        try {
+          const stored = localStorage.getItem('khmer_wedding_wishes');
+          if (stored) {
+            let parsed = JSON.parse(stored);
+            if (Array.isArray(parsed)) {
+              parsed = parsed.filter(w => w && w.name !== 'sadasd' && w.message !== 'ggode' && w.name !== 'test');
+              localStorage.setItem('khmer_wedding_wishes', JSON.stringify(parsed));
+              return parsed.length > 0 ? parsed : defaultWishesList;
+            }
+          }
+          return defaultWishesList;
+        } catch {
+          return defaultWishesList;
+        }
+      }
+
+      async function loadWishesList() {
+        const container = document.getElementById('admin-wishes-list');
+        const countDisplay = document.getElementById('wishes-total-count');
+        if (!container) return;
+
+        let wishes = getAdminWishes();
+        if (window.appSupabase) {
+          const remoteWishes = await window.appSupabase.fetchWishes();
+          if (remoteWishes && remoteWishes.length > 0) {
+            wishes = remoteWishes;
+          }
+        }
+
+        if (countDisplay) countDisplay.textContent = wishes.length;
+
+        if (wishes.length === 0) {
+          container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 24px; font-size: 0.85rem;">មិនទាន់មានពាក្យជូនពរក្នុងសៀវភៅនៅឡើយ</div>';
+          return;
+        }
+
+        container.innerHTML = wishes.map((w, idx) => `
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.25); border-radius: var(--radius-sm); padding: 14px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+            <div style="flex: 1;">
+              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap;">
+                <span style="font-family: var(--font-khmer-sub); font-size: 0.95rem; font-weight: 700; color: var(--primary-gold-light);">${escapeHtml(w.name || '')}</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: var(--radius-full);">${escapeHtml(w.date || 'ថ្មីៗ')}</span>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-cream); line-height: 1.5; margin: 0;">${escapeHtml(w.message || '')}</p>
+            </div>
+            <button class="btn-del-wish" data-idx="${idx}" data-name="${escapeHtml(w.name || '')}" data-msg="${escapeHtml(w.message || '')}" style="background: none; border: 1px solid rgba(255,107,107,0.3); color: #ff6b6b; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.78rem; white-space: nowrap;">
+              🗑️ លុប
+            </button>
+          </div>
+        `).join('');
+
+        // Single wish delete listeners
+        container.querySelectorAll('.btn-del-wish').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const idx = parseInt(e.currentTarget.getAttribute('data-idx'));
+            const wName = e.currentTarget.getAttribute('data-name');
+            const wMsg = e.currentTarget.getAttribute('data-msg');
+
+            if (confirm(`តើអ្នកពិតជាចង់លុបពាក្យជូនពររបស់ "${wName}" មែនទេ?`)) {
+              let cur = getAdminWishes();
+              cur.splice(idx, 1);
+              localStorage.setItem('khmer_wedding_wishes', JSON.stringify(cur));
+
+              if (window.appSupabase) {
+                await window.appSupabase.deleteWish(wName, wMsg);
+              }
+
+              loadWishesList();
+              showToast(`🗑️ បានលុបពាក្យជូនពររបស់ "${wName}"`);
+            }
+          });
+        });
+      }
+
+      // Add New Wish from Admin Form
+      const addWishForm = document.getElementById('admin-add-wish-form');
+      if (addWishForm) {
+        addWishForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const name = document.getElementById('admin-wish-name').value.trim();
+          const date = document.getElementById('admin-wish-date').value.trim() || 'ថ្មីៗនេះ';
+          const message = document.getElementById('admin-wish-msg').value.trim();
+
+          if (!name || !message) {
+            showToast('សូមបញ្ចូលឈ្មោះ និងសារជូនពរ');
+            return;
+          }
+
+          const newWish = { name, date, message };
+          const currentWishes = getAdminWishes();
+          currentWishes.unshift(newWish);
+          localStorage.setItem('khmer_wedding_wishes', JSON.stringify(currentWishes));
+
+          if (window.appSupabase) {
+            await window.appSupabase.submitWish(newWish);
+          }
+
+          addWishForm.reset();
+          document.getElementById('admin-wish-date').value = 'ថ្មីៗនេះ';
+          loadWishesList();
+          showToast(`🎉 បានបន្ថែមពាក្យជូនពររបស់ "${name}" ទៅកាន់សៀវភៅឌីជីថល!`);
+        });
+      }
+
+      // Reset to Default Wishes
+      document.getElementById('btn-reset-default-wishes').addEventListener('click', async () => {
+        if (confirm('តើអ្នកពិតជាចង់ផ្ទុកឡើងវិញនូវពាក្យជូនពរគំរូដើមទាំង ៣ មែនទេ?')) {
+          localStorage.setItem('khmer_wedding_wishes', JSON.stringify(defaultWishesList));
+          if (window.appSupabase) {
+            await window.appSupabase.clearAllWishes();
+            for (const w of defaultWishesList) {
+              await window.appSupabase.submitWish(w);
+            }
+          }
+          loadWishesList();
+          showToast('🔄 បានផ្ទុកឡើងវិញនូវពាក្យជូនពរគំរូទាំង ៣ ដោយជោគជ័យ!');
+        }
+      });
+
+      // Clear All Wishes
+      document.getElementById('btn-clear-wishes').addEventListener('click', async () => {
+        if (confirm('តើអ្នកពិតជាចង់សម្អាតពាក្យជូនពរទាំងអស់ចេញពីសៀវភៅឌីជីថលមែនទេ?')) {
+          localStorage.setItem('khmer_wedding_wishes', JSON.stringify([]));
+          if (window.appSupabase) {
+            await window.appSupabase.clearAllWishes();
+          }
+          loadWishesList();
+          showToast('🗑️ បានសម្អាតពាក្យជូនពរទាំងអស់');
+        }
+      });
+
+      // 5. VIP Link Generator in Admin
+      function loadVipHistory() {
+        const histContainer = document.getElementById('admin-vip-history');
+        if (!histContainer) return;
+        let guests = [];
+        try {
+          const s = localStorage.getItem('khmer_vip_guests');
+          if (s) guests = JSON.parse(s);
+        } catch { }
+
+        const baseUrl = window.location.origin + window.location.pathname.replace(/\/admin(?:\/index\.html)?\/?$/, '') + '/';
+
+        if (guests.length === 0) {
+          histContainer.innerHTML = '<div style="font-size: 0.78rem; color: var(--text-muted);">មិនទាន់មានភ្ញៀវនៅឡើយ</div>';
+          return;
+        }
+
+        histContainer.innerHTML = guests.map(g => {
+          const link = `${baseUrl}?to=${encodeURIComponent(g.name)}`;
+          return `
+            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: var(--radius-sm); padding: 8px 12px; gap: 8px;">
+              <div style="flex: 1; overflow: hidden;">
+                <div style="font-size: 0.85rem; font-weight: 700; color: var(--primary-gold-light); text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">${escapeHtml(g.name)}</div>
+              </div>
+              <div style="display: flex; gap: 6px;">
+                <button class="btn-gold-secondary ripple-effect btn-copy-admin-vip" data-url="${escapeHtml(link)}" style="padding: 4px 10px; font-size: 0.75rem; margin-top: 0; width: auto;">
+                  📋 ចម្លង
+                </button>
+                <a href="${escapeHtml(link)}" target="_blank" class="btn-gold-secondary ripple-effect" style="padding: 4px 10px; font-size: 0.75rem; margin-top: 0; width: auto; text-decoration: none;">
+                  👁️ មើល
+                </a>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        histContainer.querySelectorAll('.btn-copy-admin-vip').forEach(btn => {
+          btn.addEventListener('click', () => {
+            navigator.clipboard.writeText(btn.getAttribute('data-url')).then(() => {
+              showToast('✅ បានចម្លង Link រួចរាល់!');
+            });
+          });
+        });
+      }
+
+      document.getElementById('btn-admin-generate-link').addEventListener('click', () => {
+        const inp = document.getElementById('admin-guest-name-input');
+        const name = inp.value.trim();
+        if (!name) {
+          showToast('សូមបញ្ចូលឈ្មោះភ្ញៀវ');
+          return;
+        }
+        const baseUrl = window.location.origin + window.location.pathname.replace(/\/admin(?:\/index\.html)?\/?$/, '') + '/';
+        const url = `${baseUrl}?to=${encodeURIComponent(name)}`;
+
+        document.getElementById('admin-vip-url').textContent = url;
+        document.getElementById('admin-vip-output').style.display = 'block';
+
+        let guests = [];
+        try {
+          const s = localStorage.getItem('khmer_vip_guests');
+          if (s) guests = JSON.parse(s);
+        } catch { }
+
+        guests.unshift({ name, createdAt: 'ទើបតែបង្កើត' });
+        localStorage.setItem('khmer_vip_guests', JSON.stringify(guests));
+        loadVipHistory();
+
+        navigator.clipboard.writeText(url).then(() => {
+          showToast(`✅ បានបង្កើត និងចម្លង Link សម្រាប់៖ "${name}"`);
+        });
+      });
+
+      // 6. Supabase UI Management
+      function updateSupabaseStatusUi() {
+        const badge = document.getElementById('supabase-status-badge');
+        const urlInput = document.getElementById('cfg-supabase-url');
+        const keyInput = document.getElementById('cfg-supabase-key');
+        const savedUrl = localStorage.getItem('supabase_url') || '';
+        const savedKey = localStorage.getItem('supabase_anon_key') || '';
+
+        if (urlInput) urlInput.value = savedUrl;
+        if (keyInput) keyInput.value = savedKey;
+
+        if (badge) {
+          if (savedUrl && savedKey) {
+            badge.textContent = '🟢 បានភ្ជាប់ (Connected)';
+            badge.style.color = '#3ecf8e';
+            badge.style.borderColor = '#3ecf8e';
+            badge.style.background = 'rgba(62, 207, 142, 0.15)';
+          } else {
+            badge.textContent = '⚪ មិនទាន់ភ្ជាប់ (Offline / Local)';
+            badge.style.color = 'var(--text-muted)';
+            badge.style.borderColor = 'var(--text-muted)';
+            badge.style.background = 'rgba(255, 255, 255, 0.06)';
+          }
+        }
+      }
+
+      const btnSaveSupabase = document.getElementById('btn-save-supabase');
+      if (btnSaveSupabase) {
+        btnSaveSupabase.addEventListener('click', async () => {
+          const url = document.getElementById('cfg-supabase-url').value.trim();
+          const key = document.getElementById('cfg-supabase-key').value.trim();
+
+          if (!url || !key) {
+            showToast('សូមបញ្ចូល Supabase URL និង Anon Key');
+            return;
+          }
+
+          showToast('⏳ កំពុងផ្ទៀងផ្ទាត់ការភ្ជាប់...');
+          const testRes = await window.appSupabase.testConnection(url, key);
+          if (testRes.success) {
+            window.appSupabase.setCredentials(url, key);
+            updateSupabaseStatusUi();
+            loadRsvpList();
+            showToast('⚡ បានភ្ជាប់ទៅកាន់ Supabase ដោយជោគជ័យ!');
+          } else {
+            showToast('❌ បរាជ័យក្នុងការភ្ជាប់៖ ' + testRes.message);
+          }
+        });
+      }
+
+      const btnTestSupabase = document.getElementById('btn-test-supabase');
+      if (btnTestSupabase) {
+        btnTestSupabase.addEventListener('click', async () => {
+          const url = document.getElementById('cfg-supabase-url').value.trim();
+          const key = document.getElementById('cfg-supabase-key').value.trim();
+          if (!url || !key) {
+            showToast('សូមបញ្ចូល Supabase URL និង Anon Key ជាមុនសិន');
+            return;
+          }
+          showToast('⏳ កំពុងតេស្តការភ្ជាប់...');
+          const res = await window.appSupabase.testConnection(url, key);
+          if (res.success) {
+            showToast('✅ ការភ្ជាប់ដំណើរការល្អ៖ ' + res.message);
+          } else {
+            showToast('❌ តេស្តបរាជ័យ៖ ' + res.message);
+          }
+        });
+      }
+
+      const btnDisconnectSupabase = document.getElementById('btn-disconnect-supabase');
+      if (btnDisconnectSupabase) {
+        btnDisconnectSupabase.addEventListener('click', () => {
+          if (confirm('តើអ្នកពិតជាចង់ផ្តាច់ការភ្ជាប់ពី Supabase មែនទេ?')) {
+            window.appSupabase.clearCredentials();
+            updateSupabaseStatusUi();
+            loadRsvpList();
+            showToast('🔌 បានផ្តាច់ការភ្ជាប់ពី Supabase រួចរាល់');
+          }
+        });
+      }
+
+      const btnCopySql = document.getElementById('btn-copy-sql');
+      if (btnCopySql) {
+        btnCopySql.addEventListener('click', () => {
+          const sql = document.getElementById('sql-schema-code').value;
+          navigator.clipboard.writeText(sql).then(() => {
+            showToast('📋 បានចម្លង SQL Schema រួចរាល់! អាច paste ក្នុង Supabase SQL Editor');
+          });
+        });
+      }
+
+      function showToast(msg) {
+        const toast = document.getElementById('toast-notice');
+        if (!toast) return;
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3200);
+      }
+
+      function escapeHtml(s) {
+        const div = document.createElement('div');
+        div.innerText = s;
+        return div.innerHTML;
+      }
+
+      // Check initial auth on load
+      checkAuth();
+      updateSupabaseStatusUi();
+    });
+  </script>
+</body>
+
+</html>
