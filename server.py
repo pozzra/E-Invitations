@@ -131,6 +131,38 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             }, ensure_ascii=False).encode('utf-8'))
             return
 
+        elif path == '/api/upload-mp3':
+            # MP3 upload endpoint - for POST requests
+            # In browser, use POST method via HTML form or curl
+            # For GET requests, show instructions
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "message": "Use POST method to upload MP3",
+                "instructions": {
+                    "curl": "curl -X POST -H 'Content-Type: application/json' -d '{\"filename\":\"song.mp3\",\"base64Data\":\"DATA\"}' https://e-invitations.onrender.com/api/upload-mp3",
+                    "html_form": "<form method='POST' enctype='application/json' action='/api/upload-mp3'><input type='text' name='json-data'/><button type='submit'>Upload MP3</button></form>"
+                }
+            }, ensure_ascii=False).encode('utf-8'))
+            return
+
+        elif path == '/api/import':
+            # Import database from JSON - for POST requests
+            # In browser, use POST method (e.g., via HTML form or curl)
+            # For GET requests, show instructions
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "message": "Use POST method to import database",
+                "instructions": {
+                    "curl": "curl -X POST -H 'Content-Type: application/json' -d @yourfile.json https://e-invitations.onrender.com/api/import",
+                    "html_form": "<form method='POST' enctype='multipart/form-data' action='/api/import'><input type='file' name='database'/><button type='submit'>Import</button></form>"
+                }
+            }, ensure_ascii=False).encode('utf-8'))
+            return
+
         # Friendly direct routes
         if path in ('/databasecloud', '/databasecloud/'):
             file_path = os.path.join(BASE_DIR, 'databasecloud', 'index.html')
