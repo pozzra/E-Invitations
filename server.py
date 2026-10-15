@@ -11,7 +11,8 @@ import os
 import sys
 from urllib.parse import urlparse, parse_qs
 
-PORT = 8080
+PORT = int(os.environ.get('PORT', 8080))
+HOST = os.environ.get('HOST', '0.0.0.0')
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_FILE = os.path.join(BASE_DIR, 'database', 'invitation_data.json')
 
@@ -340,7 +341,7 @@ if __name__ == '__main__':
     except Exception:
         pass
     os.chdir(BASE_DIR)
-    server_address = ('', PORT)
+    server_address = (HOST, PORT)
     httpd = http.server.HTTPServer(server_address, EInvitationHandler)
     print(f"E-Invitation Database & Web Server running on http://localhost:{PORT}")
     try:
