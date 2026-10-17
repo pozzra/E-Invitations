@@ -6,8 +6,10 @@ directly to disk in database/invitation_data.json with CORS support.
 """
 
 import http.server
+import html as html_lib
 import json
 import os
+import re
 import sys
 import urllib.request
 import urllib.error
@@ -232,6 +234,94 @@ def sb_clear_wishes():
     return _sb_request('DELETE', 'wishes', '?name=neq.__none__')
 
 
+# ==========================================================================
+# Dynamic Social Sharing (OpenGraph) — link previews mirror the live config
+# ==========================================================================
+
+def _get_live_config():
+    """Return the current invitation config (Supabase first, local JSON fallback)."""
+    cfg = sb_fetch_config()
+    if isinstance(cfg, dict) and cfg:
+        return cfg
+    try:
+        cfg = load_db().get('invitation_config', {})
+    except Exception:
+        cfg = {}
+    return cfg if isinstance(cfg, dict) else {}
+
+
+def _og_values(cfg):
+    """Build (og_title, description, image) from the live config."""
+    title = (cfg.get('invitationTitle') or 'សិរីសួស្តី អាពាហ៍ពិពាហ៍').strip()
+    groom = (cfg.get('groomName') or '').strip()
+    bride = (cfg.get('brideName') or '').strip()
+    couple = ''
+    if groom or bride:
+        couple = (groom + ' ❤️ ' + bride).strip(' ❤️ ')
+    og_title = (title + ' | ' + couple) if couple else title
+
+    desc = (cfg.get('invitationSubtext') or cfg.get('invitationGreeting') or '').strip()
+    if not desc:
+        desc = 'សូមគោរពអញ្ជើញចូលរួមជាអធិបតី និងជាភ្ញៀវកិត្តិយស ក្នុងពិធីសិរីមង្គលអាពាហ៍ពិពាហ៍'
+    if couple and groom and bride:
+        desc = f"សូមគោរពអញ្ជើញចូលរួមពិធីមង្គលការ {groom} និង {bride}។ {desc}"
+    image = (cfg.get('couplePhoto') or cfg.get('sealImage') or 'assets/images/couple.jpg').strip()
+    return og_title, desc, image
+
+
+def _set_meta(page, prop, value):
+    pattern = re.compile(
+        r'(<meta\s+property="' + re.escape(prop) + r'"\s+content=")[^"]*(")',
+        re.IGNORECASE,
+    )
+    return pattern.sub(lambda m: m.group(1) + html_lib.escape(value, quote=True) + m.group(2), page)
+
+
+def render_index_html(base_url=''):
+    """Return index.html with OpenGraph/Twitter tags populated from the live config."""
+    path = os.path.join(BASE_DIR, 'index.html')
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            page = f.read()
+    except Exception as e:
+        print(f'[OG] Cannot read index.html: {e}')
+        return None
+
+    cfg = _get_live_config()
+    og_title, desc, image = _og_values(cfg)
+
+    if image and not re.match(r'^(https?:)?//', image):
+        image_url = (base_url.rstrip('/') + '/' + image.lstrip('/')) if base_url else image
+    else:
+        image_url = image
+
+    page = re.sub(r'<title>.*?</title>', '<title>' + html_lib.escape(og_title) + '</title>',
+                  page, count=1, flags=re.DOTALL)
+    page = _set_meta(page, 'og:title', og_title)
+    page = _set_meta(page, 'og:description', desc)
+    page = _set_meta(page, 'og:image', image_url)
+    # Keep the plain description in sync too
+    page = re.sub(r'(<meta\s+name="description"\s+content=")[^"]*(")',
+                  lambda m: m.group(1) + html_lib.escape(desc, quote=True) + m.group(2),
+                  page, count=1, flags=re.IGNORECASE)
+
+    extra = (
+        f'<meta property="og:url" content="{html_lib.escape((base_url.rstrip("/") + "/") if base_url else "", quote=True)}">\n'
+        '  <meta property="og:site_name" content="Khmer Royal E-Invitation">\n'
+        f'<meta property="og:image:secure_url" content="{html_lib.escape(image_url, quote=True)}">\n'
+        '  <meta name="twitter:card" content="summary_large_image">\n'
+        f'<meta name="twitter:title" content="{html_lib.escape(og_title, quote=True)}">\n'
+        f'<meta name="twitter:description" content="{html_lib.escape(desc, quote=True)}">\n'
+        f'<meta name="twitter:image" content="{html_lib.escape(image_url, quote=True)}">'
+    )
+    existing = '<meta property="og:type" content="website">'
+    if existing in page:
+        page = page.replace(existing, existing + '\n  ' + extra, 1)
+    else:
+        page = page.replace('</head>', '  ' + extra + '\n</head>', 1)
+    return page
+
+
 class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
         self.send_header('Access-Control-Allow-Origin', '*')
@@ -364,6 +454,21 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             }, ensure_ascii=False).encode('utf-8'))
             return
 
+
+        # Dynamic index.html so social link previews mirror the live config
+        if path in ('/', '/index.html'):
+            host = self.headers.get('Host') or ''
+            proto = self.headers.get('X-Forwarded-Proto') or ('https' if 'onrender.com' in host else 'http')
+            base_url = f"{proto}://{host}" if host else ''
+            page = render_index_html(base_url)
+            if page is not None:
+                body = page.encode('utf-8')
+                self.send_response(200)
+                self.send_header('Content-Type', 'text/html; charset=utf-8')
+                self.send_header('Content-Length', str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+                return
 
         # Friendly direct routes
         if path in ('/databasecloud', '/databasecloud/'):

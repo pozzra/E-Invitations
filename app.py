@@ -34,6 +34,7 @@ from server import (
     sb_delete_wish,
     sb_clear_rsvps,
     sb_clear_wishes,
+    render_index_html,
 )
 
 app = Flask(__name__, static_folder=None)
@@ -385,14 +386,29 @@ def api_upload_mp3():
 # ==========================================================================
 # Static file serving (client invitation, admin panel, etc.)
 # ==========================================================================
+def _serve_root_index():
+    """Serve index.html with OpenGraph tags reflecting the live config."""
+    try:
+        base_url = request.url_root.rstrip('/')
+    except Exception:
+        base_url = ''
+    page = render_index_html(base_url)
+    if page is None:
+        return send_from_directory(BASE_DIR, 'index.html')
+    return Response(page, mimetype='text/html')
+
+
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve_static(path):
-    if path == '' or path.endswith('/'):
+    if path == '':
+        return _serve_root_index()
+
+    if path.endswith('/'):
         candidate = os.path.join(BASE_DIR, path, 'index.html')
         if os.path.exists(candidate):
             return send_from_directory(BASE_DIR, os.path.join(path, 'index.html'))
-        return send_from_directory(BASE_DIR, 'index.html')
+        return _serve_root_index()
 
     candidate = os.path.join(BASE_DIR, path)
     if os.path.exists(candidate) and os.path.isfile(candidate):
@@ -402,7 +418,7 @@ def serve_static(path):
     if os.path.exists(pretty):
         return send_from_directory(BASE_DIR, os.path.join(path, 'index.html'))
 
-    return send_from_directory(BASE_DIR, 'index.html')
+    return _serve_root_index()
 
 
 # Vercel entry point
