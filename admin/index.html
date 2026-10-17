@@ -571,6 +571,16 @@
           <label class="form-label">តំណភ្ជាប់ Google Maps (Maps Navigation URL)</label>
           <input type="url" id="cfg-maps-url" class="form-input" placeholder="https://maps.google.com/?q=...">
         </div>
+
+        <div class="form-group">
+          <button type="button" id="btn-use-location" class="btn-gold-secondary ripple-effect"
+            style="width: auto; padding: 10px 16px;">
+            📍 ប្រើទីតាំងបច្ចុប្បន្ន (Use My Current Location)
+          </button>
+          <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px;">
+            ចុចដើម្បីទាញយកទីតាំងបច្ចុប្បន្នរបស់អ្នក (GPS) ហើយបំពេញអាសយដ្ឋាន និងតំណ Google Maps ដោយស្វ័យប្រវត្តិ។
+          </p>
+        </div>
       </div>
     </div>
 
@@ -2506,6 +2516,63 @@ values
 
       // Build the admin-editable section heading / label fields once at startup
       renderSectionTextFields();
+
+      // 📍 Use current device location → auto-fill venue address + Google Maps URL
+      const btnUseLocation = document.getElementById('btn-use-location');
+      if (btnUseLocation) {
+        btnUseLocation.addEventListener('click', () => {
+          if (!navigator.geolocation) {
+            showToast('⚠️ ឧបករណ៍នេះមិនស្គាល់ទីតាំង (Geolocation not supported)');
+            return;
+          }
+          const original = btnUseLocation.textContent;
+          btnUseLocation.disabled = true;
+          btnUseLocation.textContent = '⏳ កំពុងរកទីតាំង...';
+
+          navigator.geolocation.getCurrentPosition(async (pos) => {
+            const lat = pos.coords.latitude.toFixed(6);
+            const lng = pos.coords.longitude.toFixed(6);
+            const mapsEl = document.getElementById('cfg-maps-url');
+            if (mapsEl) mapsEl.value = `https://maps.google.com/?q=${lat},${lng}`;
+
+            const addrEl = document.getElementById('cfg-venue-address');
+            let filled = false;
+            try {
+              const res = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
+                { headers: { 'Accept': 'application/json' } }
+              );
+              if (res.ok) {
+                const data = await res.json();
+                if (data && data.display_name) {
+                  if (addrEl) addrEl.value = data.display_name;
+                  filled = true;
+                }
+              }
+            } catch (err) {
+              console.warn('Reverse geocoding failed:', err);
+            }
+            if (!filled && addrEl && !addrEl.value.trim()) {
+              addrEl.value = `${lat}, ${lng}`;
+            }
+
+            btnUseLocation.disabled = false;
+            btnUseLocation.textContent = original;
+            showToast(filled
+              ? '📍 បានទាញយកទីតាំងបច្ចុប្បន្ន និងអាសយដ្ឋានដោយជោគជ័យ!'
+              : '📍 បានទាញយកទីតាំង (សូមពិនិត្យអាសយដ្ឋានឡើងវិញ)');
+          }, (err) => {
+            btnUseLocation.disabled = false;
+            btnUseLocation.textContent = original;
+            const msgs = {
+              1: '⚠️ សូមអនុញ្ញាតការចូលប្រើទីតាំង (Permission denied)',
+              2: '⚠️ រកទីតាំងមិនបាន (Position unavailable)',
+              3: '⚠️ អស់ពេលក្នុងការរកទីតាំង (Timeout)'
+            };
+            showToast(msgs[err && err.code] || '⚠️ មិនអាចទាញយកទីតាំងបានទេ');
+          }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+        });
+      }
 
       // Handle QR Code Image Upload & Preview
       const qrFileInput = document.getElementById('cfg-qr-file');
