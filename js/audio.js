@@ -330,6 +330,10 @@ class TraditionalAudioController {
   }
 
   startSynthMusic() {
+    if (this.timerId) {
+      clearTimeout(this.timerId);
+      this.timerId = null;
+    }
     this.usingSynth = true;
     this.initContext();
     this.noteIndex = 0;
@@ -389,8 +393,7 @@ class TraditionalAudioController {
   }
 
   // Resume the SAME track from where it was paused (no random switch).
-  resumeBackgroundMusic() {
-    this.isPlaying = true;
+  resumeBackgroundMusic() {    this.isPlaying = true;
 
     if (this.usingSynth) {
       this.startSynthMusic();
@@ -435,6 +438,28 @@ class TraditionalAudioController {
     }
     this.resumeBackgroundMusic();
     return true;
+  }
+
+  // Called from a real user gesture. Mobile browsers block audio until the
+  // first interaction: resume the Web Audio context and (re)start playback if
+  // a previous autoplay attempt was silently blocked.
+  unlockForAutoplay() {
+    if (this.audioCtx && this.audioCtx.state === 'suspended') {
+      try { this.audioCtx.resume(); } catch (e) { /* ignore */ }
+    }
+    if (!this.isPlaying) return;
+
+    // Synth fallback: make sure the melody loop is actually running.
+    if (this.usingSynth) {
+      if (!this.timerId) this.startSynthMusic();
+      return;
+    }
+
+    // File track: if it never actually started, try playing it now.
+    if (this.audioEl && this.audioEl.src && (this.audioEl.paused || this.audioEl.currentTime === 0)) {
+      const p = this.audioEl.play();
+      if (p && typeof p.catch === 'function') p.catch(() => { /* keep silent */ });
+    }
   }
 }
 

@@ -28,17 +28,62 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let hasOpened = false;
 
+  // Music preference + mobile autoplay state (persisted across reloads).
+  const MUSIC_MUTED_KEY = 'khmer_music_muted';
+  function isMusicMuted() {
+    try { return localStorage.getItem(MUSIC_MUTED_KEY) === '1'; } catch (e) { return false; }
+  }
+  function setMusicMuted(muted) {
+    try { localStorage.setItem(MUSIC_MUTED_KEY, muted ? '1' : '0'); } catch (e) { }
+  }
+
+  // Start music now; safe to call multiple times.
+  function startMusicIfAllowed() {
+    if (!window.traditionalAudio || isMusicMuted()) return;
+    if (!window.traditionalAudio.isPlaying) {
+      window.traditionalAudio.startBackgroundMusic();
+    } else {
+      window.traditionalAudio.unlockForAutoplay();
+    }
+    if (btnMusic) btnMusic.classList.add('spinning');
+  }
+
+  // Mobile browsers (iOS Safari / Android Chrome) refuse to play audio until the
+  // first user gesture. The moment the user taps, scrolls or presses a key, we
+  // unlock and start the music automatically — even after a page reload.
+  let musicUnlocked = false;
+  function unlockMusicOnGesture() {
+    if (musicUnlocked) return;
+    musicUnlocked = true;
+    startMusicIfAllowed();
+  }
+  window.addEventListener('pointerdown', unlockMusicOnGesture, { passive: true });
+  window.addEventListener('touchstart', unlockMusicOnGesture, { passive: true });
+  window.addEventListener('click', unlockMusicOnGesture, { passive: true });
+  window.addEventListener('keydown', unlockMusicOnGesture);
+  window.addEventListener('scroll', unlockMusicOnGesture, { passive: true });
+
+  // Best-effort autoplay on load. If the invitation was opened before (i.e. the
+  // visitor is reloading), start right away; otherwise wait for the envelope
+  // gesture / first interaction so a first-time visitor isn't startled.
+  let wasOpenedBefore = false;
+  try { wasOpenedBefore = localStorage.getItem('khmer_env_opened') === '1'; } catch (e) { }
+  if (wasOpenedBefore) setTimeout(startMusicIfAllowed, 400);
+
   function openEnvelope() {
     if (hasOpened) return;
     hasOpened = true;
+    try { localStorage.setItem('khmer_env_opened', '1'); } catch (e) { }
 
-    // Trigger golden chime sound
+    // Trigger the golden chime AND start the music SYNCHRONOUSLY inside this
+    // user gesture. Deferring playback with setTimeout makes iOS/Android treat
+    // it as an un-gestured autoplay attempt and silently block it.
     if (window.traditionalAudio) {
       window.traditionalAudio.playSealBreakSound();
-      setTimeout(() => {
+      if (!isMusicMuted()) {
         window.traditionalAudio.startBackgroundMusic();
         if (btnMusic) btnMusic.classList.add('spinning');
-      }, 500);
+      }
     }
 
     // Trigger 3D animation stages
@@ -70,6 +115,8 @@ document.addEventListener('DOMContentLoaded', () => {
     btnMusic.addEventListener('click', () => {
       if (window.traditionalAudio) {
         const isPlaying = window.traditionalAudio.toggleMusic();
+        musicUnlocked = true; // respect the user's explicit choice
+        setMusicMuted(!isPlaying);
         if (isPlaying) {
           btnMusic.classList.add('spinning');
           showToast('🎶 កំពុងចាក់តន្ត្រីមង្គលការ');
