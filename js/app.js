@@ -110,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
     invitationGreeting: 'យើងខ្ញុំសូមគោរពអញ្ជើញ',
     invitationSubtext: 'ចូលរួមជាអធិបតី និងជាភ្ញៀវកិត្តិយស ក្នុងពិធីមង្គលការកូនប្រុស-កូនស្រីរបស់យើងខ្ញុំ',
     sealImage: 'assets/images/golden_seal.jpg',
+    faviconUrl: '',
     bgMusicUrl: 'assets/audio/bg_music.mp3',
     bgMusicPlaylist: [
       { type: 'file', src: 'assets/audio/bg_music.mp3', title: 'Default Background Music' }
@@ -270,6 +271,28 @@ document.addEventListener('DOMContentLoaded', () => {
         _setVar('--font-khmer-heading', '');
       }
     }
+
+    // Site Icon / Favicon (admin-customizable via Configurations)
+    const favUrl = config && config.faviconUrl ? String(config.faviconUrl).trim() : '';
+    const favEl = document.getElementById('app-favicon');
+    const appleEl = document.getElementById('app-apple-icon');
+    if (favEl) {
+      if (favUrl) {
+        favEl.setAttribute('href', favUrl);
+        const ext = (favUrl.split('?')[0].split('.').pop() || '').toLowerCase();
+        const type = ext === 'ico' ? 'image/x-icon'
+          : ext === 'png' ? 'image/png'
+            : ext === 'svg' ? 'image/svg+xml'
+              : ext === 'webp' ? 'image/webp'
+                : (ext === 'jpg' || ext === 'jpeg') ? 'image/jpeg' : '';
+        if (type) favEl.setAttribute('type', type);
+        else favEl.removeAttribute('type');
+      } else {
+        favEl.setAttribute('href', 'assets/images/golden_seal.jpg');
+        favEl.removeAttribute('type');
+      }
+    }
+    if (appleEl) appleEl.setAttribute('href', favUrl || 'assets/images/golden_seal.jpg');
 
     // Re-apply when the OS switches light/dark while in auto mode
     if (!window.__themeAutoWired && window.matchMedia) {

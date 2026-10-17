@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Battambang:wght@300;400;700&family=Cinzel:wght@500;700;900&family=Hanuman:wght@300;400;700&family=Kantumruy+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Moul&family=Noto+Serif+Khmer:wght@400;600;700&display=swap">
-  <link rel="stylesheet" href="../css/style.css?v=20261017c">
+  <link rel="stylesheet" href="../css/style.css?v=20261017d">
   <style>
     body {
       background-color: #060913;
@@ -1061,7 +1061,36 @@
           </div>
         </div>
 
-        <!-- D. Sections Visibility -->
+        <!-- D. App Icon / Favicon -->
+        <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
+          <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 12px;">🖼️ រូបតំណាងគេហទំព័រ (App Icon / Favicon)</h4>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px;">
+            ផ្ទុករូបតំណាងពីកុំព្យូទ័រ (.ico / .png / .jpg / .svg) ដើម្បីបង្ហាញលើ Tab វេបប្រោស័រ និងពេលរក្សាទុកលើទូរស័ព្ទ។
+          </p>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">ផ្ទុករូបតំណាងពីកុំព្យូទ័រ (Upload from device)</label>
+              <input type="file" id="cfg-icon-file"
+                accept=".ico,.png,.jpg,.jpeg,.webp,.svg,image/x-icon,image/vnd.microsoft.icon,image/png,image/jpeg,image/webp,image/svg+xml,image/*"
+                class="form-input" style="padding: 8px;">
+            </div>
+            <div class="form-group">
+              <label class="form-label">ឬបញ្ចូល Icon URL</label>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <input type="text" id="cfg-icon-url" class="form-input"
+                  placeholder="assets/images/favicon.png ឬ https://...">
+                <img id="cfg-icon-preview" alt="icon preview"
+                  style="width: 40px; height: 40px; object-fit: contain; flex: 0 0 auto; border: 1px solid rgba(229,185,85,0.3); border-radius: 6px; background: rgba(0,0,0,0.25); display: none;">
+              </div>
+            </div>
+          </div>
+          <button type="button" id="btn-clear-icon"
+            style="margin-top: 10px; font-size: 0.75rem; padding: 6px 12px; background: none; border: 1px solid rgba(229,185,85,0.4); color: var(--primary-gold-light); border-radius: 6px; cursor: pointer;">
+            ✕ លុប និងប្រើលំនាំដើម (Use Default)
+          </button>
+        </div>
+
+        <!-- E. Sections Visibility -->
         <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
           <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 8px;">🧩 ការបង្ហាញផ្នែកនីមួយៗ (Show
             / Hide Sections)</h4>
@@ -1434,7 +1463,7 @@ values
 
   <!-- Supabase SDK & Admin Script Logic -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../js/supabase.js?v=20261017c"></script>
+  <script src="../js/supabase.js?v=20261017d"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       // 🌐 Smart API Base URL: redirect to Python server on port 8080 when
@@ -1650,6 +1679,7 @@ values
         videoUrl: '',
         videoPoster: 'assets/images/couple.jpg',
         videoPosters: ['assets/images/couple.jpg'],
+        faviconUrl: '',
         bankAppLink: ''
       };
 
@@ -1676,6 +1706,19 @@ values
           preview.src = '';
           preview.style.display = 'none';
           placeholder.style.display = 'flex';
+        }
+      }
+
+      function updateIconPreview(url) {
+        const preview = document.getElementById('cfg-icon-preview');
+        if (!preview) return;
+        url = (url || '').trim();
+        if (url) {
+          preview.src = url;
+          preview.style.display = 'block';
+        } else {
+          preview.src = '';
+          preview.style.display = 'none';
         }
       }
 
@@ -1812,9 +1855,13 @@ values
         if (document.getElementById('cfg-font-khmer-heading')) document.getElementById('cfg-font-khmer-heading').value = fontsCfg.khmerHeading || '';
         if (document.getElementById('cfg-font-english')) document.getElementById('cfg-font-english').value = fontsCfg.english || '';
         if (document.getElementById('cfg-font-custom-url')) document.getElementById('cfg-font-custom-url').value = fontsCfg.customUrl || '';
-        if (document.getElementById('cfg-font-custom-family')) document.getElementById('cfg-font-custom-family').value = fontsCfg.customFamily || '';
+        if (document.getElementById('cfg-font-custom-family'))
+          document.getElementById('cfg-font-custom-family').value = fontsCfg.customFamily || '';
         syncColorControls();
 
+        // App Icon / Favicon
+        if (document.getElementById('cfg-icon-url')) document.getElementById('cfg-icon-url').value = cfg.faviconUrl || '';
+        updateIconPreview(cfg.faviconUrl || '');
         // Video Album Fields
         if (document.getElementById('cfg-video-title')) document.getElementById('cfg-video-title').value = cfg.videoTitle || '';
         if (document.getElementById('cfg-video-subtitle')) document.getElementById('cfg-video-subtitle').value = cfg.videoSubtitle || '';
@@ -2261,7 +2308,50 @@ values
         });
       }
 
-      const videoFileInput = document.getElementById('cfg-video-file');
+      // ── App Icon / Favicon (upload from device: .ico/.png/.jpg/.svg) ──────────
+      const iconUrlInput = document.getElementById('cfg-icon-url');
+      const iconFileInput = document.getElementById('cfg-icon-file');
+      if (iconUrlInput) {
+        iconUrlInput.addEventListener('input', (e) => updateIconPreview(e.target.value));
+      }
+      if (iconFileInput) {
+        iconFileInput.addEventListener('change', async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = async (re) => {
+            const base64Data = re.target.result;
+            let finalUrl = base64Data;
+            try {
+              const res = await fetch(`${API_BASE}/api/upload-image`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ filename: file.name, base64Data: base64Data })
+              });
+              if (!res.ok) throw new Error('upload failed');
+              const data = await res.json();
+              finalUrl = data.url;
+              showToast('🖼️ បានផ្ទុករូបតំណាងឡើងជោគជ័យ!');
+            } catch (err) {
+              console.warn('Icon upload failed, using inline preview:', err);
+              showToast('⚠️ រក្សាទុកជា Preview ក្នុងឧបករណ៍ (មិនបានផ្ទុកទៅ Server)');
+            }
+            if (iconUrlInput) iconUrlInput.value = finalUrl;
+            updateIconPreview(finalUrl);
+            iconFileInput.value = '';
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+      const btnClearIcon = document.getElementById('btn-clear-icon');
+      if (btnClearIcon) {
+        btnClearIcon.addEventListener('click', () => {
+          if (iconUrlInput) iconUrlInput.value = '';
+          if (iconFileInput) iconFileInput.value = '';
+          updateIconPreview('');
+          showToast('↩️ បានលុបរូបតំណាង (នឹងប្រើលំនាំដើមវិញ)');
+        });
+      }
       const videoUploadStatus = document.getElementById('video-upload-status');
       const videoProgBar = document.getElementById('video-progress-bar');
       const videoProgContainer = document.getElementById('video-progress-bar-container');
@@ -2357,6 +2447,7 @@ values
           bankAccNum: document.getElementById('cfg-bank-accnum').value.trim(),
           bankName: document.getElementById('cfg-bank-name').value.trim(),
           bankAppLink: document.getElementById('cfg-bank-applink').value.trim(),
+          faviconUrl: document.getElementById('cfg-icon-url') ? document.getElementById('cfg-icon-url').value.trim() : '',
           qrImage: document.getElementById('cfg-qr-image').value.trim(),
           couplePhoto: document.getElementById('cfg-couple-photo').value.trim(),
           blessingVerse: document.getElementById('cfg-blessing-verse') ? document.getElementById('cfg-blessing-verse').value.trim() : defaultConfig.blessingVerse,

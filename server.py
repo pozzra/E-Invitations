@@ -560,7 +560,7 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
                 import re, base64, time, mimetypes
                 filename = payload.get('filename', 'poster.jpg')
                 safe_name = re.sub(r'[^a-zA-Z0-9_\.-]', '_', filename)
-                if not safe_name.lower().endswith(('.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif')):
+                if not safe_name.lower().endswith(('.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif', '.ico', '.svg')):
                     safe_name += '.jpg'
 
                 unique_name = f"image_{int(time.time())}_{safe_name}"

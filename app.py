@@ -322,7 +322,7 @@ def api_upload_image():
     try:
         filename = payload.get('filename', 'poster.jpg')
         safe_name = re.sub(r'[^a-zA-Z0-9_\.-]', '_', filename)
-        if not safe_name.lower().endswith(('.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif')):
+        if not safe_name.lower().endswith(('.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif', '.ico', '.svg')):
             safe_name += '.jpg'
         unique_name = f'image_{int(time.time())}_{safe_name}'
         image_dir = os.path.join(BASE_DIR, 'assets', 'images')
