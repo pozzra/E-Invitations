@@ -111,6 +111,9 @@ document.addEventListener('DOMContentLoaded', () => {
     invitationSubtext: 'ចូលរួមជាអធិបតី និងជាភ្ញៀវកិត្តិយស ក្នុងពិធីមង្គលការកូនប្រុស-កូនស្រីរបស់យើងខ្ញុំ',
     sealImage: 'assets/images/golden_seal.jpg',
     bgMusicUrl: 'assets/audio/bg_music.mp3',
+    bgMusicPlaylist: [
+      { type: 'file', src: 'assets/audio/bg_music.mp3', title: 'Default Background Music' }
+    ],
     thankYouText: 'សូមថ្លែងអំណរគុណយ៉ាងជ្រាលជ្រៅចំពោះវត្តមានដ៏ឧត្តុង្គឧត្តមរបស់លោកអ្នក',
     footerCredit: 'Designed with Khmer Traditional Heritage & Modern Elegance',
     videoAlbum: {
@@ -169,11 +172,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (footerThankyou && config.thankYouText) footerThankyou.textContent = config.thankYouText;
     if (footerCredit && config.footerCredit) footerCredit.textContent = config.footerCredit;
 
-    // Background Audio source
-    if (config.bgMusicUrl && window.weddingAudio && window.weddingAudio.audio) {
-      if (window.weddingAudio.audio.src !== config.bgMusicUrl && !window.weddingAudio.audio.src.endsWith(config.bgMusicUrl)) {
-        window.weddingAudio.audio.src = config.bgMusicUrl;
+    // Background Music Playlist (MP3 / audio URL / YouTube). The client picks
+    // one track at random and auto-advances to another when it finishes.
+    if (window.traditionalAudio && typeof window.traditionalAudio.setPlaylist === 'function') {
+      let playlist = Array.isArray(config.bgMusicPlaylist) ? config.bgMusicPlaylist : [];
+      if (!playlist.length && config.bgMusicUrl) {
+        playlist = [{ type: 'file', src: config.bgMusicUrl, title: 'Background Music' }];
       }
+      window.traditionalAudio.setPlaylist(playlist);
     }
 
     // Couple Names
@@ -262,7 +268,8 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="timeline-desc">${escapeHtml(item.desc || '')}</div>
         </div>
       `).join('');
-      triggerScrollReveal(); // Reveal timeline items after render
+      observeRevealElements(timelineContainer); // Watch freshly (re)rendered items
+      triggerScrollReveal(); // Reveal timeline items already in viewport
     }
     // Video Album Configuration
     const vAlbum = config.videoAlbum || {};
@@ -933,8 +940,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function startVideoPlayback() {
     if (!weddingVideo) return;
     // Auto-pause background music so audio doesn't clash
-    if (window.weddingAudio && window.weddingAudio.isPlaying) {
-      window.weddingAudio.pause();
+    if (window.traditionalAudio && window.traditionalAudio.isPlaying) {
+      window.traditionalAudio.stopBackgroundMusic();
+      if (btnMusic) btnMusic.classList.remove('spinning');
     }
     weddingVideo.play().then(() => {
       if (videoOverlay) videoOverlay.classList.add('hidden');
@@ -958,8 +966,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (weddingVideo) {
     weddingVideo.addEventListener('play', () => {
       if (videoOverlay) videoOverlay.classList.add('hidden');
-      if (window.weddingAudio && window.weddingAudio.isPlaying) {
-        window.weddingAudio.pause();
+      if (window.traditionalAudio && window.traditionalAudio.isPlaying) {
+        window.traditionalAudio.stopBackgroundMusic();
+        if (btnMusic) btnMusic.classList.remove('spinning');
       }
     });
     weddingVideo.addEventListener('pause', () => {
@@ -1194,11 +1203,12 @@ document.addEventListener('DOMContentLoaded', () => {
 // ==========================================================================
 // Scroll Reveal Observer (Smooth Staggered Entrance)
 // ==========================================================================
-function initScrollReveal() {
-  const elements = document.querySelectorAll('.reveal-on-scroll');
-  if (!elements.length) return;
+let scrollRevealObserver = null;
 
-  const observer = new IntersectionObserver((entries) => {
+function getScrollRevealObserver() {
+  if (scrollRevealObserver) return scrollRevealObserver;
+
+  scrollRevealObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('is-revealed');
@@ -1209,7 +1219,29 @@ function initScrollReveal() {
     rootMargin: '0px 0px -40px 0px'
   });
 
-  elements.forEach(el => observer.observe(el));
+  return scrollRevealObserver;
+}
+
+function observeRevealElements(root) {
+  const observer = getScrollRevealObserver();
+  const targets = [];
+
+  if (root && root.nodeType === 1) {
+    if (root.classList && root.classList.contains('reveal-on-scroll')) targets.push(root);
+    if (root.querySelectorAll) {
+      root.querySelectorAll('.reveal-on-scroll').forEach(el => targets.push(el));
+    }
+  } else {
+    document.querySelectorAll('.reveal-on-scroll').forEach(el => targets.push(el));
+  }
+
+  targets.forEach(el => observer.observe(el));
+}
+
+function initScrollReveal() {
+  const elements = document.querySelectorAll('.reveal-on-scroll');
+  if (!elements.length) return;
+  observeRevealElements(document);
 }
 
 function triggerScrollReveal() {

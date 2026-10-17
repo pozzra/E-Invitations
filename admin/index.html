@@ -829,18 +829,30 @@
           </div>
         </div>
 
-        <!-- 2. Background Music & Audio Controls -->
+        <!-- 2. Background Music Playlist (up to 10 tracks) -->
         <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
-          <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 12px;">🎵 តន្ត្រីកំដរមង្គលការ
-            (Background Music)</h4>
+          <h4 style="display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 8px;">
+            <span>🎵 តន្ត្រីកំដរមង្គលការ (Background Music)</span>
+            <span id="music-count" style="font-size: 0.8rem; color: var(--text-muted); font-weight: 400;">0 / 10</span>
+          </h4>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px;">
+            បន្ថែមបានច្រើនបំផុត <strong>១០ បទ</strong> (ផ្ទុកឯកសារ MP3, Audio URL, ឬ YouTube)។
+            គេហទំព័រភ្ញៀវនឹងចាក់បទមួយដោយ<strong>ចៃដន្យ</strong> ហើយប្តូរទៅបទផ្សេងទៀតដោយស្វ័យប្រវត្តិ។
+          </p>
+
+          <div id="music-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;"></div>
 
           <div class="form-group">
-            <label class="form-label">តំណភ្ជាប់ឯកសារចម្រៀង (Audio URL or Path)</label>
-            <input type="text" id="cfg-bgmusic-url" class="form-input"
-              placeholder="assets/audio/bg_music.mp3 ឬបញ្ចូល URL ចម្រៀង">
+            <label class="form-label">បន្ថែមតាម URL (Audio URL ឬ YouTube URL)</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="cfg-music-url-input" class="form-input"
+                placeholder="https://.../song.mp3 ឬ https://youtu.be/xxxxxxxxxxx">
+              <button type="button" id="btn-add-music-url" class="btn-gold-secondary ripple-effect"
+                style="width: auto; margin-top: 0; white-space: nowrap; padding: 10px 16px;">➕ បន្ថែម</button>
+            </div>
             <div style="margin-top: 8px;">
-              <label class="form-label" style="font-size: 0.8rem; color: var(--text-muted);">ឬជ្រើសរើសបទចម្រៀង mp3
-                ពីកុំព្យូទ័រ (Upload Audio File):</label>
+              <label class="form-label" style="font-size: 0.8rem; color: var(--text-muted);">ឬផ្ទុកឯកសារ mp3
+                ពីកុំព្យូទ័រ (Upload MP3 File):</label>
               <input type="file" id="cfg-music-file" accept="audio/*" class="form-input" style="padding: 8px;">
             </div>
           </div>
@@ -1196,6 +1208,10 @@ values
         ? '' // Same-origin: relative paths work fine
         : 'http://localhost:8080'; // Live Server / other dev ports → point to Python API
 
+      // 🎵 Background Music playlist state (max 10 tracks)
+      const MAX_MUSIC = 10;
+      let musicPlaylist = [];
+
       // 🔄 Auto-load Supabase credentials from localStorage on page load
       if (window.appSupabase) {
         window.appSupabase.loadCredentials();
@@ -1310,6 +1326,9 @@ values
         invitationSubtext: 'ចូលរួមជាអធិបតី និងជាភ្ញៀវកិត្តិយស ក្នុងពិធីមង្គលការកូនប្រុស-កូនស្រីរបស់យើងខ្ញុំ',
         sealImage: 'assets/images/golden_seal.jpg',
         bgMusicUrl: 'assets/audio/bg_music.mp3',
+        bgMusicPlaylist: [
+          { type: 'file', src: 'assets/audio/bg_music.mp3', title: 'Default Background Music' }
+        ],
         thankYouText: 'សូមថ្លែងអំណរគុណយ៉ាងជ្រាលជ្រៅចំពោះវត្តមានដ៏ឧត្តុង្គឧត្តមរបស់លោកអ្នក',
         footerCredit: 'Designed with Khmer Traditional Heritage & Modern Elegance',
         schedule: [
@@ -1390,7 +1409,15 @@ values
         if (document.getElementById('cfg-envelope-hint')) document.getElementById('cfg-envelope-hint').value = cfg.envelopeHint || '';
         if (document.getElementById('cfg-invitation-greeting')) document.getElementById('cfg-invitation-greeting').value = cfg.invitationGreeting || '';
         if (document.getElementById('cfg-invitation-subtext')) document.getElementById('cfg-invitation-subtext').value = cfg.invitationSubtext || '';
-        if (document.getElementById('cfg-bgmusic-url')) document.getElementById('cfg-bgmusic-url').value = cfg.bgMusicUrl || '';
+        musicPlaylist = Array.isArray(cfg.bgMusicPlaylist) ? cfg.bgMusicPlaylist.filter(t => t && t.src) : [];
+        if (!musicPlaylist.length && cfg.bgMusicUrl) {
+          musicPlaylist = [{
+            type: isYouTubeMusicUrl(cfg.bgMusicUrl) ? 'youtube' : 'file',
+            src: cfg.bgMusicUrl,
+            title: cfg.bgMusicUrl.startsWith('data:') ? 'Uploaded Track' : cfg.bgMusicUrl
+          }];
+        }
+        renderMusicList();
         if (document.getElementById('cfg-seal-image')) document.getElementById('cfg-seal-image').value = cfg.sealImage || '';
         if (document.getElementById('cfg-thankyou-text')) document.getElementById('cfg-thankyou-text').value = cfg.thankYouText || '';
         if (document.getElementById('cfg-footer-credit')) document.getElementById('cfg-footer-credit').value = cfg.footerCredit || '';
@@ -1491,21 +1518,103 @@ values
         });
       }
 
-      // Handle Audio Upload
+      // ===== Background Music Playlist Manager (max 10 tracks) =====
+      function isYouTubeMusicUrl(url) {
+        return /^(?:https?:)?\/\/(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)/i.test(url || '');
+      }
+
+      function renderMusicList() {
+        const listEl = document.getElementById('music-list');
+        const countEl = document.getElementById('music-count');
+        if (countEl) countEl.textContent = `${musicPlaylist.length} / ${MAX_MUSIC}`;
+        if (!listEl) return;
+
+        if (!musicPlaylist.length) {
+          listEl.innerHTML = '<div style="font-size: 0.78rem; color: var(--text-muted); padding: 10px; border: 1px dashed rgba(229,185,85,0.25); border-radius: 6px; text-align: center;">មិនទាន់មានបទចម្រៀងទេ — បន្ថែមបានខាងក្រោម</div>';
+          return;
+        }
+
+        listEl.innerHTML = musicPlaylist.map((t, i) => `
+          <div style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 7px 10px;">
+            <span style="font-size: 0.9rem;">${t.type === 'youtube' ? '▶️' : '🎵'}</span>
+            <span style="flex: 1; font-size: 0.78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(t.src)}">${escapeHtml(t.title || t.src)}</span>
+            <span style="font-size: 0.66rem; color: var(--text-muted); text-transform: uppercase;">${t.type}</span>
+            <button type="button" class="btn-remove-music" data-index="${i}" style="background: none; border: 1px solid rgba(255,107,107,0.4); color: #ff6b6b; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 0.72rem;">✕</button>
+          </div>
+        `).join('');
+
+        listEl.querySelectorAll('.btn-remove-music').forEach(btn => {
+          btn.addEventListener('click', () => {
+            musicPlaylist.splice(parseInt(btn.getAttribute('data-index'), 10), 1);
+            renderMusicList();
+          });
+        });
+      }
+
+      function addMusicTrack(track) {
+        if (musicPlaylist.length >= MAX_MUSIC) {
+          showToast(`⚠️ អាចបន្ថែមបានច្រើនបំផុត ${MAX_MUSIC} បទប៉ុណ្ណោះ`);
+          return false;
+        }
+        musicPlaylist.push(track);
+        renderMusicList();
+        return true;
+      }
+
+      const btnAddMusicUrl = document.getElementById('btn-add-music-url');
+      if (btnAddMusicUrl) {
+        btnAddMusicUrl.addEventListener('click', () => {
+          const input = document.getElementById('cfg-music-url-input');
+          const url = (input ? input.value : '').trim();
+          if (!url) { showToast('⚠️ សូមបញ្ចូល URL ចម្រៀង'); return; }
+          const type = isYouTubeMusicUrl(url) ? 'youtube' : 'file';
+          if (addMusicTrack({ type, src: url, title: url })) {
+            input.value = '';
+            showToast('✅ បានបន្ថែមបទចម្រៀង');
+          }
+        });
+      }
+
+      // Handle MP3 Upload → store on the Python server, then add the URL
       const musicFileInput = document.getElementById('cfg-music-file');
       if (musicFileInput) {
         musicFileInput.addEventListener('change', (e) => {
           const file = e.target.files[0];
-          if (file) {
-            const reader = new FileReader();
-            reader.onload = (re) => {
-              document.getElementById('cfg-bgmusic-url').value = re.target.result;
-              showToast('🎵 បានផ្ទុកបទចម្រៀងរួចរាល់!');
-            };
-            reader.readAsDataURL(file);
+          if (!file) return;
+          if (musicPlaylist.length >= MAX_MUSIC) {
+            showToast(`⚠️ អាចបន្ថែមបានច្រើនបំផុត ${MAX_MUSIC} បទប៉ុណ្ណោះ`);
+            e.target.value = '';
+            return;
           }
+          const reader = new FileReader();
+          reader.onload = async (re) => {
+            let added = false;
+            try {
+              const resp = await fetch(`${API_BASE}/api/upload-mp3`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ filename: file.name, base64Data: re.target.result })
+              });
+              const data = await resp.json();
+              if (data && data.success && data.url) {
+                const absUrl = new URL(data.url, API_BASE || window.location.origin).href;
+                added = addMusicTrack({ type: 'file', src: absUrl, title: file.name });
+              }
+            } catch (err) {
+              console.warn('MP3 upload to server failed:', err);
+            }
+            if (!added && musicPlaylist.length < MAX_MUSIC) {
+              addMusicTrack({ type: 'file', src: re.target.result, title: file.name });
+              showToast('🎵 បានបន្ថែមបទចម្រៀង (ក្នុងឧបករណ៍)');
+            } else if (added) {
+              showToast('🎵 បានផ្ទុកបទចម្រៀងឡើង Server រួចរាល់!');
+            }
+            e.target.value = '';
+          };
+          reader.readAsDataURL(file);
         });
       }
+      renderMusicList();
 
       // Handle QR Code Image Upload & Preview
       const qrFileInput = document.getElementById('cfg-qr-file');
@@ -1710,7 +1819,8 @@ values
           envelopeHint: document.getElementById('cfg-envelope-hint') ? document.getElementById('cfg-envelope-hint').value.trim() : defaultConfig.envelopeHint,
           invitationGreeting: document.getElementById('cfg-invitation-greeting') ? document.getElementById('cfg-invitation-greeting').value.trim() : defaultConfig.invitationGreeting,
           invitationSubtext: document.getElementById('cfg-invitation-subtext') ? document.getElementById('cfg-invitation-subtext').value.trim() : defaultConfig.invitationSubtext,
-          bgMusicUrl: document.getElementById('cfg-bgmusic-url') ? document.getElementById('cfg-bgmusic-url').value.trim() : defaultConfig.bgMusicUrl,
+          bgMusicPlaylist: musicPlaylist,
+          bgMusicUrl: (musicPlaylist[0] && musicPlaylist[0].src) || defaultConfig.bgMusicUrl,
           sealImage: document.getElementById('cfg-seal-image') ? document.getElementById('cfg-seal-image').value.trim() : defaultConfig.sealImage,
           thankYouText: document.getElementById('cfg-thankyou-text') ? document.getElementById('cfg-thankyou-text').value.trim() : defaultConfig.thankYouText,
           footerCredit: document.getElementById('cfg-footer-credit') ? document.getElementById('cfg-footer-credit').value.trim() : defaultConfig.footerCredit,
