@@ -54,8 +54,13 @@ def add_cors_headers(response):
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
     if request.path.startswith('/api/'):
         response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    elif request.path.endswith(('.html', '.js', '.css')) or request.path.endswith('/'):
+        # HTML/JS/CSS always revalidate so admin config & code updates
+        # (fonts, theme, sections) reach visitors immediately.
+        response.headers['Cache-Control'] = 'no-cache, must-revalidate'
     else:
-        response.headers['Cache-Control'] = 'public, max-age=3600, stale-while-revalidate=86400'
+        # Long-cache heavy static assets (images, audio, video, fonts)
+        response.headers['Cache-Control'] = 'public, max-age=86400, stale-while-revalidate=604800'
     return response
 
 

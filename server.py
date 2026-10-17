@@ -240,9 +240,13 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
         path = urlparse(self.path).path
         if path.startswith('/api/'):
             self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+        elif path.endswith(('.html', '.js', '.css')) or path.endswith('/'):
+            # HTML/JS/CSS must always revalidate so admin config & code updates
+            # (fonts, theme, sections) reach visitors immediately.
+            self.send_header('Cache-Control', 'no-cache, must-revalidate')
         else:
-            # Cache static assets (Khmer fonts, CSS, JS, images, audio, video)
-            self.send_header('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400')
+            # Long-cache heavy static assets (images, audio, video, fonts)
+            self.send_header('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800')
         super().end_headers()
 
     def do_OPTIONS(self):
