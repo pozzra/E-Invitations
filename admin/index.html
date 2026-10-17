@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Battambang:wght@300;400;700&family=Cinzel:wght@500;700;900&family=Hanuman:wght@300;400;700&family=Kantumruy+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Moul&family=Noto+Serif+Khmer:wght@400;600;700&display=swap">
-  <link rel="stylesheet" href="../css/style.css?v=20261017e">
+  <link rel="stylesheet" href="../css/style.css?v=20261017f">
   <style>
     body {
       background-color: #060913;
@@ -1042,6 +1042,21 @@
           <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
             បើមិនធីកទេ ពណ៌មាស និងផ្ទៃខាងក្រោយនឹងប្រើតម្លៃលំនាំដើមតាម Dark/Light Mode។
           </p>
+
+          <div class="form-group" style="margin-top: 16px;">
+            <label class="form-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              <input type="checkbox" id="cfg-butterfly-enabled" style="width: 16px; height: 16px; accent-color: #e5b955;">
+              <span>🦋 កំណត់ពណ៌ប៊ូតឺរហ្វ្លាយដោយខ្លួនឯង (Custom Butterfly Colour)</span>
+            </label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="color" id="cfg-butterfly-color" value="#e5b955"
+                style="width: 52px; height: 40px; border: none; background: none; cursor: pointer;">
+              <input type="text" id="cfg-butterfly-color-hex" class="form-input" placeholder="#e5b955" style="flex: 1;">
+            </div>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+              បើមិនធីកទេ ប៊ូតឺរហ្វ្លាយនឹងប្រើពណ៌មាសលំនាំដើម។
+            </p>
+          </div>
         </div>
 
         <!-- C. Fonts -->
@@ -1523,7 +1538,7 @@ values
 
   <!-- Supabase SDK & Admin Script Logic -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../js/supabase.js?v=20261017e"></script>
+  <script src="../js/supabase.js?v=20261017f"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       // 🌐 Smart API Base URL: redirect to Python server on port 8080 when
@@ -1663,23 +1678,36 @@ values
         if (picker) picker.value = hex;
         if (text) text.value = hex;
       }
+      function setBfyColor(hex) {
+        const picker = document.getElementById('cfg-butterfly-color');
+        const text = document.getElementById('cfg-butterfly-color-hex');
+        if (picker) picker.value = hex;
+        if (text) text.value = hex;
+      }
       function syncColorControls() {
         const accentOn = document.getElementById('cfg-accent-enabled');
         const bgOn = document.getElementById('cfg-bg-enabled');
+        const bfyOn = document.getElementById('cfg-butterfly-enabled');
         const accentPicker = document.getElementById('cfg-theme-accent');
         const accentHex = document.getElementById('cfg-theme-accent-hex');
         const bgPicker = document.getElementById('cfg-theme-bg');
         const bgHex = document.getElementById('cfg-theme-bg-hex');
+        const bfyPicker = document.getElementById('cfg-butterfly-color');
+        const bfyHex = document.getElementById('cfg-butterfly-color-hex');
         [accentPicker, accentHex].forEach(el => { if (el) el.disabled = !(accentOn && accentOn.checked); });
         [bgPicker, bgHex].forEach(el => { if (el) el.disabled = !(bgOn && bgOn.checked); });
+        [bfyPicker, bfyHex].forEach(el => { if (el) el.disabled = !(bfyOn && bfyOn.checked); });
       }
       (function wireColorControls() {
         const accentPicker = document.getElementById('cfg-theme-accent');
         const accentHex = document.getElementById('cfg-theme-accent-hex');
         const bgPicker = document.getElementById('cfg-theme-bg');
         const bgHex = document.getElementById('cfg-theme-bg-hex');
+        const bfyPicker = document.getElementById('cfg-butterfly-color');
+        const bfyHex = document.getElementById('cfg-butterfly-color-hex');
         const accentOn = document.getElementById('cfg-accent-enabled');
         const bgOn = document.getElementById('cfg-bg-enabled');
+        const bfyOn = document.getElementById('cfg-butterfly-enabled');
         if (accentPicker && accentHex) {
           accentPicker.addEventListener('input', () => { accentHex.value = accentPicker.value; });
           accentHex.addEventListener('input', () => {
@@ -1692,8 +1720,15 @@ values
             if (/^#[0-9a-fA-F]{6}$/.test(bgHex.value.trim())) bgPicker.value = bgHex.value.trim();
           });
         }
+        if (bfyPicker && bfyHex) {
+          bfyPicker.addEventListener('input', () => { bfyHex.value = bfyPicker.value; });
+          bfyHex.addEventListener('input', () => {
+            if (/^#[0-9a-fA-F]{6}$/.test(bfyHex.value.trim())) bfyPicker.value = bfyHex.value.trim();
+          });
+        }
         if (accentOn) accentOn.addEventListener('change', syncColorControls);
         if (bgOn) bgOn.addEventListener('change', syncColorControls);
+        if (bfyOn) bfyOn.addEventListener('change', syncColorControls);
         syncColorControls();
       })();
 
@@ -2205,6 +2240,8 @@ values
         if (document.getElementById('cfg-bg-enabled')) document.getElementById('cfg-bg-enabled').checked = !!themeCfg.bg;
         setAccentColor(themeCfg.accent || '#e5b955');
         setBgColor(themeCfg.bg || '#0a0a0d');
+        if (document.getElementById('cfg-butterfly-enabled')) document.getElementById('cfg-butterfly-enabled').checked = !!themeCfg.butterflyColor;
+        setBfyColor(themeCfg.butterflyColor || '#e5b955');
         if (document.getElementById('cfg-font-khmer')) document.getElementById('cfg-font-khmer').value = fontsCfg.khmer || '';
         if (document.getElementById('cfg-font-khmer-heading')) document.getElementById('cfg-font-khmer-heading').value = fontsCfg.khmerHeading || '';
         if (document.getElementById('cfg-font-english')) document.getElementById('cfg-font-english').value = fontsCfg.english || '';
@@ -2929,6 +2966,11 @@ values
               ? ((document.getElementById('cfg-theme-bg-hex') && /^#[0-9a-fA-F]{6}$/.test(document.getElementById('cfg-theme-bg-hex').value.trim()))
                 ? document.getElementById('cfg-theme-bg-hex').value.trim()
                 : (document.getElementById('cfg-theme-bg') ? document.getElementById('cfg-theme-bg').value : ''))
+              : '',
+            butterflyColor: (document.getElementById('cfg-butterfly-enabled') && document.getElementById('cfg-butterfly-enabled').checked)
+              ? ((document.getElementById('cfg-butterfly-color-hex') && /^#[0-9a-fA-F]{6}$/.test(document.getElementById('cfg-butterfly-color-hex').value.trim()))
+                ? document.getElementById('cfg-butterfly-color-hex').value.trim()
+                : (document.getElementById('cfg-butterfly-color') ? document.getElementById('cfg-butterfly-color').value : ''))
               : ''
           },
           language: document.getElementById('cfg-language') ? document.getElementById('cfg-language').value : 'auto',

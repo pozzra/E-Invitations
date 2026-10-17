@@ -252,6 +252,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const c = _hexToRgb(hex);
     return 'rgba(' + c.r + ', ' + c.g + ', ' + c.b + ', ' + alpha + ')';
   }
+  function _luminance(hex) {
+    const c = _hexToRgb(hex);
+    return (0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b) / 255;
+  }
   function _setVar(name, value) {
     if (value) document.documentElement.style.setProperty(name, value);
     else document.documentElement.style.removeProperty(name);
@@ -304,6 +308,12 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       ['--bg-deep-navy', '--bg-burgundy', '--bg-grad-1', '--bg-grad-2', '--bg-grad-3', '--bg-overlay', '--glass-bg'].forEach(v => _setVar(v, ''));
     }
+
+    // 3b) Readable text: pick the palette from the EFFECTIVE background (custom
+    //     colour if set, otherwise the dark/light default) so text is always
+    //     legible — dark background → light text, light background → dark text.
+    const effectiveBg = theme.bg || (mode === 'light' ? '#fbf6ec' : '#0a0a0d');
+    root.setAttribute('data-bg', _luminance(effectiveBg) < 0.5 ? 'dark' : 'light');
 
     // 4) Language (sets <html lang> + data-lang; affects font priority)
     let langTag = 'km', langCode = 'kh';
@@ -386,6 +396,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (mq.addEventListener) mq.addEventListener('change', handler);
       else if (mq.addListener) mq.addListener(handler);
     }
+
+    // Butterfly decoration colour (admin-configurable; empty = default gold)
+    setButterflyColor(theme.butterflyColor);
   }
 
   function getInvitationConfig() {
@@ -2113,6 +2126,48 @@ function createParticleBurst() {
 // ==========================================================================
 // Elegant Butterfly Animation System
 // ==========================================================================
+let butterflyCustomColor = '';
+let butterflyInstances = [];
+
+function _bfyHexToRgb(hex) {
+  let h = String(hex || '').replace('#', '').trim();
+  if (h.length === 3) h = h.split('').map(c => c + c).join('');
+  const n = parseInt(h, 16);
+  if (isNaN(n)) return { r: 229, g: 185, b: 85 };
+  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+}
+
+function _bfyMix(hex, target, amt) {
+  const a = _bfyHexToRgb(hex), b = _bfyHexToRgb(target);
+  return 'rgb(' + Math.round(a.r + (b.r - a.r) * amt) + ', ' +
+    Math.round(a.g + (b.g - a.g) * amt) + ', ' +
+    Math.round(a.b + (b.b - a.b) * amt) + ')';
+}
+
+// Default Khmer-gold butterfly palette; overridden by a single custom colour.
+function butterflyPalette() {
+  if (butterflyCustomColor) {
+    const c = butterflyCustomColor;
+    return [
+      { primary: c, secondary: _bfyMix(c, '#ffffff', 0.55), accent: _bfyMix(c, '#000000', 0.35) },
+      { primary: _bfyMix(c, '#ffffff', 0.2), secondary: _bfyMix(c, '#ffffff', 0.7), accent: c },
+    ];
+  }
+  return [
+    { primary: '#e5b955', secondary: '#fff3b0', accent: '#d4af37' }, // Khmer Gold
+    { primary: '#ffd700', secondary: '#fff8dc', accent: '#ffec8b' }, // Imperial Gold
+    { primary: '#daa520', secondary: '#f0e68c', accent: '#b8860b' }, // Goldenrod
+    { primary: '#b8860b', secondary: '#e5b955', accent: '#daa520' }, // Dark Gold
+  ];
+}
+
+// Called after config loads to recolour live butterflies ('' → default gold).
+function setButterflyColor(hex) {
+  const value = hex ? String(hex).trim() : '';
+  butterflyCustomColor = /^#?[0-9a-fA-F]{3,8}$/.test(value) ? value : '';
+  butterflyInstances.forEach(b => { if (b && typeof b.assignColor === 'function') b.assignColor(); });
+}
+
 function initButterflyCanvas() {
   const canvas = document.createElement('canvas');
   canvas.id = 'butterfly-canvas';
@@ -2153,23 +2208,20 @@ function initButterflyCanvas() {
     }
   };
 
-  // Khmer gold color palette for butterflies
-  const butterflyColors = [
-    { primary: '#e5b955', secondary: '#fff3b0', accent: '#d4af37' }, // Khmer Gold
-    { primary: '#ffd700', secondary: '#fff8dc', accent: '#ffec8b' }, // Imperial Gold
-    { primary: '#daa520', secondary: '#f0e68c', accent: '#b8860b' }, // Goldenrod
-    { primary: '#b8860b', secondary: '#e5b955', accent: '#daa520' }, // Dark Gold
-  ];
-
   class Butterfly {
     constructor() {
       this.reset();
       this.y = Math.random() * height;
       this.wingPhase = Math.random() * Math.PI * 2;
       this.wingSpeed = 0.15 + Math.random() * 0.1;
-      this.colors = butterflyColors[Math.floor(Math.random() * butterflyColors.length)];
+      this.assignColor();
       this.size = 0.6 + Math.random() * 0.5;
       this.flapIntensity = 0.8 + Math.random() * 0.4;
+    }
+
+    assignColor() {
+      const palette = butterflyPalette();
+      this.colors = palette[Math.floor(Math.random() * palette.length)];
     }
 
     reset() {
@@ -2306,6 +2358,7 @@ function initButterflyCanvas() {
     b.fadeIn = false;
     butterflies.push(b);
   }
+  butterflyInstances = butterflies;
 
   function render() {
     ctx.clearRect(0, 0, width, height);
