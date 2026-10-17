@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html lang="km">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>សិរីសួស្តី អាពាហ៍ពិពាហ៍ | Khmer Wedding E-Invitation</title>
-  <meta name="description" content="លិខិតអញ្ជើញអាពាហ៍ពិពាហ៍បែបខ្មែរឌីជីថល (Khmer Royal E-Invitation) រចនាបទក្បាច់ខ្មែរពណ៌មាស ថ្លៃថ្នូរ និងប្រណិត">
-  
+  <meta name="description"
+    content="លិខិតអញ្ជើញអាពាហ៍ពិពាហ៍បែបខ្មែរឌីជីថល (Khmer Royal E-Invitation) រចនាបទក្បាច់ខ្មែរពណ៌មាស ថ្លៃថ្នូរ និងប្រណិត">
+
   <!-- OpenGraph for Social Sharing (Facebook, Telegram) -->
   <!-- These are safe fallbacks; the server rewrites them live from the saved config -->
   <meta property="og:title" content="សិរីសួស្តី អាពាហ៍ពិពាហ៍ | Khmer Royal E-Invitation">
-  <meta property="og:description" content="សូមគោរពអញ្ជើញចូលរួមជាអធិបតី និងជាភ្ញៀវកិត្តិយស ក្នុងពិធីសិរីមង្គលអាពាហ៍ពិពាហ៍">
+  <meta property="og:description"
+    content="សូមគោរពអញ្ជើញចូលរួមជាអធិបតី និងជាភ្ញៀវកិត្តិយស ក្នុងពិធីសិរីមង្គលអាពាហ៍ពិពាហ៍">
   <meta property="og:image" content="assets/images/couple.jpg">
   <meta property="og:type" content="website">
 
@@ -20,10 +23,12 @@
   <!-- Khmer & Latin Fonts (preconnected for fast, FOUC-free rendering) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Battambang:wght@300;400;700&family=Cinzel:wght@500;700;900&family=Hanuman:wght@300;400;700&family=Kantumruy+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Moul&family=Noto+Serif+Khmer:wght@400;600;700&display=swap">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Battambang:wght@300;400;700&family=Cinzel:wght@500;700;900&family=Hanuman:wght@300;400;700&family=Kantumruy+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Moul&family=Noto+Serif+Khmer:wght@400;600;700&display=swap">
 
-  <link rel="stylesheet" href="css/style.css?v=20261017l">
+  <link rel="stylesheet" href="css/style.css?v=20261017khmer_bg">
 </head>
+
 <body>
 
   <!-- Floating Particle & Glitter Canvas -->
@@ -32,21 +37,25 @@
 
   <!-- Floating Quick Actions (Language, Theme, Music Player, Share) -->
   <div class="floating-actions">
-    <button class="action-btn" id="btn-toggle-lang" title="ប្តូរភាសា / Switch Language (KH / EN)" aria-label="Switch Language">
-      <span id="lang-switch-text" style="font-size: 0.74rem; font-weight: 700; font-family: var(--font-khmer-sub); letter-spacing: 0.5px;">EN</span>
+    <button class="action-btn" id="btn-toggle-lang" title="ប្តូរភាសា / Switch Language (KH / EN)"
+      aria-label="Switch Language">
+      <span id="lang-switch-text"
+        style="font-size: 0.74rem; font-weight: 700; font-family: var(--font-khmer-sub); letter-spacing: 0.5px;">EN</span>
     </button>
     <button class="action-btn" id="btn-toggle-theme" title="ប្តូរ Dark/Light Mode" aria-label="Toggle Theme Mode">
       <span id="client-theme-icon" style="font-size: 1rem;">🌓</span>
     </button>
     <button class="action-btn" id="btn-toggle-music" title="ចាក់/បិទតន្ត្រី" aria-label="Toggle Traditional Music">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
         <path d="M9 18V5l12-2v13"></path>
         <circle cx="6" cy="18" r="3"></circle>
         <circle cx="18" cy="16" r="3"></circle>
       </svg>
     </button>
     <button class="action-btn" id="btn-share" title="ចែករំលែក" aria-label="Share Invitation">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
         <circle cx="18" cy="5" r="3"></circle>
         <circle cx="6" cy="12" r="3"></circle>
         <circle cx="18" cy="19" r="3"></circle>
@@ -67,7 +76,8 @@
         <div class="envelope-kbach-top"></div>
 
         <div class="envelope-header">
-          <div class="envelope-badge" id="display-envelope-badge" data-cfg-text="envelopeBadge">E-INVITATION • លិខិតអញ្ជើញ</div>
+          <div class="envelope-badge" id="display-envelope-badge" data-cfg-text="envelopeBadge">E-INVITATION •
+            លិខិតអញ្ជើញ</div>
           <h1 class="envelope-title" id="display-envelope-title">សិរីសួស្តី អាពាហ៍ពិពាហ៍</h1>
         </div>
 
@@ -77,7 +87,8 @@
         </div>
 
         <div class="envelope-guest-tag">
-          <span class="envelope-guest-label" id="display-envelope-guest-label" data-cfg-text="envelopeGuestLabel" data-en="Respectfully inviting:">សូមគោរពអញ្ជើញ៖</span>
+          <span class="envelope-guest-label" id="display-envelope-guest-label" data-cfg-text="envelopeGuestLabel"
+            data-en="Respectfully inviting:">សូមគោរពអញ្ជើញ៖</span>
           <div class="envelope-guest-name" id="envelope-guest-name">ភ្ញៀវកិត្តិយសដ៏ខ្ពង់ខ្ពស់</div>
         </div>
 
@@ -100,28 +111,28 @@
       <section class="hero-section">
         <div class="hero-overlay"></div>
         <div class="hero-content">
-          <div class="sacred-verse" id="display-sacred-verse">☸ ជយោ ហោតុ សព្វទា ☸</div>
-          <div class="invitation-badge" id="display-hero-badge">សិរីសួស្តី អាពាហ៍ពិពាហ៍</div>
-          
-          <h2 class="hero-title" id="display-hero-title">លិខិតអញ្ជើញ</h2>
+          <div class="sacred-verse" id="display-sacred-verse"></div>
+          <div class="invitation-badge" id="display-hero-badge"></div>
+
+          <h2 class="hero-title" id="display-hero-title"></h2>
 
           <!-- Personalized Guest Greeting -->
           <div class="guest-personal-card shimmer-sweep">
-            <p class="guest-greeting-text" id="display-greeting-text">យើងខ្ញុំសូមគោរពអញ្ជើញ</p>
-            <h3 class="guest-highlight-name" id="hero-guest-name">ឯកឧត្តម លោកជំទាវ លោក លោកស្រី ភ្ញៀវកិត្តិយស</h3>
-            <p class="guest-greeting-text" id="display-invitation-subtext" style="margin-top: 4px;">ចូលរួមជាអធិបតី និងជាភ្ញៀវកិត្តិយស ក្នុងពិធីមង្គលការកូនប្រុស-កូនស្រីរបស់យើងខ្ញុំ</p>
+            <p class="guest-greeting-text" id="display-greeting-text"></p>
+            <h3 class="guest-highlight-name" id="hero-guest-name"></h3>
+            <p class="guest-greeting-text" id="display-invitation-subtext" style="margin-top: 4px;"></p>
           </div>
 
           <!-- Couple Names -->
           <div class="couple-intro-banner">
-            <span class="couple-name" id="hero-groom-name">ជា វិបុល</span>
+            <span class="couple-name" id="hero-groom-name"></span>
             <span class="couple-heart">❤️</span>
-            <span class="couple-name" id="hero-bride-name">ស៊ុន ទេវី</span>
+            <span class="couple-name" id="hero-bride-name"></span>
           </div>
 
           <div class="event-date-hero">
-            <strong id="hero-solar-date">ថ្ងៃអាទិត្យ ទី១៥ ខែវិច្ឆិកា ឆ្នាំ២០២៦</strong>
-            <span class="lunar-date" id="hero-lunar-date">ត្រូវនឹងថ្ងៃ ៥កើត ខែកត្តិក ឆ្នាំរោង ឆស័ក ព.ស. ២៥៧០</span>
+            <strong id="hero-solar-date"></strong>
+            <span class="lunar-date" id="hero-lunar-date"></span>
           </div>
         </div>
       </section>
@@ -131,8 +142,8 @@
         <div class="card-glass reveal-on-scroll">
           <div class="section-kbach-header">
             <div class="kbach-ornament"></div>
-            <h3 class="section-title" data-cfg-text="countdownTitle">រាប់ថយក្រោយដល់ថ្ងៃសិរីមង្គល</h3>
-            <p class="section-subtitle" data-cfg-text="countdownSubtitle">Countdown to Auspicious Day</p>
+            <h3 class="section-title" data-cfg-text="countdownTitle"></h3>
+            <p class="section-subtitle" data-cfg-text="countdownSubtitle"></p>
           </div>
 
           <div class="countdown-grid">
@@ -155,7 +166,8 @@
           </div>
 
           <button class="btn-gold-secondary ripple-effect" id="btn-add-calendar" style="margin-top: 18px;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
               <line x1="16" y1="2" x2="16" y2="6"></line>
               <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -191,7 +203,8 @@
           <!-- Couple Portrait -->
           <div class="couple-portrait-wrap">
             <div class="couple-img-frame shimmer-sweep">
-              <img src="assets/images/couple.jpg" id="couple-portrait-img" alt="រូបថតគូស្វាមីភរិយាថ្មី ជា វិបុល និង ស៊ុន ទេវី" class="couple-img">
+              <img src="assets/images/couple.jpg" id="couple-portrait-img" alt="រូបថតគូស្វាមីភរិយាថ្មី"
+                class="couple-img">
             </div>
           </div>
 
@@ -226,7 +239,7 @@
           <!-- Main Cinema Video Player Container -->
           <div class="video-showcase-box">
             <div class="video-frame-glow"></div>
-            
+
             <!-- Traditional Corner Kbach Ornaments -->
             <div class="kbach-corner kbach-corner-tl"></div>
             <div class="kbach-corner kbach-corner-tr"></div>
@@ -234,7 +247,8 @@
             <div class="kbach-corner kbach-corner-br"></div>
 
             <div class="video-player-wrapper" id="video-player-wrapper">
-              <video id="wedding-video-player" class="wedding-video-element" playsinline controls preload="metadata" poster="assets/images/couple.jpg">
+              <video id="wedding-video-player" class="wedding-video-element" playsinline controls preload="metadata"
+                poster="assets/images/couple.jpg">
                 <source id="wedding-video-source" src="" type="video/mp4">
                 កម្មវិធីរុករករបស់អ្នកមិនគាំទ្រការចាក់វីដេអូនោះទេ (Your browser does not support HTML5 video)
               </video>
@@ -242,7 +256,8 @@
               <!-- Video Play Overlay with Ripple Pulse Animation -->
               <div class="video-play-overlay" id="video-play-overlay">
                 <div class="video-pulse-ring"></div>
-                <button class="video-play-trigger ripple-effect" id="btn-video-play-trigger" aria-label="Play Wedding Video">
+                <button class="video-play-trigger ripple-effect" id="btn-video-play-trigger"
+                  aria-label="Play Wedding Video">
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
                     <polygon points="5 3 19 12 5 21 5 3"></polygon>
                   </svg>
@@ -263,8 +278,10 @@
               <div class="video-tag-pill">
                 <span>🎬</span> <span id="video-tag-label">Wedding Highlights & Story</span>
               </div>
-              <button class="btn-theater-mode ripple-effect" id="btn-theater-mode" title="ទស្សនាទំហំធំពេញអេក្រង់ (Theater Mode)">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <button class="btn-theater-mode ripple-effect" id="btn-theater-mode"
+                title="ទស្សនាទំហំធំពេញអេក្រង់ (Theater Mode)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="15 3 21 3 21 9"></polyline>
                   <polyline points="9 21 3 21 3 15"></polyline>
                   <line x1="21" y1="3" x2="14" y2="10"></line>
@@ -333,8 +350,10 @@
             (Koh Pich Exhibition Center, Building G, Phnom Penh)
           </p>
 
-          <a href="https://maps.google.com/?q=Koh+Pich+Convention+and+Exhibition+Center+Building+G+Phnom+Penh" id="btn-maps-link" target="_blank" rel="noopener noreferrer" class="btn-gold-primary ripple-effect">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <a href="https://maps.google.com/?q=Koh+Pich+Convention+and+Exhibition+Center+Building+G+Phnom+Penh"
+            id="btn-maps-link" target="_blank" rel="noopener noreferrer" class="btn-gold-primary ripple-effect">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
               <circle cx="12" cy="10" r="3"></circle>
             </svg>
@@ -356,7 +375,8 @@
           </p>
 
           <button class="btn-gold-primary ripple-effect" id="btn-open-qr-modal">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="3" width="7" height="7"></rect>
               <rect x="14" y="3" width="7" height="7"></rect>
               <rect x="14" y="14" width="7" height="7"></rect>
@@ -379,7 +399,8 @@
           <form id="rsvp-form">
             <div class="form-group">
               <label class="form-label" for="guest-name-input">ឈ្មោះភ្ញៀវកិត្តិយស (Full Name) *</label>
-              <input type="text" id="guest-name-input" class="form-input" placeholder="សូមបញ្ចូលឈ្មោះរបស់លោកអ្នក" required>
+              <input type="text" id="guest-name-input" class="form-input" placeholder="សូមបញ្ចូលឈ្មោះរបស់លោកអ្នក"
+                required>
             </div>
 
             <div class="form-group">
@@ -414,7 +435,8 @@
 
             <div class="form-group">
               <label class="form-label" for="guest-wishes-input">សារជូនពរដល់គូស្វាមីភរិយា (Wedding Wishes)</label>
-              <textarea id="guest-wishes-input" class="form-textarea" rows="3" placeholder="សូមជូនពរឱ្យមានសុភមង្គល និងស្រឡាញ់គ្នារហូតដល់ចាស់កោងខ្នង..."></textarea>
+              <textarea id="guest-wishes-input" class="form-textarea" rows="3"
+                placeholder="សូមជូនពរឱ្យមានសុភមង្គល និងស្រឡាញ់គ្នារហូតដល់ចាស់កោងខ្នង..."></textarea>
             </div>
 
             <button type="submit" class="btn-gold-primary ripple-effect" style="margin-top: 10px;">
@@ -441,35 +463,46 @@
 
       <!-- Generate Custom Guest Link Tool (Admin Only - /generate or ?generate) -->
       <section class="content-section" id="section-admin-generate" style="display: none;">
-        <div class="card-glass" style="text-align: center; border: 1.5px solid var(--primary-gold); background: rgba(30, 10, 20, 0.85);">
+        <div class="card-glass"
+          style="text-align: center; border: 1.5px solid var(--primary-gold); background: rgba(30, 10, 20, 0.85);">
           <div class="section-kbach-header">
             <div class="kbach-ornament"></div>
-            <span class="role-tag" style="background: rgba(229, 185, 85, 0.25); color: var(--primary-gold-light); margin-bottom: 8px;">👑 ផ្ទាំងគ្រប់គ្រងម្ចាស់ដើមការ (Admin VIP Portal)</span>
+            <span class="role-tag"
+              style="background: rgba(229, 185, 85, 0.25); color: var(--primary-gold-light); margin-bottom: 8px;">👑
+              ផ្ទាំងគ្រប់គ្រងម្ចាស់ដើមការ (Admin VIP Portal)</span>
             <h3 class="section-title" data-cfg-text="vipTitle">បង្កើតតំណភ្ជាប់អញ្ជើញផ្ទាល់ខ្លួន</h3>
             <p class="section-subtitle" data-cfg-text="vipSubtitle">Generate Personalized VIP Link</p>
           </div>
-          
+
           <p style="font-size: 0.88rem; color: var(--text-cream); margin-bottom: 16px; line-height: 1.6;">
             ម្ចាស់ដើមការអាចវាយបញ្ចូលឈ្មោះភ្ញៀវ ដើម្បីបង្កើត Link ពិសេសដែលមានឈ្មោះភ្ញៀវបង្ហាញលើសំបុត្រផ្ទាល់!
           </p>
 
           <div style="display: flex; flex-direction: column; gap: 12px; max-width: 420px; margin: 0 auto;">
             <div style="display: flex; gap: 8px;">
-              <input type="text" id="custom-link-name-input" class="form-input" placeholder="ឧ. ឯកឧត្តម សុខ សាន" style="font-size: 0.95rem;">
-              <button class="btn-gold-primary ripple-effect" id="btn-generate-link" style="width: auto; padding: 12px 20px; white-space: nowrap;">
+              <input type="text" id="custom-link-name-input" class="form-input" placeholder="ឧ. ឯកឧត្តម សុខ សាន"
+                style="font-size: 0.95rem;">
+              <button class="btn-gold-primary ripple-effect" id="btn-generate-link"
+                style="width: auto; padding: 12px 20px; white-space: nowrap;">
                 <span>ចម្លង Link</span>
               </button>
             </div>
 
             <!-- Generated Result Preview Box -->
-            <div id="generated-link-box" style="display: none; background: rgba(0,0,0,0.5); border: 1px dashed var(--primary-gold); border-radius: var(--radius-sm); padding: 12px; text-align: left;">
-              <div style="font-size: 0.78rem; color: var(--primary-gold-light); margin-bottom: 4px;">🔗 តំណភ្ជាប់ដែលបានបង្កើត៖</div>
-              <div id="generated-link-url" style="font-size: 0.82rem; color: #fff; word-break: break-all; font-family: monospace; user-select: all;"></div>
+            <div id="generated-link-box"
+              style="display: none; background: rgba(0,0,0,0.5); border: 1px dashed var(--primary-gold); border-radius: var(--radius-sm); padding: 12px; text-align: left;">
+              <div style="font-size: 0.78rem; color: var(--primary-gold-light); margin-bottom: 4px;">🔗
+                តំណភ្ជាប់ដែលបានបង្កើត៖</div>
+              <div id="generated-link-url"
+                style="font-size: 0.82rem; color: #fff; word-break: break-all; font-family: monospace; user-select: all;">
+              </div>
               <div style="display: flex; gap: 8px; margin-top: 10px;">
-                <button class="btn-gold-secondary ripple-effect" id="btn-preview-link" style="padding: 8px 14px; font-size: 0.82rem; margin-top: 0;">
+                <button class="btn-gold-secondary ripple-effect" id="btn-preview-link"
+                  style="padding: 8px 14px; font-size: 0.82rem; margin-top: 0;">
                   👁️ បើកមើលសំបុត្រ (Preview)
                 </button>
-                <button class="btn-gold-secondary ripple-effect" id="btn-copy-again" style="padding: 8px 14px; font-size: 0.82rem; margin-top: 0;">
+                <button class="btn-gold-secondary ripple-effect" id="btn-copy-again"
+                  style="padding: 8px 14px; font-size: 0.82rem; margin-top: 0;">
                   📋 ចម្លងម្តងទៀត
                 </button>
               </div>
@@ -480,7 +513,8 @@
               <div style="font-size: 0.82rem; font-weight: 700; color: var(--primary-gold-light); margin-bottom: 8px;">
                 📋 បញ្ជីភ្ញៀវដែលបានបង្កើត Link រួច (VIP Guest Links):
               </div>
-              <div id="vip-guest-list" style="max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;">
+              <div id="vip-guest-list"
+                style="max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;">
                 <!-- Populated dynamically -->
               </div>
             </div>
@@ -488,13 +522,32 @@
         </div>
       </section>
 
-      <!-- Footer -->
+      <!-- Footer Section (Mirrors Royal Khmer Arch from Header) -->
       <footer class="footer-section">
-        <div class="footer-lotus">🪷</div>
-        <p id="display-footer-thankyou">សូមថ្លែងអំណរគុណយ៉ាងជ្រាលជ្រៅចំពោះវត្តមានដ៏ឧត្តុង្គឧត្តមរបស់លោកអ្នក</p>
-        <p id="display-footer-credit" style="margin-top: 6px; font-size: 0.75rem; color: var(--primary-gold-light);">
-          Designed with Khmer Traditional Heritage & Modern Elegance
-        </p>
+        <div class="footer-overlay"></div>
+        <div class="footer-content">
+          <div class="sacred-verse reveal-on-scroll">☸ ជយោ ហោតុ សព្វទា ☸</div>
+
+          <div class="footer-card shimmer-sweep reveal-on-scroll">
+            <div class="footer-kbach-crown">
+              <svg width="46" height="23" viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50 0 C45 20 20 25 0 25 C25 25 40 40 50 50 C60 40 75 25 100 25 C80 25 55 20 50 0 Z" fill="url(#goldGradFooter)" />
+                <defs>
+                  <linearGradient id="goldGradFooter" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#fdf497" />
+                    <stop offset="50%" stop-color="#d4af37" />
+                    <stop offset="100%" stop-color="#b8860b" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <p id="display-footer-thankyou" class="footer-thankyou-text">សូមថ្លែងអំណរគុណយ៉ាងជ្រាលជ្រៅចំពោះវត្តមានដ៏ឧត្តុង្គឧត្តមរបស់លោកអ្នក</p>
+            <div class="footer-divider-kbach"></div>
+            <p id="display-footer-credit" class="footer-credit-text">
+              Designed with Khmer Traditional Heritage & Modern Elegance
+            </p>
+          </div>
+        </div>
       </footer>
 
     </main>
@@ -506,7 +559,7 @@
   <div class="modal-overlay" id="qr-modal">
     <div class="modal-card">
       <button class="modal-close-btn" id="btn-close-qr-modal">&times;</button>
-      
+
       <div class="section-kbach-header" style="margin-bottom: 14px;">
         <h3 class="section-title" style="font-size: 1.15rem;" data-cfg-text="khqrTitle">ចំណងដៃអាពាហ៍ពិពាហ៍</h3>
         <p class="section-subtitle" data-cfg-text="khqrSubtitle">Scan KHQR to Send Blessing</p>
@@ -514,67 +567,73 @@
 
       <div class="qr-card-box" id="qr-box-container">
         <!-- Custom Uploaded QR Code Image -->
-        <img id="display-qr-img" src="" alt="KHQR Code" style="display: none; width: 200px; height: 200px; object-fit: contain; border-radius: 8px;">
+        <img id="display-qr-img" src="" alt="KHQR Code"
+          style="display: none; width: 200px; height: 200px; object-fit: contain; border-radius: 8px;">
         <!-- High fidelity Default SVG KHQR / Bakong Code -->
         <svg id="default-qr-svg" class="qr-code-img" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-          <rect width="200" height="200" fill="#ffffff" rx="10"/>
+          <rect width="200" height="200" fill="#ffffff" rx="10" />
           <!-- KHQR Header Banner -->
-          <rect x="15" y="15" width="170" height="26" fill="#e12431" rx="4"/>
-          <text x="100" y="33" fill="#ffffff" font-family="'Battambang', sans-serif" font-weight="bold" font-size="12" text-anchor="middle">KHQR BAKONG / ABA</text>
-          
+          <rect x="15" y="15" width="170" height="26" fill="#e12431" rx="4" />
+          <text x="100" y="33" fill="#ffffff" font-family="'Battambang', sans-serif" font-weight="bold" font-size="12"
+            text-anchor="middle">KHQR BAKONG / ABA</text>
+
           <!-- Stylized QR Pattern Matrix -->
           <!-- Top Left Finder -->
-          <rect x="25" y="52" width="40" height="40" fill="#111111" rx="4"/>
-          <rect x="31" y="58" width="28" height="28" fill="#ffffff" rx="2"/>
-          <rect x="37" y="64" width="16" height="16" fill="#111111" rx="1"/>
+          <rect x="25" y="52" width="40" height="40" fill="#111111" rx="4" />
+          <rect x="31" y="58" width="28" height="28" fill="#ffffff" rx="2" />
+          <rect x="37" y="64" width="16" height="16" fill="#111111" rx="1" />
 
           <!-- Top Right Finder -->
-          <rect x="135" y="52" width="40" height="40" fill="#111111" rx="4"/>
-          <rect x="141" y="58" width="28" height="28" fill="#ffffff" rx="2"/>
-          <rect x="147" y="64" width="16" height="16" fill="#111111" rx="1"/>
+          <rect x="135" y="52" width="40" height="40" fill="#111111" rx="4" />
+          <rect x="141" y="58" width="28" height="28" fill="#ffffff" rx="2" />
+          <rect x="147" y="64" width="16" height="16" fill="#111111" rx="1" />
 
           <!-- Bottom Left Finder -->
-          <rect x="25" y="135" width="40" height="40" fill="#111111" rx="4"/>
-          <rect x="31" y="141" width="28" height="28" fill="#ffffff" rx="2"/>
-          <rect x="37" y="147" width="16" height="16" fill="#111111" rx="1"/>
+          <rect x="25" y="135" width="40" height="40" fill="#111111" rx="4" />
+          <rect x="31" y="141" width="28" height="28" fill="#ffffff" rx="2" />
+          <rect x="37" y="147" width="16" height="16" fill="#111111" rx="1" />
 
           <!-- QR Data Dots & Grid Art -->
           <g fill="#111111">
-            <rect x="74" y="55" width="8" height="8"/>
-            <rect x="88" y="55" width="8" height="16"/>
-            <rect x="104" y="60" width="8" height="8"/>
-            <rect x="118" y="55" width="8" height="12"/>
-            <rect x="74" y="75" width="16" height="8"/>
-            <rect x="100" y="75" width="8" height="18"/>
-            <rect x="115" y="80" width="12" height="8"/>
+            <rect x="74" y="55" width="8" height="8" />
+            <rect x="88" y="55" width="8" height="16" />
+            <rect x="104" y="60" width="8" height="8" />
+            <rect x="118" y="55" width="8" height="12" />
+            <rect x="74" y="75" width="16" height="8" />
+            <rect x="100" y="75" width="8" height="18" />
+            <rect x="115" y="80" width="12" height="8" />
 
             <!-- Center Gold Lotus Icon Overlay -->
-            <circle cx="100" cy="115" r="16" fill="#d4af37"/>
-            <path d="M100 105 C96 112 94 116 100 123 C106 116 104 112 100 105 Z" fill="#ffffff"/>
-            <path d="M93 113 C91 118 94 122 100 124" stroke="#ffffff" stroke-width="1.5" fill="none"/>
-            <path d="M107 113 C109 118 106 122 100 124" stroke="#ffffff" stroke-width="1.5" fill="none"/>
+            <circle cx="100" cy="115" r="16" fill="#d4af37" />
+            <path d="M100 105 C96 112 94 116 100 123 C106 116 104 112 100 105 Z" fill="#ffffff" />
+            <path d="M93 113 C91 118 94 122 100 124" stroke="#ffffff" stroke-width="1.5" fill="none" />
+            <path d="M107 113 C109 118 106 122 100 124" stroke="#ffffff" stroke-width="1.5" fill="none" />
 
-            <rect x="74" y="140" width="8" height="18"/>
-            <rect x="90" y="145" width="16" height="8"/>
-            <rect x="115" y="135" width="8" height="12"/>
-            <rect x="135" y="135" width="8" height="8"/>
-            <rect x="150" y="145" width="18" height="8"/>
-            <rect x="145" y="160" width="12" height="12"/>
-            <rect x="74" y="165" width="18" height="12"/>
-            <rect x="100" y="165" width="8" height="8"/>
-            <rect x="115" y="160" width="15" height="15"/>
+            <rect x="74" y="140" width="8" height="18" />
+            <rect x="90" y="145" width="16" height="8" />
+            <rect x="115" y="135" width="8" height="12" />
+            <rect x="135" y="135" width="8" height="8" />
+            <rect x="150" y="145" width="18" height="8" />
+            <rect x="145" y="160" width="12" height="12" />
+            <rect x="74" y="165" width="18" height="12" />
+            <rect x="100" y="165" width="8" height="8" />
+            <rect x="115" y="160" width="15" height="15" />
           </g>
         </svg>
       </div>
 
       <div class="account-info-box">
         <div class="acc-name" id="display-acc-name">CHEA VIBOL & SUN DEVI</div>
-        <div class="acc-num" id="bank-acc-num" style="cursor: pointer;" title="ចុចដើម្បីបើក App ធនាគារ (Click to open Bank App)">001 888 999 (USD) <span style="font-size: 0.7rem; opacity: 0.7;">🏦</span></div>
-        <div id="display-bank-name" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px;">ABA Bank / Bakong</div>
+        <div class="acc-num" id="bank-acc-num" style="cursor: pointer;"
+          title="ចុចដើម្បីបើក App ធនាគារ (Click to open Bank App)">001 888 999 (USD) <span
+            style="font-size: 0.7rem; opacity: 0.7;">🏦</span></div>
+        <div id="display-bank-name" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px;">ABA Bank /
+          Bakong</div>
       </div>
 
       <div style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 12px;">
-        <button class="btn-gold-primary ripple-effect" id="btn-open-bank-app" style="width: auto; padding: 12px 16px; white-space: nowrap;">
+        <button class="btn-gold-primary ripple-effect" id="btn-open-bank-app"
+          style="width: auto; padding: 12px 16px; white-space: nowrap;">
           <span>🏦 បើក App ធនាគារ (Open Bank App)</span>
         </button>
       </div>
@@ -587,7 +646,8 @@
   <div class="theater-modal" id="theater-modal">
     <div class="theater-card">
       <button class="theater-close-btn" id="btn-close-theater" title="បិទ (Close)">&times;</button>
-      <div style="font-family: var(--font-khmer-sub); font-size: 0.95rem; color: var(--primary-gold-light); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+      <div
+        style="font-family: var(--font-khmer-sub); font-size: 0.95rem; color: var(--primary-gold-light); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
         <span>🎬</span> <span id="theater-title-display">វីដេអូអនុស្សាវរីយ៍អាពាហ៍ពិពាហ៍ (Wedding Highlights)</span>
       </div>
       <div class="video-player-wrapper" style="max-height: 75vh;">
@@ -604,20 +664,23 @@
   <div class="modal-overlay" id="db-test-modal" style="display: none;">
     <div class="modal-card" style="max-width: 600px; text-align: left; max-height: 85vh; overflow-y: auto;">
       <button class="modal-close-btn" id="btn-close-db-test">&times;</button>
-      
+
       <div class="section-kbach-header" style="margin-bottom: 12px; text-align: center;">
         <h3 class="section-title" style="font-size: 1.15rem;">🗄️ តេស្តការភ្ជាប់ Database & បង្ហាញទិន្នន័យ</h3>
         <p class="section-subtitle">Database Connection Test & Live Data Inspector</p>
       </div>
 
       <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
-        <button class="btn-gold-primary ripple-effect" id="btn-modal-test-db" style="padding: 8px 14px; font-size: 0.8rem; width: auto; margin: 0;">
+        <button class="btn-gold-primary ripple-effect" id="btn-modal-test-db"
+          style="padding: 8px 14px; font-size: 0.8rem; width: auto; margin: 0;">
           ⚡ សាកល្បងភ្ជាប់ Server DB
         </button>
-        <button class="btn-gold-secondary ripple-effect" id="btn-modal-test-supabase" style="padding: 8px 14px; font-size: 0.8rem; width: auto; margin: 0;">
+        <button class="btn-gold-secondary ripple-effect" id="btn-modal-test-supabase"
+          style="padding: 8px 14px; font-size: 0.8rem; width: auto; margin: 0;">
           ⚡ ភ្ជាប់ Supabase Cloud
         </button>
-        <button class="btn-gold-secondary ripple-effect" id="btn-modal-fetch-data" style="padding: 8px 14px; font-size: 0.8rem; width: auto; margin: 0; border-color: #2ecc71; color: #2ecc71;">
+        <button class="btn-gold-secondary ripple-effect" id="btn-modal-fetch-data"
+          style="padding: 8px 14px; font-size: 0.8rem; width: auto; margin: 0; border-color: #2ecc71; color: #2ecc71;">
           📥 ទាញយកទិន្នន័យ (Fetch Data)
         </button>
       </div>
@@ -625,7 +688,8 @@
       <!-- Test Status Box -->
       <div id="modal-db-status-box" class="db-test-box">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-          <span style="font-size: 0.82rem; font-weight: 700; color: var(--primary-gold-light);">ស្ថានភាពតភ្ជាប់ (Connection Status):</span>
+          <span style="font-size: 0.82rem; font-weight: 700; color: var(--primary-gold-light);">ស្ថានភាពតភ្ជាប់
+            (Connection Status):</span>
           <span id="modal-db-status-badge" class="db-status-badge connected">🟢 ត្រៀមរួចរាល់ (Ready)</span>
         </div>
         <div id="modal-db-status-detail" style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.5;">
@@ -635,12 +699,14 @@
 
       <!-- Live Data Viewer Container -->
       <div id="modal-db-data-container" style="margin-top: 14px; display: none;">
-        <div style="font-size: 0.85rem; font-weight: 700; color: var(--primary-gold); margin-bottom: 8px; display: flex; justify-content: space-between;">
+        <div
+          style="font-size: 0.85rem; font-weight: 700; color: var(--primary-gold); margin-bottom: 8px; display: flex; justify-content: space-between;">
           <span>📋 ទិន្នន័យទទួលបានពី Database (Live Fetched Data):</span>
           <span id="modal-db-counts" style="font-size: 0.75rem; color: var(--text-muted);"></span>
         </div>
-        
-        <div id="modal-db-data-content" style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+
+        <div id="modal-db-data-content"
+          style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
           <!-- Dynamically filled with RSVPs, Wishes, and Config -->
         </div>
       </div>
@@ -656,4 +722,5 @@
   <script src="js/audio.js?v=20261017l"></script>
   <script src="js/app.js?v=20261017l"></script>
 </body>
+
 </html>
