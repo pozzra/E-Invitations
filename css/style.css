@@ -418,13 +418,13 @@ html[data-theme="light"] .hero-overlay {
 .envelope-kbach-top {
   top: 14px;
   z-index: 6;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 20' fill='%23e5b955'%3E%3Cpath d='M100 0 L108 8 L100 16 L92 8 Z M70 4 C85 4 85 14 100 14 C115 14 115 4 130 4 M40 8 C55 8 55 16 70 16 M130 16 C145 16 145 8 160 8' stroke='%23e5b955' stroke-width='1.5' fill='none'/%3E%3C/svg%3E") no-repeat center/contain;
+  background: url('../assets/images/kbach_ornament.svg') no-repeat center/contain;
 }
 
 .envelope-kbach-bottom {
   bottom: 14px;
   transform: rotate(180deg);
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 20' fill='%23e5b955'%3E%3Cpath d='M100 0 L108 8 L100 16 L92 8 Z M70 4 C85 4 85 14 100 14 C115 14 115 4 130 4 M40 8 C55 8 55 16 70 16 M130 16 C145 16 145 8 160 8' stroke='%23e5b955' stroke-width='1.5' fill='none'/%3E%3C/svg%3E") no-repeat center/contain;
+  background: url('../assets/images/kbach_ornament.svg') no-repeat center/contain;
 }
 
 .envelope-header {
@@ -809,10 +809,11 @@ html[data-theme="light"] .hero-overlay {
 }
 
 .kbach-ornament {
-  width: 120px;
-  height: 20px;
+  width: 140px;
+  height: 22px;
   margin: 0 auto 8px auto;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 20' fill='%23e5b955'%3E%3Cpath d='M60 0 L66 6 L60 12 L54 6 Z M30 6 C42 6 42 14 60 14 C78 14 78 6 90 6' stroke='%23e5b955' stroke-width='1.5' fill='none'/%3E%3C/svg%3E") no-repeat center/contain;
+  background: url('../assets/images/kbach_ornament.svg') no-repeat center/contain;
+  filter: drop-shadow(0 2px 8px rgba(229, 185, 85, 0.45));
 }
 
 .section-title {
@@ -1401,6 +1402,26 @@ html[data-theme="light"] .hero-overlay {
   box-sizing: border-box;
   margin-top: 0;
   margin-bottom: 0;
+}
+
+.footer-lotus-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.footer-lotus-img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 8px rgba(229, 185, 85, 0.4));
+  animation: lotusSubtlePulse 4s ease-in-out infinite alternate;
+}
+
+@keyframes lotusSubtlePulse {
+  0% { transform: scale(1); filter: drop-shadow(0 3px 8px rgba(229, 185, 85, 0.35)); }
+  100% { transform: scale(1.06); filter: drop-shadow(0 5px 14px rgba(255, 93, 177, 0.5)); }
 }
 
 .footer-thankyou-text {
