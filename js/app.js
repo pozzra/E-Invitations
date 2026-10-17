@@ -1556,6 +1556,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const posterGalleryEl = document.getElementById('video-poster-gallery');
+  if (posterGalleryEl) {
+    // Tapping the slideshow preview starts the wedding video.
+    posterGalleryEl.addEventListener('click', startVideoPlayback);
+  }
+
   if (videoOverlay) {
     videoOverlay.addEventListener('click', startVideoPlayback);
   }
