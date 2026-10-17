@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Battambang:wght@300;400;700&family=Cinzel:wght@500;700;900&family=Hanuman:wght@300;400;700&family=Kantumruy+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Moul&family=Noto+Serif+Khmer:wght@400;600;700&display=swap">
-  <link rel="stylesheet" href="../css/style.css?v=20261017h">
+  <link rel="stylesheet" href="../css/style.css?v=20261017i">
   <style>
     body {
       background-color: #060913;
@@ -1044,6 +1044,10 @@
           </p>
 
           <div class="form-group" style="margin-top: 16px;">
+            <label class="form-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 8px;">
+              <input type="checkbox" id="cfg-butterfly-show" checked style="width: 16px; height: 16px; accent-color: #e5b955;">
+              <span>🦋 បង្ហាញប៊ូតឺរហ្វ្លាយ (Show Butterflies)</span>
+            </label>
             <label class="form-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
               <input type="checkbox" id="cfg-butterfly-enabled" style="width: 16px; height: 16px; accent-color: #e5b955;">
               <span>🦋 កំណត់ពណ៌ប៊ូតឺរហ្វ្លាយដោយខ្លួនឯង (Custom Butterfly Colour)</span>
@@ -1538,7 +1542,7 @@ values
 
   <!-- Supabase SDK & Admin Script Logic -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../js/supabase.js?v=20261017h"></script>
+  <script src="../js/supabase.js?v=20261017i"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       // 🌐 Smart API Base URL: redirect to Python server on port 8080 when
@@ -2241,6 +2245,7 @@ values
         setAccentColor(themeCfg.accent || '#e5b955');
         setBgColor(themeCfg.bg || '#0a0a0d');
         if (document.getElementById('cfg-butterfly-enabled')) document.getElementById('cfg-butterfly-enabled').checked = !!themeCfg.butterflyColor;
+        if (document.getElementById('cfg-butterfly-show')) document.getElementById('cfg-butterfly-show').checked = themeCfg.butterflyShow !== false;
         setBfyColor(themeCfg.butterflyColor || '#e5b955');
         if (document.getElementById('cfg-font-khmer')) document.getElementById('cfg-font-khmer').value = fontsCfg.khmer || '';
         if (document.getElementById('cfg-font-khmer-heading')) document.getElementById('cfg-font-khmer-heading').value = fontsCfg.khmerHeading || '';
@@ -2971,7 +2976,8 @@ values
               ? ((document.getElementById('cfg-butterfly-color-hex') && /^#[0-9a-fA-F]{6}$/.test(document.getElementById('cfg-butterfly-color-hex').value.trim()))
                 ? document.getElementById('cfg-butterfly-color-hex').value.trim()
                 : (document.getElementById('cfg-butterfly-color') ? document.getElementById('cfg-butterfly-color').value : ''))
-              : ''
+              : '',
+            butterflyShow: !(document.getElementById('cfg-butterfly-show') && !document.getElementById('cfg-butterfly-show').checked)
           },
           language: document.getElementById('cfg-language') ? document.getElementById('cfg-language').value : 'auto',
           fonts: {

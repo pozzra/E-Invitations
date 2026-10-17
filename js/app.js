@@ -394,6 +394,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Butterfly decoration colour (admin-configurable; empty = default gold)
     setButterflyColor(theme.butterflyColor);
+    // Show/hide the butterfly decoration (default = shown)
+    setButterflyVisible(theme.butterflyShow !== false);
   }
 
   function getInvitationConfig() {
@@ -2123,6 +2125,8 @@ function createParticleBurst() {
 // ==========================================================================
 let butterflyCustomColor = '';
 let butterflyInstances = [];
+let butterflyVisible = true;
+let butterflyCanvasEl = null;
 
 function _bfyHexToRgb(hex) {
   let h = String(hex || '').replace('#', '').trim();
@@ -2163,11 +2167,18 @@ function setButterflyColor(hex) {
   butterflyInstances.forEach(b => { if (b && typeof b.assignColor === 'function') b.assignColor(); });
 }
 
+// Show/hide the butterfly decoration (admin toggle; default = shown).
+function setButterflyVisible(show) {
+  butterflyVisible = show !== false;
+  if (butterflyCanvasEl) butterflyCanvasEl.style.display = butterflyVisible ? '' : 'none';
+}
+
 function initButterflyCanvas() {
   const canvas = document.createElement('canvas');
   canvas.id = 'butterfly-canvas';
   canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;';
   document.body.appendChild(canvas);
+  butterflyCanvasEl = canvas;
 
   const ctx = canvas.getContext('2d');
   let width = canvas.width = window.innerWidth;
@@ -2358,10 +2369,12 @@ function initButterflyCanvas() {
   function render() {
     ctx.clearRect(0, 0, width, height);
 
-    butterflies.forEach(b => {
-      b.update();
-      b.draw(ctx);
-    });
+    if (butterflyVisible) {
+      butterflies.forEach(b => {
+        b.update();
+        b.draw(ctx);
+      });
+    }
 
     requestAnimationFrame(render);
   }
