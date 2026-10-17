@@ -938,6 +938,17 @@
           </div>
         </div>
 
+        <!-- 5. Section Headings, Subtitles & Button Labels (admin-editable) -->
+        <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
+          <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 6px;">🏷️ ចំណងជើងផ្នែក
+            & ស្លាក (Section Headings & Labels)</h4>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 12px;">
+            កែអត្ថបទចំណងជើងផ្នែក ចំណងជើងរង និងអក្សរលើប៊ូតុងទាំងអស់លើគេហទំព័រភ្ញៀវ
+            តាមចិត្តរបស់អ្នក។ ចុច <strong>រក្សាទុក</strong> ដើម្បីអនុវត្ត។
+          </p>
+          <div id="section-texts-fields" class="form-grid-2"></div>
+        </div>
+
       </div>
     </div>
 
@@ -1715,6 +1726,32 @@ values
         },
         thankYouText: 'សូមថ្លែងអំណរគុណយ៉ាងជ្រាលជ្រៅចំពោះវត្តមានដ៏ឧត្តុង្គឧត្តមរបស់លោកអ្នក',
         footerCredit: 'Designed with Khmer Traditional Heritage & Modern Elegance',
+        texts: {
+          envelopeBadge: 'E-INVITATION • លិខិតអញ្ជើញ',
+          envelopeGuestLabel: 'សូមគោរពអញ្ជើញ៖',
+          countdownTitle: 'រាប់ថយក្រោយដល់ថ្ងៃសិរីមង្គល',
+          countdownSubtitle: 'Countdown to Auspicious Day',
+          addToCalendarBtn: 'កត់ត្រាក្នុងប្រតិទិន (Add to Calendar)',
+          parentsTitle: 'មាតាបិតាទាំងសងខាង',
+          parentsSubtitle: 'The Honorable Parents',
+          scheduleTitle: 'កាលវិភាគកម្មវិធីសិរីមង្គល',
+          scheduleSubtitle: 'Wedding Ceremony Schedule',
+          venueTitle: 'ទីតាំងប្រារព្ធពិធី',
+          venueSubtitle: 'Ceremony & Banquet Venue',
+          mapsBtn: 'បើកមើលផែនទី (Google Maps)',
+          giftTitle: 'ចំណងដៃអាពាហ៍ពិពាហ៍ឌីជីថល',
+          giftSubtitle: 'Wedding Gift & Blessings',
+          giftQrBtn: 'ស្កេន QR Code ចងដៃ (Digital Blessing)',
+          rsvpTitle: 'ការបញ្ជាក់ការចូលរួម (RSVP)',
+          rsvpSubtitle: 'Please Confirm Your Attendance',
+          rsvpSubmitBtn: 'ផ្ញើការបញ្ជាក់ (Submit RSVP)',
+          wishesTitle: 'សៀវភៅជូនពរឌីជីថល',
+          wishesSubtitle: 'Guestbook & Warm Wishes',
+          vipTitle: 'បង្កើតតំណភ្ជាប់អញ្ជើញផ្ទាល់ខ្លួន',
+          vipSubtitle: 'Generate Personalized VIP Link',
+          khqrTitle: 'ចំណងដៃអាពាហ៍ពិពាហ៍',
+          khqrSubtitle: 'Scan KHQR to Send Blessing'
+        },
         schedule: [
           { time: '07:00 AM', title: 'ពិធីហែជំនូន និងសែនព្រេន', desc: "Groom's Procession & Ancestor Blessing Ceremony" },
           { time: '09:30 AM', title: 'ពិធីកាត់សក់បង្កក់សិរី', desc: 'Traditional Hair Cutting & Purification Ceremony' },
@@ -2007,6 +2044,64 @@ values
         });
       }
 
+      // 🏷️ Admin-editable section headings, subtitles & button labels on the
+      //    client. Each key maps to a config.texts entry + [data-cfg-text] elem.
+      const TEXT_FIELD_DEFS = [
+        { key: 'envelopeBadge', label: 'ស្លាកលើស្រោមសំបុត្រ (Envelope Badge)' },
+        { key: 'envelopeGuestLabel', label: 'ពាក្យគោរពលើស្រោមសំបុត្រ (Guest Label)' },
+        { key: 'countdownTitle', label: 'ចំណងជើង៖ រាប់ថយក្រោយ (Countdown Title)' },
+        { key: 'countdownSubtitle', label: 'ចំណងជើងរង៖ រាប់ថយក្រោយ (Countdown Subtitle)' },
+        { key: 'addToCalendarBtn', label: 'ប៊ូតុង៖ កត់ត្រាក្នុងប្រតិទិន (Add to Calendar)' },
+        { key: 'parentsTitle', label: 'ចំណងជើង៖ មាតាបិតា (Parents Title)' },
+        { key: 'parentsSubtitle', label: 'ចំណងជើងរង៖ មាតាបិតា (Parents Subtitle)' },
+        { key: 'scheduleTitle', label: 'ចំណងជើង៖ កាលវិភាគ (Schedule Title)' },
+        { key: 'scheduleSubtitle', label: 'ចំណងជើងរង៖ កាលវិភាគ (Schedule Subtitle)' },
+        { key: 'venueTitle', label: 'ចំណងជើង៖ ទីតាំង (Venue Title)' },
+        { key: 'venueSubtitle', label: 'ចំណងជើងរង៖ ទីតាំង (Venue Subtitle)' },
+        { key: 'mapsBtn', label: 'ប៊ូតុង៖ ផែនទី (Maps Button)' },
+        { key: 'giftTitle', label: 'ចំណងជើង៖ ចំណងដៃឌីជីថល (Gift Title)' },
+        { key: 'giftSubtitle', label: 'ចំណងជើងរង៖ ចំណងដៃឌីជីថល (Gift Subtitle)' },
+        { key: 'giftQrBtn', label: 'ប៊ូតុង៖ ស្កេន QR (QR Button)' },
+        { key: 'rsvpTitle', label: 'ចំណងជើង៖ RSVP' },
+        { key: 'rsvpSubtitle', label: 'ចំណងជើងរង៖ RSVP' },
+        { key: 'rsvpSubmitBtn', label: 'ប៊ូតុង៖ ផ្ញើការបញ្ជាក់ (Submit RSVP)' },
+        { key: 'wishesTitle', label: 'ចំណងជើង៖ សៀវភៅជូនពរ (Wishes Title)' },
+        { key: 'wishesSubtitle', label: 'ចំណងជើងរង៖ សៀវភៅជូនពរ (Wishes Subtitle)' },
+        { key: 'vipTitle', label: 'ចំណងជើង៖ តំណភ្ជាប់ VIP (VIP Title)' },
+        { key: 'vipSubtitle', label: 'ចំណងជើងរង៖ តំណភ្ជាប់ VIP (VIP Subtitle)' },
+        { key: 'khqrTitle', label: 'ចំណងជើង Modal៖ ចំណងដៃ (KHQR Title)' },
+        { key: 'khqrSubtitle', label: 'ចំណងជើងរង Modal៖ KHQR (KHQR Subtitle)' }
+      ];
+
+      function renderSectionTextFields() {
+        const container = document.getElementById('section-texts-fields');
+        if (!container) return;
+        container.innerHTML = TEXT_FIELD_DEFS.map(d => `
+          <div class="form-group">
+            <label class="form-label" style="font-size: 0.78rem;">${escapeHtml(d.label)}</label>
+            <input type="text" id="cfg-text-${d.key}" class="form-input" data-text-key="${d.key}"
+              placeholder="${escapeHtml((defaultConfig.texts && defaultConfig.texts[d.key]) || '')}">
+          </div>
+        `).join('');
+      }
+
+      function collectSectionTexts() {
+        const out = {};
+        TEXT_FIELD_DEFS.forEach(d => {
+          const el = document.getElementById('cfg-text-' + d.key);
+          out[d.key] = el ? el.value.trim() : ((defaultConfig.texts && defaultConfig.texts[d.key]) || '');
+        });
+        return out;
+      }
+
+      function loadSectionTextFields(cfg) {
+        const src = Object.assign({}, defaultConfig.texts, (cfg && cfg.texts) || {});
+        TEXT_FIELD_DEFS.forEach(d => {
+          const el = document.getElementById('cfg-text-' + d.key);
+          if (el) el.value = src[d.key] || '';
+        });
+      }
+
       function loadConfigurationToForm() {
         const cfg = getConfig();
         currentSchedule = Array.isArray(cfg.schedule) ? JSON.parse(JSON.stringify(cfg.schedule)) : defaultConfig.schedule;
@@ -2058,6 +2153,9 @@ values
         if (document.getElementById('cfg-seal-image')) document.getElementById('cfg-seal-image').value = cfg.sealImage || '';
         if (document.getElementById('cfg-thankyou-text')) document.getElementById('cfg-thankyou-text').value = cfg.thankYouText || '';
         if (document.getElementById('cfg-footer-credit')) document.getElementById('cfg-footer-credit').value = cfg.footerCredit || '';
+
+        // Section headings, subtitles & button labels (admin-editable)
+        loadSectionTextFields(cfg);
 
         // Sections visibility checkboxes (show / hide blocks on the client site)
         const secCfg = cfg.sections || {};
@@ -2365,6 +2463,9 @@ values
         });
       }
       renderMusicList();
+
+      // Build the admin-editable section heading / label fields once at startup
+      renderSectionTextFields();
 
       // Handle QR Code Image Upload & Preview
       const qrFileInput = document.getElementById('cfg-qr-file');
@@ -2733,6 +2834,7 @@ values
           sealImage: document.getElementById('cfg-seal-image') ? document.getElementById('cfg-seal-image').value.trim() : defaultConfig.sealImage,
           thankYouText: document.getElementById('cfg-thankyou-text') ? document.getElementById('cfg-thankyou-text').value.trim() : defaultConfig.thankYouText,
           footerCredit: document.getElementById('cfg-footer-credit') ? document.getElementById('cfg-footer-credit').value.trim() : defaultConfig.footerCredit,
+          texts: collectSectionTexts(),
           videoTitle: document.getElementById('cfg-video-title') ? document.getElementById('cfg-video-title').value.trim() : defaultConfig.videoTitle,
           videoSubtitle: document.getElementById('cfg-video-subtitle') ? document.getElementById('cfg-video-subtitle').value.trim() : defaultConfig.videoSubtitle,
           videoDesc: document.getElementById('cfg-video-desc') ? document.getElementById('cfg-video-desc').value.trim() : defaultConfig.videoDesc,

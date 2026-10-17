@@ -142,6 +142,33 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     thankYouText: 'សូមថ្លែងអំណរគុណយ៉ាងជ្រាលជ្រៅចំពោះវត្តមានដ៏ឧត្តុង្គឧត្តមរបស់លោកអ្នក',
     footerCredit: 'Designed with Khmer Traditional Heritage & Modern Elegance',
+    // Editable section headings, subtitles & button labels (see [data-cfg-text]).
+    texts: {
+      envelopeBadge: 'E-INVITATION • លិខិតអញ្ជើញ',
+      envelopeGuestLabel: 'សូមគោរពអញ្ជើញ៖',
+      countdownTitle: 'រាប់ថយក្រោយដល់ថ្ងៃសិរីមង្គល',
+      countdownSubtitle: 'Countdown to Auspicious Day',
+      addToCalendarBtn: 'កត់ត្រាក្នុងប្រតិទិន (Add to Calendar)',
+      parentsTitle: 'មាតាបិតាទាំងសងខាង',
+      parentsSubtitle: 'The Honorable Parents',
+      scheduleTitle: 'កាលវិភាគកម្មវិធីសិរីមង្គល',
+      scheduleSubtitle: 'Wedding Ceremony Schedule',
+      venueTitle: 'ទីតាំងប្រារព្ធពិធី',
+      venueSubtitle: 'Ceremony & Banquet Venue',
+      mapsBtn: 'បើកមើលផែនទី (Google Maps)',
+      giftTitle: 'ចំណងដៃអាពាហ៍ពិពាហ៍ឌីជីថល',
+      giftSubtitle: 'Wedding Gift & Blessings',
+      giftQrBtn: 'ស្កេន QR Code ចងដៃ (Digital Blessing)',
+      rsvpTitle: 'ការបញ្ជាក់ការចូលរួម (RSVP)',
+      rsvpSubtitle: 'Please Confirm Your Attendance',
+      rsvpSubmitBtn: 'ផ្ញើការបញ្ជាក់ (Submit RSVP)',
+      wishesTitle: 'សៀវភៅជូនពរឌីជីថល',
+      wishesSubtitle: 'Guestbook & Warm Wishes',
+      vipTitle: 'បង្កើតតំណភ្ជាប់អញ្ជើញផ្ទាល់ខ្លួន',
+      vipSubtitle: 'Generate Personalized VIP Link',
+      khqrTitle: 'ចំណងដៃអាពាហ៍ពិពាហ៍',
+      khqrSubtitle: 'Scan KHQR to Send Blessing'
+    },
     videoAlbum: {
       enabled: true,
       title: 'វីដេអូអនុស្សាវរីយ៍ & សាច់រឿងស្នេហា',
@@ -469,6 +496,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (invitationSubtext && config.invitationSubtext) invitationSubtext.textContent = config.invitationSubtext;
     if (footerThankyou && config.thankYouText) footerThankyou.textContent = config.thankYouText;
     if (footerCredit && config.footerCredit) footerCredit.textContent = config.footerCredit;
+
+    // Editable headings, subtitles & button labels. Any element tagged with
+    // data-cfg-text="key" is populated from config.texts (falls back to defaults).
+    const T = Object.assign({}, defaultConfig.texts, config.texts || {});
+    document.querySelectorAll('[data-cfg-text]').forEach((el) => {
+      const key = el.getAttribute('data-cfg-text');
+      if (key && T[key]) el.textContent = T[key];
+    });
 
     // Background Music Playlist (MP3 / audio URL / YouTube). The client picks
     // one track at random and auto-advances to another when it finishes.
