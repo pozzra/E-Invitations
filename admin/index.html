@@ -484,6 +484,28 @@
         <h3 class="section-title" style="font-size: 1.15rem; margin-bottom: 16px;">🗓️ កាលបរិច្ឆេទ & នាឡិការាប់ថយក្រោយ
         </h3>
 
+        <!-- Quick ceremony date & time picker (auto-fills everything below) -->
+        <div class="form-group"
+          style="background: rgba(229,185,85,0.06); border: 1.5px dashed var(--primary-gold); border-radius: var(--radius-sm); padding: 14px;">
+          <label class="form-label" style="color: var(--primary-gold-light); font-weight: 700;">
+            📅 ជ្រើសរើសកាលបរិច្ឆេទមង្គល (Pick Ceremony Date &amp; Time)
+          </label>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" style="font-size: 0.75rem;">ថ្ងៃ (Date)</label>
+              <input type="date" id="cfg-date-picker" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="font-size: 0.75rem;">ម៉ោង (Time)</label>
+              <input type="time" id="cfg-time-picker" class="form-input" value="07:00">
+            </div>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">
+            ជ្រើសរើសថ្ងៃ និងម៉ោង — ប្រព័ន្ធនឹងបំពេញ <strong>ថ្ងៃខែឆ្នាំសកល</strong> និង
+            <strong>Countdown</strong> ជាស្វ័យប្រវត្តិ។
+          </div>
+        </div>
+
         <div class="form-group">
           <label class="form-label">ថ្ងៃខែឆ្នាំសកល (Solar Date Display)</label>
           <input type="text" id="cfg-solar-date" class="form-input" placeholder="ថ្ងៃអាទិត្យ ទី១៥ ខែវិច្ឆិកា ឆ្នាំ២០២៦">
@@ -497,9 +519,11 @@
 
         <div class="form-group">
           <label class="form-label">កាលបរិច្ឆេទ និងម៉ោងសម្រាប់រាប់ថយក្រោយ (Countdown Target Date & Time)</label>
-          <input type="datetime-local" id="cfg-target-time" class="form-input">
+          <input type="hidden" id="cfg-target-time">
+          <div id="cfg-target-display" class="form-input"
+            style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.25); cursor: default;">—</div>
           <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
-            * ប្រព័ន្ធនឹងរាប់ថយក្រោយដល់កាលបរិច្ឆេទដែលបានជ្រើសរើសនេះ។
+            * ថ្ងៃត្រូវបានគណនាដោយស្វ័យប្រវត្តិពីការជ្រើសរើសខាងលើ។ ម៉ោង អាចបញ្ចូលដោយដៃ។
           </div>
         </div>
       </div>
@@ -1890,6 +1914,73 @@ values
         renderPosterAdminList();
       }
 
+      // ── Ceremony date & time picker → auto-fills Solar date / Countdown ───────
+      const KH_DIGITS = ['០', '១', '២', '៣', '៤', '៥', '៦', '៧', '៨', '៩'];
+      const KH_WEEKDAYS = ['ថ្ងៃអាទិត្យ', 'ថ្ងៃច័ន្ទ', 'ថ្ងៃអង្គារ', 'ថ្ងៃពុធ', 'ថ្ងៃព្រហស្បតិ៍', 'ថ្ងៃសុក្រ', 'ថ្ងៃសៅរ៍'];
+      const KH_MONTHS = ['មករា', 'កុម្ភៈ', 'មីនា', 'មេសា', 'ឧសភា', 'មិថុនា', 'កក្កដា', 'សីហា', 'កញ្ញា', 'តុលា', 'វិច្ឆិកា', 'ធ្នូ'];
+
+      function toKhmerDigits(n) {
+        return String(n).replace(/[0-9]/g, d => KH_DIGITS[+d]);
+      }
+
+      function formatKhmerSolarDate(dateStr) {
+        // dateStr: "YYYY-MM-DD"
+        const parts = String(dateStr || '').split('-');
+        if (parts.length !== 3) return '';
+        const y = parseInt(parts[0], 10), m = parseInt(parts[1], 10), d = parseInt(parts[2], 10);
+        if (!y || !m || !d) return '';
+        const wd = KH_WEEKDAYS[new Date(y, m - 1, d).getDay()] || '';
+        return `${wd} ទី${toKhmerDigits(d)} ខែ${KH_MONTHS[m - 1]} ឆ្នាំ${toKhmerDigits(y)}`;
+      }
+
+      function updateTargetDisplay() {
+        const el = document.getElementById('cfg-target-display');
+        const target = document.getElementById('cfg-target-time');
+        if (!el || !target) return;
+        const v = target.value || '';
+        if (!v) { el.textContent = '—'; return; }
+        const parts = v.split('T');
+        const dParts = (parts[0] || '').split('-');
+        const tParts = (parts[1] || '07:00').split(':');
+        if (dParts.length !== 3) { el.textContent = v; return; }
+        let h = parseInt(tParts[0], 10) || 0;
+        const mm = String(tParts[1] || '00').padStart(2, '0');
+        const ap = h >= 12 ? 'PM' : 'AM';
+        h = h % 12; if (h === 0) h = 12;
+        el.textContent = `${dParts[2]}/${dParts[1]}/${dParts[0]} • ${String(h).padStart(2, '0')}:${mm} ${ap}`;
+      }
+
+      function applyDatePicker(target) {
+        const dateEl = document.getElementById('cfg-date-picker');
+        const timeEl = document.getElementById('cfg-time-picker');
+        if (dateEl && timeEl && dateEl.value) {
+          document.getElementById('cfg-target-time').value = `${dateEl.value}T${timeEl.value || '07:00'}`;
+        }
+        if (target !== 'time' && dateEl && dateEl.value) {
+          const solarEl = document.getElementById('cfg-solar-date');
+          if (solarEl) solarEl.value = formatKhmerSolarDate(dateEl.value);
+        }
+        updateTargetDisplay();
+      }
+
+      function syncDatePickersFromTarget() {
+        const targetEl = document.getElementById('cfg-target-time');
+        const dateEl = document.getElementById('cfg-date-picker');
+        const timeEl = document.getElementById('cfg-time-picker');
+        if (!targetEl) return;
+        const val = (targetEl.value || '').slice(0, 16);
+        if (val) {
+          if (dateEl) dateEl.value = val.slice(0, 10);
+          if (timeEl) timeEl.value = val.slice(11, 16) || '07:00';
+        }
+        updateTargetDisplay();
+      }
+
+      const cfgDatePicker = document.getElementById('cfg-date-picker');
+      const cfgTimePicker = document.getElementById('cfg-time-picker');
+      if (cfgDatePicker) cfgDatePicker.addEventListener('change', () => { applyDatePicker('date'); });
+      if (cfgTimePicker) cfgTimePicker.addEventListener('change', () => { applyDatePicker('time'); });
+
       function loadConfigurationToForm() {
         const cfg = getConfig();
         currentSchedule = Array.isArray(cfg.schedule) ? JSON.parse(JSON.stringify(cfg.schedule)) : defaultConfig.schedule;
@@ -1907,6 +1998,7 @@ values
         if (cfg.targetDateTime) {
           document.getElementById('cfg-target-time').value = cfg.targetDateTime.slice(0, 16);
         }
+        syncDatePickersFromTarget();
 
         document.getElementById('cfg-venue-name').value = cfg.venueName || '';
         document.getElementById('cfg-venue-address').value = cfg.venueAddress || '';
