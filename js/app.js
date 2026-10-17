@@ -457,14 +457,86 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 30000); // Check every 30 seconds
   }
 
+  // ── Polling Auto-Sync ───────────────────────────────────────────────────────
+  // Reliable fallback that keeps the client site in sync with the database even
+  // when Supabase Realtime is not enabled on the tables. Every few seconds it
+  // compares the live config/wishes with what is on screen and re-renders the
+  // page automatically the moment the admin saves new data.
+  let lastConfigSig = '';
+  let lastWishesSig = '';
+  let pollTimer = null;
+
+  function signatureOf(value) {
+    try {
+      return JSON.stringify(value, (key, val) => {
+        if (val && typeof val === 'object' && !Array.isArray(val)) {
+          return Object.keys(val).sort().reduce((acc, k) => { acc[k] = val[k]; return acc; }, {});
+        }
+        return val;
+      });
+    } catch (e) { return ''; }
+  }
+
+  async function pollForUpdates() {
+    if (!window.appSupabase || !window.appSupabase.isConfigured) return;
+
+    // 1. Invitation config → re-apply all page fields live
+    try {
+      const cfg = await window.appSupabase.fetchConfig();
+      if (cfg && Object.keys(cfg).length > 0) {
+        const sig = signatureOf(cfg);
+        if (lastConfigSig && sig !== lastConfigSig) {
+          currentConfig = Object.assign({}, defaultConfig, cfg);
+          applyInvitationConfig(currentConfig);
+          restartCountdown();
+          showToast('🔄 ទិន្នន័យថ្មីត្រូវបានធ្វើបច្ចុប្បន្នភាព!');
+          console.log('[AutoSync] Config changed → live update ✅');
+        }
+        lastConfigSig = sig;
+      }
+    } catch (e) { /* offline; retry next tick */ }
+
+    // 2. Wishes / guestbook → re-render wall
+    try {
+      const wishes = await window.appSupabase.fetchWishes();
+      if (wishes && wishes.length > 0) {
+        const sig = signatureOf(wishes);
+        if (lastWishesSig && sig !== lastWishesSig) {
+          localStorage.setItem('khmer_wedding_wishes', JSON.stringify(wishes));
+          renderWishes();
+          showToast('💬 ពាក្យជូនពរថ្មីត្រូវបានបន្ថែម!');
+          console.log('[AutoSync] Wishes changed → live update ✅');
+        }
+        lastWishesSig = sig;
+      }
+    } catch (e) { /* offline; retry next tick */ }
+  }
+
+  function startPollingSync() {
+    if (pollTimer) return;
+    pollForUpdates();
+    pollTimer = setInterval(() => {
+      if (document.hidden) return; // save bandwidth on background tabs
+      pollForUpdates();
+    }, 8000);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) pollForUpdates();
+    });
+    console.log('[AutoSync] Polling started (every 8s)');
+  }
+
   // Connect immediately if already configured, or as soon as the auto-connect
   // retry succeeds (handles the Supabase CDN loading after this script).
   if (window.appSupabase && window.appSupabase.isConfigured) {
     setupRealtime();
+    startPollingSync();
   } else {
     console.log('[Realtime] Waiting for Supabase auto-connect...');
     window.addEventListener('supabase-ready', () => {
-      loadAllDataFromSupabase().then(() => setupRealtime());
+      loadAllDataFromSupabase().then(() => {
+        setupRealtime();
+        startPollingSync();
+      });
     });
   }
   // ────────────────────────────────────────────────────────────────────────────
