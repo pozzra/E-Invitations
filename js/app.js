@@ -114,6 +114,16 @@ document.addEventListener('DOMContentLoaded', () => {
     bgMusicPlaylist: [
       { type: 'file', src: 'assets/audio/bg_music.mp3', title: 'Default Background Music' }
     ],
+    sections: {
+      countdown: true,
+      parents: true,
+      video: true,
+      schedule: true,
+      venue: true,
+      gift: true,
+      rsvp: true,
+      guestbook: true
+    },
     thankYouText: 'សូមថ្លែងអំណរគុណយ៉ាងជ្រាលជ្រៅចំពោះវត្តមានដ៏ឧត្តុង្គឧត្តមរបស់លោកអ្នក',
     footerCredit: 'Designed with Khmer Traditional Heritage & Modern Elegance',
     videoAlbum: {
@@ -181,6 +191,26 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       window.traditionalAudio.setPlaylist(playlist);
     }
+
+    // Section visibility — admin can show/hide blocks with checkboxes.
+    // Any section that is not explicitly disabled stays visible (default true).
+    const sectionMap = {
+      countdown: 'section-countdown',
+      parents: 'section-parents',
+      video: 'section-video-album',
+      schedule: 'section-schedule',
+      venue: 'section-venue',
+      gift: 'section-gift',
+      rsvp: 'section-rsvp',
+      guestbook: 'section-guestbook'
+    };
+    const sectionCfg = config.sections || {};
+    Object.keys(sectionMap).forEach(key => {
+      const el = document.getElementById(sectionMap[key]);
+      if (!el) return;
+      const visible = sectionCfg[key] !== false; // hidden only when explicitly false
+      el.style.display = visible ? '' : 'none';
+    });
 
     // Couple Names
     const heroGroom = document.getElementById('hero-groom-name');

@@ -829,7 +829,50 @@
           </div>
         </div>
 
-        <!-- 2. Background Music Playlist (up to 10 tracks) -->
+        <!-- 2. Sections Visibility (show / hide blocks on the client site) -->
+        <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
+          <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 8px;">🧩 ការបង្ហាញផ្នែកនីមួយៗ (Show / Hide Sections)</h4>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px;">
+            ធីក ✓ = បង្ហាញ ផ្នែកនោះនៅលើគេហទំព័រភ្ញៀវ ។ ដោះធីក = លាក់ផ្នែកនោះ។
+          </p>
+          <div id="sections-visibility-grid"
+            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px;">
+            <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
+              <input type="checkbox" id="cfg-show-countdown" checked style="width: 16px; height: 16px; accent-color: #e5b955;">
+              <span>⏳ Countdown</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
+              <input type="checkbox" id="cfg-show-parents" checked style="width: 16px; height: 16px; accent-color: #e5b955;">
+              <span>👪 មាតាបិតា</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
+              <input type="checkbox" id="cfg-show-video" checked style="width: 16px; height: 16px; accent-color: #e5b955;">
+              <span>🎬 វីដេអូ Album</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
+              <input type="checkbox" id="cfg-show-schedule" checked style="width: 16px; height: 16px; accent-color: #e5b955;">
+              <span>🗓️ កាលវិភាគ</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
+              <input type="checkbox" id="cfg-show-venue" checked style="width: 16px; height: 16px; accent-color: #e5b955;">
+              <span>📍 ទីតាំង</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
+              <input type="checkbox" id="cfg-show-gift" checked style="width: 16px; height: 16px; accent-color: #e5b955;">
+              <span>🎁 ចំណងដៃ</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
+              <input type="checkbox" id="cfg-show-rsvp" checked style="width: 16px; height: 16px; accent-color: #e5b955;">
+              <span>✉️ RSVP</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
+              <input type="checkbox" id="cfg-show-guestbook" checked style="width: 16px; height: 16px; accent-color: #e5b955;">
+              <span>💬 សៀវភៅជូនពរ</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 3. Background Music Playlist (up to 10 tracks) -->
         <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
           <h4 style="display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 8px;">
             <span>🎵 តន្ត្រីកំដរមង្គលការ (Background Music)</span>
@@ -1303,6 +1346,8 @@ values
       });
 
       // 3. Default Config Definition
+      const SECTION_KEYS = ['countdown', 'parents', 'video', 'schedule', 'venue', 'gift', 'rsvp', 'guestbook'];
+
       const defaultConfig = {
         groomName: 'ជា វិបុល',
         brideName: 'ស៊ុន ទេវី',
@@ -1333,6 +1378,16 @@ values
         bgMusicPlaylist: [
           { type: 'file', src: 'assets/audio/bg_music.mp3', title: 'Default Background Music' }
         ],
+        sections: {
+          countdown: true,
+          parents: true,
+          video: true,
+          schedule: true,
+          venue: true,
+          gift: true,
+          rsvp: true,
+          guestbook: true
+        },
         thankYouText: 'សូមថ្លែងអំណរគុណយ៉ាងជ្រាលជ្រៅចំពោះវត្តមានដ៏ឧត្តុង្គឧត្តមរបស់លោកអ្នក',
         footerCredit: 'Designed with Khmer Traditional Heritage & Modern Elegance',
         schedule: [
@@ -1425,6 +1480,13 @@ values
         if (document.getElementById('cfg-seal-image')) document.getElementById('cfg-seal-image').value = cfg.sealImage || '';
         if (document.getElementById('cfg-thankyou-text')) document.getElementById('cfg-thankyou-text').value = cfg.thankYouText || '';
         if (document.getElementById('cfg-footer-credit')) document.getElementById('cfg-footer-credit').value = cfg.footerCredit || '';
+
+        // Sections visibility checkboxes (show / hide blocks on the client site)
+        const secCfg = cfg.sections || {};
+        SECTION_KEYS.forEach(key => {
+          const cb = document.getElementById('cfg-show-' + key);
+          if (cb) cb.checked = secCfg[key] !== false;
+        });
 
         // Video Album Fields
         if (document.getElementById('cfg-video-title')) document.getElementById('cfg-video-title').value = cfg.videoTitle || '';
@@ -1825,6 +1887,11 @@ values
           invitationSubtext: document.getElementById('cfg-invitation-subtext') ? document.getElementById('cfg-invitation-subtext').value.trim() : defaultConfig.invitationSubtext,
           bgMusicPlaylist: musicPlaylist,
           bgMusicUrl: (musicPlaylist[0] && musicPlaylist[0].src) || defaultConfig.bgMusicUrl,
+          sections: SECTION_KEYS.reduce((acc, key) => {
+            const cb = document.getElementById('cfg-show-' + key);
+            acc[key] = cb ? cb.checked : true;
+            return acc;
+          }, {}),
           sealImage: document.getElementById('cfg-seal-image') ? document.getElementById('cfg-seal-image').value.trim() : defaultConfig.sealImage,
           thankYouText: document.getElementById('cfg-thankyou-text') ? document.getElementById('cfg-thankyou-text').value.trim() : defaultConfig.thankYouText,
           footerCredit: document.getElementById('cfg-footer-credit') ? document.getElementById('cfg-footer-credit').value.trim() : defaultConfig.footerCredit,
