@@ -124,6 +124,19 @@ document.addEventListener('DOMContentLoaded', () => {
       rsvp: true,
       guestbook: true
     },
+    theme: {
+      mode: 'auto',
+      accent: '',
+      bg: ''
+    },
+    language: 'auto',
+    fonts: {
+      khmer: '',
+      khmerHeading: '',
+      english: '',
+      customUrl: '',
+      customFamily: ''
+    },
     thankYouText: 'សូមថ្លែងអំណរគុណយ៉ាងជ្រាលជ្រៅចំពោះវត្តមានដ៏ឧត្តុង្គឧត្តមរបស់លោកអ្នក',
     footerCredit: 'Designed with Khmer Traditional Heritage & Modern Elegance',
     videoAlbum: {
@@ -144,6 +157,133 @@ document.addEventListener('DOMContentLoaded', () => {
     bankAppLink: ''
   };
 
+  // ---- Appearance: theme mode, accent/bg colors, language, fonts ----
+  function _hexToRgb(hex) {
+    let h = String(hex || '').replace('#', '').trim();
+    if (h.length === 3) h = h.split('').map(c => c + c).join('');
+    const n = parseInt(h, 16);
+    if (isNaN(n)) return { r: 229, g: 185, b: 85 };
+    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+  }
+  function _mix(hex, target, amt) {
+    const a = _hexToRgb(hex), b = _hexToRgb(target);
+    return 'rgb(' + Math.round(a.r + (b.r - a.r) * amt) + ', ' +
+      Math.round(a.g + (b.g - a.g) * amt) + ', ' +
+      Math.round(a.b + (b.b - a.b) * amt) + ')';
+  }
+  function _rgba(hex, alpha) {
+    const c = _hexToRgb(hex);
+    return 'rgba(' + c.r + ', ' + c.g + ', ' + c.b + ', ' + alpha + ')';
+  }
+  function _setVar(name, value) {
+    if (value) document.documentElement.style.setProperty(name, value);
+    else document.documentElement.style.removeProperty(name);
+  }
+  function _loadFontLink(id, url) {
+    let link = document.getElementById(id);
+    if (!url) { if (link) link.remove(); return; }
+    if (!link) {
+      link = document.createElement('link');
+      link.id = id;
+      link.rel = 'stylesheet';
+      document.head.appendChild(link);
+    }
+    if (link.getAttribute('href') !== url) link.setAttribute('href', url);
+  }
+  function applyAppearance(config) {
+    const theme = config.theme || {};
+    const fonts = config.fonts || {};
+    const root = document.documentElement;
+
+    // 1) Theme mode (auto follows the OS preference)
+    const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+    const mode = (theme.mode === 'dark' || theme.mode === 'light') ? theme.mode : (prefersLight ? 'light' : 'dark');
+    root.setAttribute('data-theme', mode);
+
+    // 2) Accent (gold) color
+    if (theme.accent) {
+      const a = theme.accent;
+      _setVar('--primary-gold', a);
+      _setVar('--primary-gold-light', _mix(a, '#ffffff', 0.4));
+      _setVar('--primary-gold-dark', _mix(a, '#000000', 0.3));
+      _setVar('--gold-gradient', 'linear-gradient(135deg, ' + _mix(a, '#ffffff', 0.5) + ' 0%, ' + a + ' 50%, ' + _mix(a, '#000000', 0.28) + ' 100%)');
+      _setVar('--gold-glow', '0 0 25px ' + _rgba(a, 0.45));
+      _setVar('--text-gold', _mix(a, '#ffffff', 0.3));
+    } else {
+      ['--primary-gold', '--primary-gold-light', '--primary-gold-dark', '--gold-gradient', '--gold-glow', '--text-gold'].forEach(v => _setVar(v, ''));
+    }
+
+    // 3) Background color (base gradient + glass surfaces)
+    if (theme.bg) {
+      const b = theme.bg;
+      const toLight = mode === 'light';
+      _setVar('--bg-deep-navy', b);
+      _setVar('--bg-burgundy', _mix(b, toLight ? '#000000' : '#ffffff', 0.05));
+      _setVar('--bg-grad-1', b);
+      _setVar('--bg-grad-2', _mix(b, toLight ? '#000000' : '#ffffff', 0.06));
+      _setVar('--bg-grad-3', _mix(b, toLight ? '#000000' : '#ffffff', 0.12));
+      _setVar('--bg-overlay', _rgba(b, 0.9));
+      _setVar('--glass-bg', _rgba(_mix(b, '#ffffff', 0.06), 0.65));
+    } else {
+      ['--bg-deep-navy', '--bg-burgundy', '--bg-grad-1', '--bg-grad-2', '--bg-grad-3', '--bg-overlay', '--glass-bg'].forEach(v => _setVar(v, ''));
+    }
+
+    // 4) Language (sets <html lang> + data-lang; affects font priority)
+    let langTag = 'km', langCode = 'kh';
+    if (config.language === 'en') { langTag = 'en'; langCode = 'en'; }
+    else if (config.language === 'kh') { langTag = 'km'; langCode = 'kh'; }
+    else {
+      const sys = (navigator.language || 'km').toLowerCase();
+      langTag = sys;
+      langCode = sys.indexOf('km') === 0 ? 'kh' : 'en';
+    }
+    root.setAttribute('lang', langTag);
+    root.setAttribute('data-lang', langCode);
+
+    // 5) Fonts
+    const fams = [fonts.khmer, fonts.khmerHeading, fonts.english].filter(Boolean);
+    if (fams.length) {
+      const q = [...new Set(fams)].map(f => 'family=' + String(f).replace(/\s+/g, '+')).join('&');
+      _loadFontLink('app-dyn-fonts', 'https://fonts.googleapis.com/css2?' + q + '&display=swap');
+    } else {
+      _loadFontLink('app-dyn-fonts', '');
+    }
+    _loadFontLink('app-custom-font', fonts.customUrl || '');
+
+    if (fonts.customFamily) {
+      ['--font-khmer-body', '--font-khmer-sub', '--font-khmer-heading', '--font-khmer-serif'].forEach(v => _setVar(v, fonts.customFamily));
+    } else {
+      const khmer = fonts.khmer, english = fonts.english, heading = fonts.khmerHeading;
+      if (khmer || english) {
+        const stack = [khmer ? "'" + khmer + "'" : null, english ? "'" + english + "'" : null, 'sans-serif'].filter(Boolean).join(', ');
+        _setVar('--font-khmer-body', stack);
+        _setVar('--font-khmer-sub', stack);
+        const serif = [khmer ? "'" + khmer + "'" : null, english ? "'" + english + "'" : null, 'serif'].filter(Boolean).join(', ');
+        _setVar('--font-khmer-serif', serif);
+      } else {
+        ['--font-khmer-body', '--font-khmer-sub', '--font-khmer-serif'].forEach(v => _setVar(v, ''));
+      }
+      if (heading || english) {
+        const head = ["'" + (heading || 'Moul') + "'", khmer ? "'" + khmer + "'" : null, english ? "'" + english + "'" : null, 'serif'].filter(Boolean).join(', ');
+        _setVar('--font-khmer-heading', head);
+      } else {
+        _setVar('--font-khmer-heading', '');
+      }
+    }
+
+    // Re-apply when the OS switches light/dark while in auto mode
+    if (!window.__themeAutoWired && window.matchMedia) {
+      window.__themeAutoWired = true;
+      const mq = window.matchMedia('(prefers-color-scheme: light)');
+      const handler = () => {
+        const m = (currentConfig && currentConfig.theme && currentConfig.theme.mode) || 'auto';
+        if (m === 'auto') applyAppearance(currentConfig);
+      };
+      if (mq.addEventListener) mq.addEventListener('change', handler);
+      else if (mq.addListener) mq.addListener(handler);
+    }
+  }
+
   function getInvitationConfig() {
     try {
       const stored = localStorage.getItem('khmer_invitation_config');
@@ -157,6 +297,9 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentConfig = getInvitationConfig();
 
   function applyInvitationConfig(config) {
+    // Appearance first (theme mode, colors, language, fonts)
+    applyAppearance(config);
+
     // Envelope, Blessings & Hero Texts
     const envBadge = document.getElementById('display-envelope-badge');
     const envTitle = document.getElementById('display-envelope-title');

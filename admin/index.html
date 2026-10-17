@@ -286,6 +286,7 @@
       <button class="tab-btn-lux" data-tab="tab-rsvp">💌 បញ្ជាក់វត្តមាន RSVP</button>
       <button class="tab-btn-lux" data-tab="tab-wishes">📖 សៀវភៅជូនពរឌីជីថល</button>
       <button class="tab-btn-lux" data-tab="tab-general">⚙️ អត្ថបទរួម & តន្ត្រី</button>
+      <button class="tab-btn-lux" data-tab="tab-config">🎨 Configurations</button>
       <button class="tab-btn-lux" data-tab="tab-database" style="display: none;">🗄️ តេស្ត Database</button>
       <button class="tab-btn-lux" data-tab="tab-viplinks">👑 បង្កើត VIP Links</button>
     </div>
@@ -829,50 +830,7 @@
           </div>
         </div>
 
-        <!-- 2. Sections Visibility (show / hide blocks on the client site) -->
-        <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
-          <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 8px;">🧩 ការបង្ហាញផ្នែកនីមួយៗ (Show / Hide Sections)</h4>
-          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px;">
-            ធីក ✓ = បង្ហាញ ផ្នែកនោះនៅលើគេហទំព័រភ្ញៀវ ។ ដោះធីក = លាក់ផ្នែកនោះ។
-          </p>
-          <div id="sections-visibility-grid"
-            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px;">
-            <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
-              <input type="checkbox" id="cfg-show-countdown" checked style="width: 16px; height: 16px; accent-color: #e5b955;">
-              <span>⏳ Countdown</span>
-            </label>
-            <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
-              <input type="checkbox" id="cfg-show-parents" checked style="width: 16px; height: 16px; accent-color: #e5b955;">
-              <span>👪 មាតាបិតា</span>
-            </label>
-            <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
-              <input type="checkbox" id="cfg-show-video" checked style="width: 16px; height: 16px; accent-color: #e5b955;">
-              <span>🎬 វីដេអូ Album</span>
-            </label>
-            <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
-              <input type="checkbox" id="cfg-show-schedule" checked style="width: 16px; height: 16px; accent-color: #e5b955;">
-              <span>🗓️ កាលវិភាគ</span>
-            </label>
-            <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
-              <input type="checkbox" id="cfg-show-venue" checked style="width: 16px; height: 16px; accent-color: #e5b955;">
-              <span>📍 ទីតាំង</span>
-            </label>
-            <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
-              <input type="checkbox" id="cfg-show-gift" checked style="width: 16px; height: 16px; accent-color: #e5b955;">
-              <span>🎁 ចំណងដៃ</span>
-            </label>
-            <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
-              <input type="checkbox" id="cfg-show-rsvp" checked style="width: 16px; height: 16px; accent-color: #e5b955;">
-              <span>✉️ RSVP</span>
-            </label>
-            <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
-              <input type="checkbox" id="cfg-show-guestbook" checked style="width: 16px; height: 16px; accent-color: #e5b955;">
-              <span>💬 សៀវភៅជូនពរ</span>
-            </label>
-          </div>
-        </div>
-
-        <!-- 3. Background Music Playlist (up to 10 tracks) -->
+        <!-- 2. Background Music Playlist (up to 10 tracks) -->
         <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
           <h4 style="display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 8px;">
             <span>🎵 តន្ត្រីកំដរមង្គលការ (Background Music)</span>
@@ -936,6 +894,196 @@
           </div>
         </div>
 
+      </div>
+    </div>
+
+    <!-- ==========================================================================
+         TAB: Configurations (appearance, colors, language, fonts, sections)
+         ========================================================================== -->
+    <div class="admin-tab-pane" id="tab-config">
+      <div class="card-glass">
+        <h3 class="section-title" style="font-size: 1.15rem; margin-bottom: 6px;">🎨 Configurations</h3>
+        <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 18px;">
+          កំណត់ពណ៌ ផ្ទៃខាងក្រោយ ផ្ទាំងមើល (Dark/Light) ភាសា ពុម្ពអក្សរ និងការបង្ហាញផ្នែកនីមួយៗ សម្រាប់គេហទំព័រភ្ញៀវ។
+        </p>
+
+        <!-- A. Display Mode -->
+        <div style="margin-bottom: 20px;">
+          <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 12px;">🌓 ផ្ទាំងបង្ហាញ (Display Mode)</h4>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">របៀបបង្ហាញ (Theme Mode)</label>
+              <select id="cfg-theme-mode" class="form-input">
+                <option value="auto">🖥️ តាមប្រព័ន្ធ (System / Auto)</option>
+                <option value="dark">🌙 ងងឹត (Dark)</option>
+                <option value="light">☀️ ភ្លឺ (Light)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">ភាសាគេហទំព័រ (Language)</label>
+              <select id="cfg-language" class="form-input">
+                <option value="auto">🖥️ តាមប្រព័ន្ធ (System / Auto)</option>
+                <option value="kh">🇰🇭 ខ្មែរ (Khmer)</option>
+                <option value="en">🇬🇧 English</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- B. Colors -->
+        <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
+          <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 12px;">🎨 ពណ៌ និងផ្ទៃខាងក្រោយ (Colors &amp; Background)</h4>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="cfg-accent-enabled" style="width: 16px; height: 16px; accent-color: #e5b955;">
+                <span>កំណត់ពណ៌មាសដោយខ្លួនឯង (Custom Accent / Gold)</span>
+              </label>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <input type="color" id="cfg-theme-accent" value="#e5b955"
+                  style="width: 52px; height: 40px; border: none; background: none; cursor: pointer;">
+                <input type="text" id="cfg-theme-accent-hex" class="form-input" placeholder="#e5b955" style="flex: 1;">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="cfg-bg-enabled" style="width: 16px; height: 16px; accent-color: #e5b955;">
+                <span>កំណត់ពណ៌ផ្ទៃខាងក្រោយដោយខ្លួនឯង (Custom Background)</span>
+              </label>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <input type="color" id="cfg-theme-bg" value="#0a0a0d"
+                  style="width: 52px; height: 40px; border: none; background: none; cursor: pointer;">
+                <input type="text" id="cfg-theme-bg-hex" class="form-input" placeholder="#0a0a0d" style="flex: 1;">
+              </div>
+            </div>
+          </div>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+            បើមិនធីកទេ ពណ៌មាស និងផ្ទៃខាងក្រោយនឹងប្រើតម្លៃលំនាំដើមតាម Dark/Light Mode។
+          </p>
+        </div>
+
+        <!-- C. Fonts -->
+        <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
+          <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 12px;">🔤 ពុម្ពអក្សរ (Fonts)</h4>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">ពុម្ពអក្សរខ្មែរ — អត្ថបទ (Khmer Body Font)</label>
+              <select id="cfg-font-khmer" class="form-input">
+                <option value="">លំនាំដើម (Default)</option>
+                <option value="Kantumruy Pro">Kantumruy Pro</option>
+                <option value="Noto Serif Khmer">Noto Serif Khmer</option>
+                <option value="Noto Sans Khmer">Noto Sans Khmer</option>
+                <option value="Hanuman">Hanuman</option>
+                <option value="Battambang">Battambang</option>
+                <option value="Siemreap">Siemreap</option>
+                <option value="Koulen">Koulen</option>
+                <option value="Bayon">Bayon</option>
+                <option value="Content">Content</option>
+                <option value="Dangrek">Dangrek</option>
+                <option value="Nokora">Nokora</option>
+                <option value="Suwannaphum">Suwannaphum</option>
+                <option value="Preahvihear">Preahvihear</option>
+                <option value="Angkor">Angkor</option>
+                <option value="Odor Mean Chey">Odor Mean Chey</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">ពុម្ពអក្សរខ្មែរ — ចំណងជើង (Khmer Heading Font)</label>
+              <select id="cfg-font-khmer-heading" class="form-input">
+                <option value="">លំនាំដើម (Moul)</option>
+                <option value="Moul">Moul</option>
+                <option value="Koulen">Koulen</option>
+                <option value="Bayon">Bayon</option>
+                <option value="Angkor">Angkor</option>
+                <option value="Content">Content</option>
+                <option value="Metal">Metal</option>
+                <option value="Noto Serif Khmer">Noto Serif Khmer</option>
+                <option value="Kantumruy Pro">Kantumruy Pro</option>
+                <option value="Siemreap">Siemreap</option>
+                <option value="Fasthand">Fasthand</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">ពុម្ពអក្សរអង់គ្លេស (English / Latin Font)</label>
+            <select id="cfg-font-english" class="form-input">
+              <option value="">លំនាំដើម (Default)</option>
+              <option value="Poppins">Poppins</option>
+              <option value="Montserrat">Montserrat</option>
+              <option value="Playfair Display">Playfair Display</option>
+              <option value="Cormorant Garamond">Cormorant Garamond</option>
+              <option value="Cinzel">Cinzel</option>
+              <option value="Great Vibes">Great Vibes</option>
+              <option value="Dancing Script">Dancing Script</option>
+              <option value="Lato">Lato</option>
+              <option value="Inter">Inter</option>
+              <option value="Roboto">Roboto</option>
+              <option value="Open Sans">Open Sans</option>
+              <option value="Raleway">Raleway</option>
+              <option value="Merriweather">Merriweather</option>
+              <option value="Josefin Sans">Josefin Sans</option>
+            </select>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Custom Font CSS URL (ជម្រើស)</label>
+              <input type="text" id="cfg-font-custom-url" class="form-input"
+                placeholder="https://fonts.googleapis.com/css2?family=...">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Custom Font Family (ជម្រើស)</label>
+              <input type="text" id="cfg-font-custom-family" class="form-input"
+                placeholder="ឧ. 'MyFont', 'Kantumruy Pro', sans-serif">
+            </div>
+          </div>
+        </div>
+
+        <!-- D. Sections Visibility -->
+        <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
+          <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 8px;">🧩 ការបង្ហាញផ្នែកនីមួយៗ (Show / Hide Sections)</h4>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px;">
+            ធីក ✓ = បង្ហាញ ផ្នែកនោះនៅលើគេហទំព័រភ្ញៀវ ។ ដោះធីក = លាក់ផ្នែកនោះ។
+          </p>
+          <div id="sections-visibility-grid"
+            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px;">
+            <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
+              <input type="checkbox" id="cfg-show-countdown" checked style="width: 16px; height: 16px; accent-color: #e5b955;">
+              <span>⏳ Countdown</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
+              <input type="checkbox" id="cfg-show-parents" checked style="width: 16px; height: 16px; accent-color: #e5b955;">
+              <span>👪 មាតាបិតា</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
+              <input type="checkbox" id="cfg-show-video" checked style="width: 16px; height: 16px; accent-color: #e5b955;">
+              <span>🎬 វីដេអូ Album</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
+              <input type="checkbox" id="cfg-show-schedule" checked style="width: 16px; height: 16px; accent-color: #e5b955;">
+              <span>🗓️ កាលវិភាគ</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
+              <input type="checkbox" id="cfg-show-venue" checked style="width: 16px; height: 16px; accent-color: #e5b955;">
+              <span>📍 ទីតាំង</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
+              <input type="checkbox" id="cfg-show-gift" checked style="width: 16px; height: 16px; accent-color: #e5b955;">
+              <span>🎁 ចំណងដៃ</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
+              <input type="checkbox" id="cfg-show-rsvp" checked style="width: 16px; height: 16px; accent-color: #e5b955;">
+              <span>✉️ RSVP</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
+              <input type="checkbox" id="cfg-show-guestbook" checked style="width: 16px; height: 16px; accent-color: #e5b955;">
+              <span>💬 សៀវភៅជូនពរ</span>
+            </label>
+          </div>
+        </div>
+
+        <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 12px;">
+          ចុចប៊ូតុង <strong>💾 រក្សាទុក (Save)</strong> ខាងក្រោមដើម្បីអនុវត្តទៅលើគេហទំព័រភ្ញៀវទាំងអស់។
+        </p>
       </div>
     </div>
 
@@ -1348,6 +1496,53 @@ values
       // 3. Default Config Definition
       const SECTION_KEYS = ['countdown', 'parents', 'video', 'schedule', 'venue', 'gift', 'rsvp', 'guestbook'];
 
+      // ---- Configurations: color helper controls (accent / background) ----
+      function setAccentColor(hex) {
+        const picker = document.getElementById('cfg-theme-accent');
+        const text = document.getElementById('cfg-theme-accent-hex');
+        if (picker) picker.value = hex;
+        if (text) text.value = hex;
+      }
+      function setBgColor(hex) {
+        const picker = document.getElementById('cfg-theme-bg');
+        const text = document.getElementById('cfg-theme-bg-hex');
+        if (picker) picker.value = hex;
+        if (text) text.value = hex;
+      }
+      function syncColorControls() {
+        const accentOn = document.getElementById('cfg-accent-enabled');
+        const bgOn = document.getElementById('cfg-bg-enabled');
+        const accentPicker = document.getElementById('cfg-theme-accent');
+        const accentHex = document.getElementById('cfg-theme-accent-hex');
+        const bgPicker = document.getElementById('cfg-theme-bg');
+        const bgHex = document.getElementById('cfg-theme-bg-hex');
+        [accentPicker, accentHex].forEach(el => { if (el) el.disabled = !(accentOn && accentOn.checked); });
+        [bgPicker, bgHex].forEach(el => { if (el) el.disabled = !(bgOn && bgOn.checked); });
+      }
+      (function wireColorControls() {
+        const accentPicker = document.getElementById('cfg-theme-accent');
+        const accentHex = document.getElementById('cfg-theme-accent-hex');
+        const bgPicker = document.getElementById('cfg-theme-bg');
+        const bgHex = document.getElementById('cfg-theme-bg-hex');
+        const accentOn = document.getElementById('cfg-accent-enabled');
+        const bgOn = document.getElementById('cfg-bg-enabled');
+        if (accentPicker && accentHex) {
+          accentPicker.addEventListener('input', () => { accentHex.value = accentPicker.value; });
+          accentHex.addEventListener('input', () => {
+            if (/^#[0-9a-fA-F]{6}$/.test(accentHex.value.trim())) accentPicker.value = accentHex.value.trim();
+          });
+        }
+        if (bgPicker && bgHex) {
+          bgPicker.addEventListener('input', () => { bgHex.value = bgPicker.value; });
+          bgHex.addEventListener('input', () => {
+            if (/^#[0-9a-fA-F]{6}$/.test(bgHex.value.trim())) bgPicker.value = bgHex.value.trim();
+          });
+        }
+        if (accentOn) accentOn.addEventListener('change', syncColorControls);
+        if (bgOn) bgOn.addEventListener('change', syncColorControls);
+        syncColorControls();
+      })();
+
       const defaultConfig = {
         groomName: 'ជា វិបុល',
         brideName: 'ស៊ុន ទេវី',
@@ -1387,6 +1582,19 @@ values
           gift: true,
           rsvp: true,
           guestbook: true
+        },
+        theme: {
+          mode: 'auto',
+          accent: '',
+          bg: ''
+        },
+        language: 'auto',
+        fonts: {
+          khmer: '',
+          khmerHeading: '',
+          english: '',
+          customUrl: '',
+          customFamily: ''
         },
         thankYouText: 'សូមថ្លែងអំណរគុណយ៉ាងជ្រាលជ្រៅចំពោះវត្តមានដ៏ឧត្តុង្គឧត្តមរបស់លោកអ្នក',
         footerCredit: 'Designed with Khmer Traditional Heritage & Modern Elegance',
@@ -1487,6 +1695,22 @@ values
           const cb = document.getElementById('cfg-show-' + key);
           if (cb) cb.checked = secCfg[key] !== false;
         });
+
+        // Configurations tab: theme, colors, language, fonts
+        const themeCfg = cfg.theme || {};
+        const fontsCfg = cfg.fonts || {};
+        if (document.getElementById('cfg-theme-mode')) document.getElementById('cfg-theme-mode').value = themeCfg.mode || 'auto';
+        if (document.getElementById('cfg-language')) document.getElementById('cfg-language').value = cfg.language || 'auto';
+        if (document.getElementById('cfg-accent-enabled')) document.getElementById('cfg-accent-enabled').checked = !!themeCfg.accent;
+        if (document.getElementById('cfg-bg-enabled')) document.getElementById('cfg-bg-enabled').checked = !!themeCfg.bg;
+        setAccentColor(themeCfg.accent || '#e5b955');
+        setBgColor(themeCfg.bg || '#0a0a0d');
+        if (document.getElementById('cfg-font-khmer')) document.getElementById('cfg-font-khmer').value = fontsCfg.khmer || '';
+        if (document.getElementById('cfg-font-khmer-heading')) document.getElementById('cfg-font-khmer-heading').value = fontsCfg.khmerHeading || '';
+        if (document.getElementById('cfg-font-english')) document.getElementById('cfg-font-english').value = fontsCfg.english || '';
+        if (document.getElementById('cfg-font-custom-url')) document.getElementById('cfg-font-custom-url').value = fontsCfg.customUrl || '';
+        if (document.getElementById('cfg-font-custom-family')) document.getElementById('cfg-font-custom-family').value = fontsCfg.customFamily || '';
+        syncColorControls();
 
         // Video Album Fields
         if (document.getElementById('cfg-video-title')) document.getElementById('cfg-video-title').value = cfg.videoTitle || '';
@@ -1589,6 +1813,52 @@ values
         return /^(?:https?:)?\/\/(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)/i.test(url || '');
       }
 
+      // Derive a readable song name from a file / audio URL (drop path & extension)
+      function musicTitleFromSrc(src) {
+        try {
+          const u = new URL(src, window.location.origin);
+          let name = decodeURIComponent((u.pathname.split('/').pop() || ''));
+          name = name.replace(/\.[a-z0-9]{2,5}$/i, '');
+          name = name.replace(/[-_]+/g, ' ').trim();
+          return name || src;
+        } catch (e) {
+          return src;
+        }
+      }
+
+      // Fetch the real title of a YouTube video (no API key needed, CORS-enabled)
+      async function fetchYouTubeTitle(url) {
+        try {
+          const resp = await fetch('https://www.youtube.com/oembed?url=' + encodeURIComponent(url) + '&format=json');
+          if (!resp.ok) return '';
+          const data = await resp.json();
+          return (data && data.title) ? data.title : '';
+        } catch (e) {
+          return '';
+        }
+      }
+
+      const musicTitleAttempted = new Set();
+
+      // Auto-name any track that still shows a raw URL as its title
+      function enrichMusicTitles() {
+        let changed = false;
+        musicPlaylist.forEach(t => {
+          const needsName = !t.title || /^https?:/i.test(t.title) || t.title === t.src;
+          if (!needsName) return;
+          if (t.type === 'file') {
+            t.title = musicTitleFromSrc(t.src);
+            changed = true;
+          } else if (t.type === 'youtube' && t.src && !musicTitleAttempted.has(t.src)) {
+            musicTitleAttempted.add(t.src);
+            fetchYouTubeTitle(t.src).then(title => {
+              if (title) { t.title = title; renderMusicList(); }
+            });
+          }
+        });
+        if (changed) renderMusicList();
+      }
+
       function renderMusicList() {
         const listEl = document.getElementById('music-list');
         const countEl = document.getElementById('music-count');
@@ -1603,7 +1873,9 @@ values
         listEl.innerHTML = musicPlaylist.map((t, i) => `
           <div style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 7px 10px;">
             <span style="font-size: 0.9rem;">${t.type === 'youtube' ? '▶️' : '🎵'}</span>
-            <span style="flex: 1; font-size: 0.78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(t.src)}">${escapeHtml(t.title || t.src)}</span>
+            <input type="text" class="music-title-input" data-index="${i}"
+              value="${escapeAttr(t.title || t.src)}" title="ចុចដើម្បីកែឈ្មោះបទ (Rename song)"
+              style="flex: 1; min-width: 0; font-size: 0.78rem; color: var(--text-cream); background: transparent; border: 1px solid transparent; border-radius: 4px; padding: 3px 6px;">
             <span style="font-size: 0.66rem; color: var(--text-muted); text-transform: uppercase;">${t.type}</span>
             <button type="button" class="btn-remove-music" data-index="${i}" style="background: none; border: 1px solid rgba(255,107,107,0.4); color: #ff6b6b; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 0.72rem;">✕</button>
           </div>
@@ -1615,6 +1887,17 @@ values
             renderMusicList();
           });
         });
+
+        listEl.querySelectorAll('.music-title-input').forEach(inp => {
+          inp.addEventListener('focus', () => { inp.style.borderColor = 'rgba(229,185,85,0.5)'; });
+          inp.addEventListener('blur', () => {
+            inp.style.borderColor = 'transparent';
+            const idx = parseInt(inp.getAttribute('data-index'), 10);
+            if (musicPlaylist[idx]) musicPlaylist[idx].title = inp.value.trim() || inp.value;
+          });
+        });
+
+        enrichMusicTitles();
       }
 
       function addMusicTrack(track) {
@@ -1629,13 +1912,26 @@ values
 
       const btnAddMusicUrl = document.getElementById('btn-add-music-url');
       if (btnAddMusicUrl) {
-        btnAddMusicUrl.addEventListener('click', () => {
+        btnAddMusicUrl.addEventListener('click', async () => {
           const input = document.getElementById('cfg-music-url-input');
           const url = (input ? input.value : '').trim();
           if (!url) { showToast('⚠️ សូមបញ្ចូល URL ចម្រៀង'); return; }
           const type = isYouTubeMusicUrl(url) ? 'youtube' : 'file';
-          if (addMusicTrack({ type, src: url, title: url })) {
-            input.value = '';
+          const track = {
+            type,
+            src: url,
+            title: type === 'youtube' ? 'រង់ចាំឈ្មោះបទ…' : musicTitleFromSrc(url)
+          };
+          if (!addMusicTrack(track)) return;
+          input.value = '';
+          if (type === 'youtube') {
+            showToast('⏳ កំពុងទាញឈ្មោះបទ…');
+            musicTitleAttempted.add(url);
+            const title = await fetchYouTubeTitle(url);
+            track.title = title || url;
+            renderMusicList();
+            showToast(title ? ('✅ ' + title) : '✅ បានបន្ថែមបទចម្រៀង');
+          } else {
             showToast('✅ បានបន្ថែមបទចម្រៀង');
           }
         });
@@ -1653,6 +1949,7 @@ values
             return;
           }
           const reader = new FileReader();
+          const fileTitle = file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim() || file.name;
           reader.onload = async (re) => {
             let added = false;
             try {
@@ -1664,13 +1961,13 @@ values
               const data = await resp.json();
               if (data && data.success && data.url) {
                 const absUrl = new URL(data.url, API_BASE || window.location.origin).href;
-                added = addMusicTrack({ type: 'file', src: absUrl, title: file.name });
+                added = addMusicTrack({ type: 'file', src: absUrl, title: fileTitle });
               }
             } catch (err) {
               console.warn('MP3 upload to server failed:', err);
             }
             if (!added && musicPlaylist.length < MAX_MUSIC) {
-              addMusicTrack({ type: 'file', src: re.target.result, title: file.name });
+              addMusicTrack({ type: 'file', src: re.target.result, title: fileTitle });
               showToast('🎵 បានបន្ថែមបទចម្រៀង (ក្នុងឧបករណ៍)');
             } else if (added) {
               showToast('🎵 បានផ្ទុកបទចម្រៀងឡើង Server រួចរាល់!');
@@ -1892,6 +2189,27 @@ values
             acc[key] = cb ? cb.checked : true;
             return acc;
           }, {}),
+          theme: {
+            mode: document.getElementById('cfg-theme-mode') ? document.getElementById('cfg-theme-mode').value : 'auto',
+            accent: (document.getElementById('cfg-accent-enabled') && document.getElementById('cfg-accent-enabled').checked)
+              ? ((document.getElementById('cfg-theme-accent-hex') && /^#[0-9a-fA-F]{6}$/.test(document.getElementById('cfg-theme-accent-hex').value.trim()))
+                ? document.getElementById('cfg-theme-accent-hex').value.trim()
+                : (document.getElementById('cfg-theme-accent') ? document.getElementById('cfg-theme-accent').value : ''))
+              : '',
+            bg: (document.getElementById('cfg-bg-enabled') && document.getElementById('cfg-bg-enabled').checked)
+              ? ((document.getElementById('cfg-theme-bg-hex') && /^#[0-9a-fA-F]{6}$/.test(document.getElementById('cfg-theme-bg-hex').value.trim()))
+                ? document.getElementById('cfg-theme-bg-hex').value.trim()
+                : (document.getElementById('cfg-theme-bg') ? document.getElementById('cfg-theme-bg').value : ''))
+              : ''
+          },
+          language: document.getElementById('cfg-language') ? document.getElementById('cfg-language').value : 'auto',
+          fonts: {
+            khmer: document.getElementById('cfg-font-khmer') ? document.getElementById('cfg-font-khmer').value : '',
+            khmerHeading: document.getElementById('cfg-font-khmer-heading') ? document.getElementById('cfg-font-khmer-heading').value : '',
+            english: document.getElementById('cfg-font-english') ? document.getElementById('cfg-font-english').value : '',
+            customUrl: document.getElementById('cfg-font-custom-url') ? document.getElementById('cfg-font-custom-url').value.trim() : '',
+            customFamily: document.getElementById('cfg-font-custom-family') ? document.getElementById('cfg-font-custom-family').value.trim() : ''
+          },
           sealImage: document.getElementById('cfg-seal-image') ? document.getElementById('cfg-seal-image').value.trim() : defaultConfig.sealImage,
           thankYouText: document.getElementById('cfg-thankyou-text') ? document.getElementById('cfg-thankyou-text').value.trim() : defaultConfig.thankYouText,
           footerCredit: document.getElementById('cfg-footer-credit') ? document.getElementById('cfg-footer-credit').value.trim() : defaultConfig.footerCredit,
@@ -2631,8 +2949,12 @@ values
 
       function escapeHtml(s) {
         const div = document.createElement('div');
-        div.innerText = s;
+        div.innerText = (s == null ? '' : String(s));
         return div.innerHTML;
+      }
+
+      function escapeAttr(s) {
+        return escapeHtml(s).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
       }
 
       // Check initial auth on load
