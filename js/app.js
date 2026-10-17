@@ -111,6 +111,8 @@ document.addEventListener('DOMContentLoaded', () => {
     invitationSubtext: 'ចូលរួមជាអធិបតី និងជាភ្ញៀវកិត្តិយស ក្នុងពិធីមង្គលការកូនប្រុស-កូនស្រីរបស់យើងខ្ញុំ',
     sealImage: 'assets/images/golden_seal.jpg',
     faviconUrl: '',
+    faviconList: [],
+    faviconIndex: 0,
     bgMusicUrl: 'assets/audio/bg_music.mp3',
     bgMusicPlaylist: [
       { type: 'file', src: 'assets/audio/bg_music.mp3', title: 'Default Background Music' }
@@ -273,7 +275,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Site Icon / Favicon (admin-customizable via Configurations)
-    const favUrl = config && config.faviconUrl ? String(config.faviconUrl).trim() : '';
+    let favUrl = config && config.faviconUrl ? String(config.faviconUrl).trim() : '';
+    if (!favUrl && config && Array.isArray(config.faviconList) && config.faviconList.length) {
+      const idx = Math.min(Math.max(0, parseInt(config.faviconIndex, 10) || 0), config.faviconList.length - 1);
+      const entry = config.faviconList[idx];
+      favUrl = entry && (entry.src || typeof entry === 'string') ? String(entry.src || entry).trim() : '';
+    }
     const favEl = document.getElementById('app-favicon');
     const appleEl = document.getElementById('app-apple-icon');
     if (favEl) {

@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Battambang:wght@300;400;700&family=Cinzel:wght@500;700;900&family=Hanuman:wght@300;400;700&family=Kantumruy+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Moul&family=Noto+Serif+Khmer:wght@400;600;700&display=swap">
-  <link rel="stylesheet" href="../css/style.css?v=20261017d">
+  <link rel="stylesheet" href="../css/style.css?v=20261017e">
   <style>
     body {
       background-color: #060913;
@@ -1061,32 +1061,33 @@
           </div>
         </div>
 
-        <!-- D. App Icon / Favicon -->
+        <!-- D. App Icon / Favicon (list, max 10, choose one) -->
         <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
-          <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 12px;">🖼️ រូបតំណាងគេហទំព័រ (App Icon / Favicon)</h4>
+          <h4
+            style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+            <span>🖼️ រូបតំណាងគេហទំព័រ (App Icon / Favicon)</span>
+            <span id="icon-count" class="poster-count-pill">0 / 10</span>
+          </h4>
           <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px;">
-            ផ្ទុករូបតំណាងពីកុំព្យូទ័រ (.ico / .png / .jpg / .svg) ដើម្បីបង្ហាញលើ Tab វេបប្រោស័រ និងពេលរក្សាទុកលើទូរស័ព្ទ។
+            ផ្ទុករូបតំណាងពីកុំព្យូទ័រ (.ico / .png / .jpg / .svg) បានរហូតដល់ 10 រូប ហើយជ្រើសរើស
+            <strong>មួយ</strong> ដើម្បីបង្ហាញលើ Tab វេបប្រោស័រ និងពេលរក្សាទុកលើទូរស័ព្ទ។
           </p>
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label">ផ្ទុករូបតំណាងពីកុំព្យូទ័រ (Upload from device)</label>
-              <input type="file" id="cfg-icon-file"
-                accept=".ico,.png,.jpg,.jpeg,.webp,.svg,image/x-icon,image/vnd.microsoft.icon,image/png,image/jpeg,image/webp,image/svg+xml,image/*"
-                class="form-input" style="padding: 8px;">
-            </div>
-            <div class="form-group">
-              <label class="form-label">ឬបញ្ចូល Icon URL</label>
-              <div style="display: flex; gap: 8px; align-items: center;">
-                <input type="text" id="cfg-icon-url" class="form-input"
-                  placeholder="assets/images/favicon.png ឬ https://...">
-                <img id="cfg-icon-preview" alt="icon preview"
-                  style="width: 40px; height: 40px; object-fit: contain; flex: 0 0 auto; border: 1px solid rgba(229,185,85,0.3); border-radius: 6px; background: rgba(0,0,0,0.25); display: none;">
-              </div>
-            </div>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="cfg-icon-url" class="form-input"
+              placeholder="assets/images/favicon.png ឬ https://...">
+            <button type="button" id="btn-add-icon-url" class="btn-primary-lux"
+              style="white-space: nowrap; padding: 10px 16px;">+ បន្ថែម</button>
           </div>
+          <div style="display: flex; gap: 8px; margin-top: 8px; align-items: center;">
+            <input type="file" id="cfg-icon-file"
+              accept=".ico,.png,.jpg,.jpeg,.webp,.svg,image/x-icon,image/vnd.microsoft.icon,image/png,image/jpeg,image/webp,image/svg+xml,image/*"
+              class="form-input" style="padding: 8px;">
+            <span style="font-size: 0.72rem; color: var(--text-muted); white-space: nowrap;">ផ្ទុកពីកុំព្យូទ័រ</span>
+          </div>
+          <div id="icon-list" class="icon-admin-list"></div>
           <button type="button" id="btn-clear-icon"
             style="margin-top: 10px; font-size: 0.75rem; padding: 6px 12px; background: none; border: 1px solid rgba(229,185,85,0.4); color: var(--primary-gold-light); border-radius: 6px; cursor: pointer;">
-            ✕ លុប និងប្រើលំនាំដើម (Use Default)
+            ✕ លុបទាំងអស់ និងប្រើលំនាំដើម (Use Default)
           </button>
         </div>
 
@@ -1463,7 +1464,7 @@ values
 
   <!-- Supabase SDK & Admin Script Logic -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../js/supabase.js?v=20261017d"></script>
+  <script src="../js/supabase.js?v=20261017e"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       // 🌐 Smart API Base URL: redirect to Python server on port 8080 when
@@ -1471,6 +1472,20 @@ values
       const API_BASE = (window.location.port === '8080' || window.location.protocol === 'file:')
         ? '' // Same-origin: relative paths work fine
         : 'http://localhost:8080'; // Live Server / other dev ports → point to Python API
+
+      // 🛟 Safety net: surface any uncaught script error instead of failing silently
+      window.addEventListener('error', (ev) => {
+        try {
+          if (typeof showToast === 'function') showToast('⚠️ Script error: ' + (ev.message || 'unknown'));
+          console.error('[Admin] Uncaught error:', ev.error || ev.message);
+        } catch (_) { }
+      });
+      window.addEventListener('unhandledrejection', (ev) => {
+        try {
+          if (typeof showToast === 'function') showToast('⚠️ ' + ((ev.reason && ev.reason.message) || 'Async error'));
+          console.error('[Admin] Unhandled rejection:', ev.reason);
+        } catch (_) { }
+      });
 
       // 🎵 Background Music playlist state (max 10 tracks)
       const MAX_MUSIC = 10;
@@ -1490,8 +1505,15 @@ values
       const AUTH_USER = 'admin';
       const AUTH_PASS = 'admin889900';
 
+      function isAuthenticated() {
+        // Persist across reloads / new tabs (sessionStorage alone is dropped by
+        // some mobile browsers when the tab is backgrounded or reopened).
+        return localStorage.getItem('khmer_admin_auth') === 'true'
+          || sessionStorage.getItem('khmer_admin_auth') === 'true';
+      }
+
       function checkAuth() {
-        const isAuth = sessionStorage.getItem('khmer_admin_auth') === 'true';
+        const isAuth = isAuthenticated();
         if (isAuth) {
           loginOverlay.style.display = 'none';
           adminDashboard.style.display = 'block';
@@ -1525,6 +1547,7 @@ values
           const p = document.getElementById('login-password').value.trim();
 
           if (u === AUTH_USER && p === AUTH_PASS) {
+            localStorage.setItem('khmer_admin_auth', 'true');
             sessionStorage.setItem('khmer_admin_auth', 'true');
             showToast('✅ ចូលគ្រប់គ្រងបានជោគជ័យ!');
             checkAuth();
@@ -1536,6 +1559,7 @@ values
 
       if (btnLogout) {
         btnLogout.addEventListener('click', () => {
+          localStorage.removeItem('khmer_admin_auth');
           sessionStorage.removeItem('khmer_admin_auth');
           showToast('👋 បានចាកចេញពីប្រព័ន្ធ');
           checkAuth();
@@ -1680,6 +1704,8 @@ values
         videoPoster: 'assets/images/couple.jpg',
         videoPosters: ['assets/images/couple.jpg'],
         faviconUrl: '',
+        faviconList: [],
+        faviconIndex: 0,
         bankAppLink: ''
       };
 
@@ -1709,17 +1735,97 @@ values
         }
       }
 
-      function updateIconPreview(url) {
-        const preview = document.getElementById('cfg-icon-preview');
-        if (!preview) return;
-        url = (url || '').trim();
-        if (url) {
-          preview.src = url;
-          preview.style.display = 'block';
-        } else {
-          preview.src = '';
-          preview.style.display = 'none';
+      // ── App Icon / Favicon list (max 10, choose one active) ──────────────────
+      const ICON_MAX = 10;
+      let currentIcons = [];
+      let currentIconIndex = 0;
+
+      function normalizeIcons(cfg) {
+        let list = Array.isArray(cfg.faviconList) ? cfg.faviconList.slice() : [];
+        list = list
+          .map(entry => {
+            if (typeof entry === 'string') return { src: entry.trim(), title: '' };
+            if (entry && entry.src) return { src: String(entry.src).trim(), title: entry.title || '' };
+            return null;
+          })
+          .filter(x => x && x.src)
+          .slice(0, ICON_MAX);
+        if (!list.length && cfg.faviconUrl) list = [{ src: String(cfg.faviconUrl).trim(), title: '' }];
+        currentIconIndex = Math.min(Math.max(0, parseInt(cfg.faviconIndex, 10) || 0), Math.max(0, list.length - 1));
+        return list;
+      }
+
+      function updateIconCount() {
+        const el = document.getElementById('icon-count');
+        if (el) el.textContent = currentIcons.length + ' / ' + ICON_MAX;
+      }
+
+      function renderIconList() {
+        const wrap = document.getElementById('icon-list');
+        if (!wrap) return;
+        updateIconCount();
+        if (!currentIcons.length) {
+          wrap.innerHTML = '<div class="poster-admin-empty">មិនទាន់មានរូបតំណាង — បន្ថែម URL ឬផ្ទុករូបភាពខាងលើ។</div>';
+          return;
         }
+        wrap.innerHTML = currentIcons.map((ic, i) => {
+          const active = i === currentIconIndex;
+          return `
+            <div style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid ${active ? 'rgba(229,185,85,0.85)' : 'rgba(229,185,85,0.2)'}; ${active ? 'box-shadow: 0 0 12px rgba(229,185,85,0.3);' : ''} border-radius: 6px; padding: 7px 10px;">
+              <input type="radio" name="icon-select" class="icon-select-radio" data-index="${i}" ${active ? 'checked' : ''}
+                title="ជ្រើសរើសរូបតំណាងនេះ (Set as active)"
+                style="width: 16px; height: 16px; flex: 0 0 auto; accent-color: #e5b955; cursor: pointer;">
+              <img src="${escapeAttr(adminAssetUrl(ic.src))}" alt="icon ${i + 1}" loading="lazy" onerror="this.style.opacity=0.25"
+                style="width: 34px; height: 34px; flex: 0 0 auto; object-fit: contain; border: 1px solid rgba(229,185,85,0.25); border-radius: 4px; background: rgba(0,0,0,0.25);">
+              <input type="text" class="icon-name-input" data-index="${i}" value="${escapeAttr(ic.title || '')}"
+                placeholder="ឈ្មោះ (Name)"
+                style="flex: 1; min-width: 0; font-size: 0.78rem; color: var(--text-cream); background: transparent; border: 1px solid transparent; border-radius: 4px; padding: 3px 6px;">
+              <span style="font-size: 0.66rem; color: ${active ? 'var(--primary-gold-light)' : 'var(--text-muted)'}; text-transform: uppercase;">${active ? '✓ Active' : 'icon'}</span>
+              <button type="button" class="btn-remove-icon" data-index="${i}"
+                style="background: none; border: 1px solid rgba(255,107,107,0.4); color: #ff6b6b; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 0.72rem;">✕</button>
+            </div>
+          `;
+        }).join('');
+
+        wrap.querySelectorAll('.icon-select-radio').forEach(radio => {
+          radio.addEventListener('change', () => {
+            currentIconIndex = parseInt(radio.getAttribute('data-index'), 10) || 0;
+            renderIconList();
+          });
+        });
+        wrap.querySelectorAll('.icon-name-input').forEach(inp => {
+          inp.addEventListener('focus', () => { inp.style.borderColor = 'rgba(229,185,85,0.5)'; });
+          inp.addEventListener('blur', () => {
+            inp.style.borderColor = 'transparent';
+            const idx = parseInt(inp.getAttribute('data-index'), 10);
+            if (currentIcons[idx]) currentIcons[idx].title = inp.value.trim();
+          });
+        });
+        wrap.querySelectorAll('.btn-remove-icon').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const idx = parseInt(btn.getAttribute('data-index'), 10);
+            currentIcons.splice(idx, 1);
+            if (currentIconIndex >= currentIcons.length) currentIconIndex = Math.max(0, currentIcons.length - 1);
+            renderIconList();
+          });
+        });
+      }
+
+      function addIconUrl(url, silent) {
+        url = String(url || '').trim();
+        if (!url) return;
+        if (currentIcons.length >= ICON_MAX) {
+          if (!silent) showToast('⚠️ អាចបន្ថែមរូបតំណាងបានត្រឹម ' + ICON_MAX + ' រូបប៉ុណ្ណោះ');
+          return;
+        }
+        if (currentIcons.some(ic => ic.src === url)) {
+          if (!silent) showToast('ℹ️ រូបតំណាងនេះមានរួចហើយ');
+          return;
+        }
+        currentIcons.push({ src: url, title: '' });
+        if (currentIcons.length === 1) currentIconIndex = 0;
+        renderIconList();
+        if (!silent) showToast('🖼️ បានបន្ថែមរូបតំណាង (' + currentIcons.length + '/' + ICON_MAX + ')');
       }
 
       // ── Video Poster Gallery (up to 10 images) ───────────────────────────────
@@ -1859,9 +1965,9 @@ values
           document.getElementById('cfg-font-custom-family').value = fontsCfg.customFamily || '';
         syncColorControls();
 
-        // App Icon / Favicon
-        if (document.getElementById('cfg-icon-url')) document.getElementById('cfg-icon-url').value = cfg.faviconUrl || '';
-        updateIconPreview(cfg.faviconUrl || '');
+        // App Icon / Favicon list
+        currentIcons = normalizeIcons(cfg);
+        renderIconList();
         // Video Album Fields
         if (document.getElementById('cfg-video-title')) document.getElementById('cfg-video-title').value = cfg.videoTitle || '';
         if (document.getElementById('cfg-video-subtitle')) document.getElementById('cfg-video-subtitle').value = cfg.videoSubtitle || '';
@@ -2308,20 +2414,37 @@ values
         });
       }
 
-      // ── App Icon / Favicon (upload from device: .ico/.png/.jpg/.svg) ──────────
+      // ── App Icon / Favicon list (add via URL or device upload; choose one) ─────
       const iconUrlInput = document.getElementById('cfg-icon-url');
       const iconFileInput = document.getElementById('cfg-icon-file');
+      const btnAddIconUrl = document.getElementById('btn-add-icon-url');
+      if (btnAddIconUrl) {
+        btnAddIconUrl.addEventListener('click', () => {
+          addIconUrl(iconUrlInput?.value);
+          if (iconUrlInput) iconUrlInput.value = '';
+        });
+      }
       if (iconUrlInput) {
-        iconUrlInput.addEventListener('input', (e) => updateIconPreview(e.target.value));
+        iconUrlInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            addIconUrl(iconUrlInput.value);
+            iconUrlInput.value = '';
+          }
+        });
       }
       if (iconFileInput) {
         iconFileInput.addEventListener('change', async (e) => {
           const file = e.target.files[0];
           if (!file) return;
+          if (currentIcons.length >= ICON_MAX) {
+            showToast('⚠️ អាចបន្ថែមរូបតំណាងបានត្រឹម ' + ICON_MAX + ' រូបប៉ុណ្ណោះ');
+            iconFileInput.value = '';
+            return;
+          }
           const reader = new FileReader();
           reader.onload = async (re) => {
             const base64Data = re.target.result;
-            let finalUrl = base64Data;
             try {
               const res = await fetch(`${API_BASE}/api/upload-image`, {
                 method: 'POST',
@@ -2330,14 +2453,13 @@ values
               });
               if (!res.ok) throw new Error('upload failed');
               const data = await res.json();
-              finalUrl = data.url;
+              addIconUrl(data.url);
               showToast('🖼️ បានផ្ទុករូបតំណាងឡើងជោគជ័យ!');
             } catch (err) {
               console.warn('Icon upload failed, using inline preview:', err);
+              addIconUrl(base64Data);
               showToast('⚠️ រក្សាទុកជា Preview ក្នុងឧបករណ៍ (មិនបានផ្ទុកទៅ Server)');
             }
-            if (iconUrlInput) iconUrlInput.value = finalUrl;
-            updateIconPreview(finalUrl);
             iconFileInput.value = '';
           };
           reader.readAsDataURL(file);
@@ -2346,12 +2468,16 @@ values
       const btnClearIcon = document.getElementById('btn-clear-icon');
       if (btnClearIcon) {
         btnClearIcon.addEventListener('click', () => {
+          currentIcons = [];
+          currentIconIndex = 0;
           if (iconUrlInput) iconUrlInput.value = '';
           if (iconFileInput) iconFileInput.value = '';
-          updateIconPreview('');
-          showToast('↩️ បានលុបរូបតំណាង (នឹងប្រើលំនាំដើមវិញ)');
+          renderIconList();
+          showToast('↩️ បានលុបរូបតំណាងទាំងអស់ (នឹងប្រើលំនាំដើមវិញ)');
         });
       }
+
+      const videoFileInput = document.getElementById('cfg-video-file');
       const videoUploadStatus = document.getElementById('video-upload-status');
       const videoProgBar = document.getElementById('video-progress-bar');
       const videoProgContainer = document.getElementById('video-progress-bar-container');
@@ -2447,7 +2573,9 @@ values
           bankAccNum: document.getElementById('cfg-bank-accnum').value.trim(),
           bankName: document.getElementById('cfg-bank-name').value.trim(),
           bankAppLink: document.getElementById('cfg-bank-applink').value.trim(),
-          faviconUrl: document.getElementById('cfg-icon-url') ? document.getElementById('cfg-icon-url').value.trim() : '',
+          faviconList: currentIcons.slice(),
+          faviconIndex: currentIconIndex,
+          faviconUrl: (currentIcons[currentIconIndex] && currentIcons[currentIconIndex].src) || '',
           qrImage: document.getElementById('cfg-qr-image').value.trim(),
           couplePhoto: document.getElementById('cfg-couple-photo').value.trim(),
           blessingVerse: document.getElementById('cfg-blessing-verse') ? document.getElementById('cfg-blessing-verse').value.trim() : defaultConfig.blessingVerse,
@@ -3197,7 +3325,9 @@ values
       if (btnDisconnectSupabase) {
         btnDisconnectSupabase.addEventListener('click', () => {
           if (confirm('តើអ្នកពិតជាចង់ផ្តាច់ការភ្ជាប់ពី Supabase មែនទេ?')) {
-            window.appSupabase.clearCredentials();
+            if (window.appSupabase && window.appSupabase.clearCredentials) {
+              window.appSupabase.clearCredentials();
+            }
             updateSupabaseStatusUi();
             loadRsvpList();
             showToast('🔌 បានផ្តាច់ការភ្ជាប់ពី Supabase រួចរាល់');

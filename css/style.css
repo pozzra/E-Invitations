@@ -1845,6 +1845,18 @@ button {
   border-radius: var(--radius-sm);
 }
 
+/* Admin: App Icon / Favicon list */
+.icon-admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.icon-admin-list .poster-admin-empty {
+  border: 1px dashed rgba(229, 185, 85, 0.25);
+}
+
 @keyframes posterAdminDrop {
   0% {
     transform: translateY(-16px) scale(0.9);
