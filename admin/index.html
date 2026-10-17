@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Battambang:wght@300;400;700&family=Cinzel:wght@500;700;900&family=Hanuman:wght@300;400;700&family=Kantumruy+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Moul&family=Noto+Serif+Khmer:wght@400;600;700&display=swap">
-  <link rel="stylesheet" href="../css/style.css?v=20261017b">
+  <link rel="stylesheet" href="../css/style.css?v=20261017c">
   <style>
     body {
       background-color: #060913;
@@ -409,8 +409,26 @@
             <input type="text" id="cfg-video-url" class="form-input" placeholder="assets/videos/... ឬ https://...">
           </div>
           <div class="form-group">
-            <label class="form-label">រូបភាពគម្របវីដេអូ (Poster / Thumbnail URL)</label>
-            <input type="text" id="cfg-video-poster" class="form-input" placeholder="assets/images/couple.jpg">
+            <label class="form-label" style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+              <span>🖼️ រូបភាពគម្របវីដេអូ (Poster / Thumbnail Gallery)</span>
+              <span id="video-poster-count" class="poster-count-pill">0 / 10</span>
+            </label>
+            <input type="hidden" id="cfg-video-poster" value="">
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="cfg-video-poster-input" class="form-input"
+                placeholder="assets/images/couple.jpg ឬ https://...">
+              <button type="button" id="btn-add-poster-url" class="btn-primary-lux"
+                style="white-space: nowrap; padding: 10px 16px;">+ បន្ថែម</button>
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 8px; align-items: center;">
+              <input type="file" id="cfg-video-poster-file" accept="image/*" class="form-input" style="padding: 8px;">
+              <span style="font-size: 0.72rem; color: var(--text-muted); white-space: nowrap;">ផ្ទុកពីកុំព្យូទ័រ</span>
+            </div>
+            <div id="video-poster-list" class="poster-admin-list"></div>
+            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; line-height: 1.5;">
+              អាចបន្ថែមបានរហូតដល់ 10 រូប។ បើមានចាប់ពី 2 រូបឡើងទៅ គេហទំព័រភ្ញៀវនឹងបង្ហាញជា
+              <strong>Slideshow ចលនាថ្មី</strong> (បើកដូចសៀវភៅ + តំណក់ទឹកធ្លាក់)។
+            </div>
           </div>
         </div>
 
@@ -1416,7 +1434,7 @@ values
 
   <!-- Supabase SDK & Admin Script Logic -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../js/supabase.js?v=20261017b"></script>
+  <script src="../js/supabase.js?v=20261017c"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       // 🌐 Smart API Base URL: redirect to Python server on port 8080 when
@@ -1631,6 +1649,7 @@ values
         videoDesc: 'សូមទស្សនាវីដេអូអនុស្សាវរីយ៍ដ៏មានអត្ថន័យ និងសាច់រឿងនៃក្តីស្រឡាញ់របស់គូស្វាមីភរិយាថ្មី',
         videoUrl: '',
         videoPoster: 'assets/images/couple.jpg',
+        videoPosters: ['assets/images/couple.jpg'],
         bankAppLink: ''
       };
 
@@ -1658,6 +1677,68 @@ values
           preview.style.display = 'none';
           placeholder.style.display = 'flex';
         }
+      }
+
+      // ── Video Poster Gallery (up to 10 images) ───────────────────────────────
+      const POSTER_MAX = 10;
+      let currentPosters = [];
+
+      function adminAssetUrl(u) {
+        if (!u) return '';
+        return /^(https?:|data:|blob:|\/)/i.test(u) ? u : '../' + String(u).replace(/^\.?\//, '');
+      }
+
+      function normalizePosters(cfg) {
+        let list = Array.isArray(cfg.videoPosters) ? cfg.videoPosters.slice() : [];
+        if (!list.length && cfg.videoPoster) list = [cfg.videoPoster];
+        return list
+          .map(u => String(u || '').trim())
+          .filter(Boolean)
+          .slice(0, POSTER_MAX);
+      }
+
+      function updatePosterCount() {
+        const el = document.getElementById('video-poster-count');
+        if (el) el.textContent = currentPosters.length + ' / ' + POSTER_MAX;
+      }
+
+      function renderPosterAdminList() {
+        const wrap = document.getElementById('video-poster-list');
+        if (!wrap) return;
+        updatePosterCount();
+        if (!currentPosters.length) {
+          wrap.innerHTML = '<div class="poster-admin-empty">មិនទាន់មានរូបភាពគម្រប — បន្ថែម URL ឬផ្ទុករូបភាពខាងលើ។</div>';
+          return;
+        }
+        wrap.innerHTML = currentPosters.map((url, i) =>
+          '<div class="poster-admin-item" data-index="' + i + '">' +
+          '<img src="' + escapeAttr(adminAssetUrl(url)) + '" alt="poster ' + (i + 1) + '" loading="lazy" onerror="this.style.opacity=0.25">' +
+          '<span class="poster-admin-idx">' + (i + 1) + '</span>' +
+          '<button type="button" class="poster-admin-remove" data-remove="' + i + '" title="លុបរូបភាពនេះ">✕</button>' +
+          '</div>'
+        ).join('');
+      }
+
+      function addPosterUrl(url, silent) {
+        url = String(url || '').trim();
+        if (!url) return;
+        if (currentPosters.length >= POSTER_MAX) {
+          if (!silent) showToast('⚠️ អាចបន្ថែមរូបភាពគម្របបានត្រឹម ' + POSTER_MAX + ' រូបប៉ុណ្ណោះ');
+          return;
+        }
+        if (currentPosters.indexOf(url) !== -1) {
+          if (!silent) showToast('ℹ️ រូបភាពនេះមានរួចហើយ');
+          return;
+        }
+        currentPosters.push(url);
+        renderPosterAdminList();
+        if (!silent) showToast('🖼️ បានបន្ថែមរូបភាពគម្រប (' + currentPosters.length + '/' + POSTER_MAX + ')');
+      }
+
+      function removePoster(index) {
+        if (index < 0 || index >= currentPosters.length) return;
+        currentPosters.splice(index, 1);
+        renderPosterAdminList();
       }
 
       function loadConfigurationToForm() {
@@ -1739,8 +1820,10 @@ values
         if (document.getElementById('cfg-video-subtitle')) document.getElementById('cfg-video-subtitle').value = cfg.videoSubtitle || '';
         if (document.getElementById('cfg-video-desc')) document.getElementById('cfg-video-desc').value = cfg.videoDesc || '';
         if (document.getElementById('cfg-video-url')) document.getElementById('cfg-video-url').value = cfg.videoUrl || '';
-        if (document.getElementById('cfg-video-poster')) document.getElementById('cfg-video-poster').value = cfg.videoPoster || '';
-        updateAdminVideoPreview(cfg.videoUrl || '', cfg.videoPoster || '');
+        currentPosters = normalizePosters(cfg);
+        renderPosterAdminList();
+        if (document.getElementById('cfg-video-poster')) document.getElementById('cfg-video-poster').value = currentPosters[0] || '';
+        updateAdminVideoPreview(cfg.videoUrl || '', currentPosters[0] || '');
 
         renderScheduleEditor();
       }
@@ -1893,7 +1976,10 @@ values
         }
 
         listEl.innerHTML = musicPlaylist.map((t, i) => `
-          <div style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 7px 10px;">
+          <div style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 7px 10px; ${t.enabled === false ? 'opacity: 0.45;' : ''}">
+            <input type="checkbox" class="music-enable-checkbox" data-index="${i}" ${t.enabled === false ? '' : 'checked'}
+              title="${t.enabled === false ? 'បិទ — មិនបង្ហាញបទនេះលើគេហទំព័រ' : 'បើក — បង្ហាញបទនេះលើគេហទំព័រ'}"
+              style="width: 16px; height: 16px; flex: 0 0 auto; accent-color: #e5b955; cursor: pointer;">
             <span style="font-size: 0.9rem;">${t.type === 'youtube' ? '▶️' : '🎵'}</span>
             <input type="text" class="music-title-input" data-index="${i}"
               value="${escapeAttr(t.title || t.src)}" title="ចុចដើម្បីកែឈ្មោះបទ (Rename song)"
@@ -1902,6 +1988,14 @@ values
             <button type="button" class="btn-remove-music" data-index="${i}" style="background: none; border: 1px solid rgba(255,107,107,0.4); color: #ff6b6b; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 0.72rem;">✕</button>
           </div>
         `).join('');
+
+        listEl.querySelectorAll('.music-enable-checkbox').forEach(cb => {
+          cb.addEventListener('change', () => {
+            const idx = parseInt(cb.getAttribute('data-index'), 10);
+            if (musicPlaylist[idx]) musicPlaylist[idx].enabled = cb.checked;
+            renderMusicList();
+          });
+        });
 
         listEl.querySelectorAll('.btn-remove-music').forEach(btn => {
           btn.addEventListener('click', () => {
@@ -2093,10 +2187,77 @@ values
         });
       }
 
-      const videoPosterInput = document.getElementById('cfg-video-poster');
-      if (videoPosterInput) {
-        videoPosterInput.addEventListener('input', (e) => {
-          updateAdminVideoPreview(document.getElementById('cfg-video-url')?.value, e.target.value);
+      function syncPosterPrimary() {
+        const hidden = document.getElementById('cfg-video-poster');
+        if (hidden) hidden.value = currentPosters[0] || '';
+        updateAdminVideoPreview(document.getElementById('cfg-video-url')?.value, currentPosters[0] || '');
+      }
+
+      const posterAddBtn = document.getElementById('btn-add-poster-url');
+      const posterUrlInput = document.getElementById('cfg-video-poster-input');
+      if (posterAddBtn) {
+        posterAddBtn.addEventListener('click', () => {
+          addPosterUrl(posterUrlInput?.value);
+          if (posterUrlInput) posterUrlInput.value = '';
+          syncPosterPrimary();
+        });
+      }
+      if (posterUrlInput) {
+        posterUrlInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            addPosterUrl(posterUrlInput.value);
+            posterUrlInput.value = '';
+            syncPosterPrimary();
+          }
+        });
+      }
+
+      const posterListEl = document.getElementById('video-poster-list');
+      if (posterListEl) {
+        posterListEl.addEventListener('click', (e) => {
+          const btn = e.target.closest('[data-remove]');
+          if (!btn) return;
+          removePoster(parseInt(btn.getAttribute('data-remove'), 10));
+          syncPosterPrimary();
+        });
+      }
+
+      const posterFileInput = document.getElementById('cfg-video-poster-file');
+      if (posterFileInput) {
+        posterFileInput.addEventListener('change', async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          if (currentPosters.length >= POSTER_MAX) {
+            showToast('⚠️ អាចបន្ថែមរូបភាពគម្របបានត្រឹម ' + POSTER_MAX + ' រូបប៉ុណ្ណោះ');
+            posterFileInput.value = '';
+            return;
+          }
+          if (file.size > 6 * 1024 * 1024) {
+            showToast('⚠️ រូបភាពធំពេក (កំណត់ត្រឹម 6MB)');
+          }
+          const reader = new FileReader();
+          reader.onload = async (re) => {
+            const base64Data = re.target.result;
+            try {
+              const res = await fetch(`${API_BASE}/api/upload-image`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ filename: file.name, base64Data: base64Data })
+              });
+              if (!res.ok) throw new Error('upload failed');
+              const data = await res.json();
+              addPosterUrl(data.url);
+              showToast('🖼️ បានផ្ទុករូបភាពគម្របឡើងជោគជ័យ!');
+            } catch (err) {
+              console.warn('Poster upload failed, using inline preview:', err);
+              addPosterUrl(base64Data);
+              showToast('⚠️ រក្សាទុកជា Preview ក្នុងឧបករណ៍ (មិនបានផ្ទុកទៅ Server)');
+            }
+            syncPosterPrimary();
+            posterFileInput.value = '';
+          };
+          reader.readAsDataURL(file);
         });
       }
 
@@ -2205,7 +2366,7 @@ values
           invitationGreeting: document.getElementById('cfg-invitation-greeting') ? document.getElementById('cfg-invitation-greeting').value.trim() : defaultConfig.invitationGreeting,
           invitationSubtext: document.getElementById('cfg-invitation-subtext') ? document.getElementById('cfg-invitation-subtext').value.trim() : defaultConfig.invitationSubtext,
           bgMusicPlaylist: musicPlaylist,
-          bgMusicUrl: (musicPlaylist[0] && musicPlaylist[0].src) || defaultConfig.bgMusicUrl,
+          bgMusicUrl: ((musicPlaylist.find(t => t.enabled !== false) || musicPlaylist[0] || {}).src) || defaultConfig.bgMusicUrl,
           sections: SECTION_KEYS.reduce((acc, key) => {
             const cb = document.getElementById('cfg-show-' + key);
             acc[key] = cb ? cb.checked : true;
@@ -2239,14 +2400,16 @@ values
           videoSubtitle: document.getElementById('cfg-video-subtitle') ? document.getElementById('cfg-video-subtitle').value.trim() : defaultConfig.videoSubtitle,
           videoDesc: document.getElementById('cfg-video-desc') ? document.getElementById('cfg-video-desc').value.trim() : defaultConfig.videoDesc,
           videoUrl: document.getElementById('cfg-video-url') ? document.getElementById('cfg-video-url').value.trim() : defaultConfig.videoUrl,
-          videoPoster: document.getElementById('cfg-video-poster') ? document.getElementById('cfg-video-poster').value.trim() : defaultConfig.videoPoster,
+          videoPoster: currentPosters[0] || '',
+          videoPosters: currentPosters.slice(),
           videoAlbum: {
             enabled: true,
             title: document.getElementById('cfg-video-title') ? document.getElementById('cfg-video-title').value.trim() : defaultConfig.videoTitle,
             subtitle: document.getElementById('cfg-video-subtitle') ? document.getElementById('cfg-video-subtitle').value.trim() : defaultConfig.videoSubtitle,
             desc: document.getElementById('cfg-video-desc') ? document.getElementById('cfg-video-desc').value.trim() : defaultConfig.videoDesc,
             videoUrl: document.getElementById('cfg-video-url') ? document.getElementById('cfg-video-url').value.trim() : defaultConfig.videoUrl,
-            posterUrl: document.getElementById('cfg-video-poster') ? document.getElementById('cfg-video-poster').value.trim() : defaultConfig.videoPoster
+            posterUrl: currentPosters[0] || '',
+            posters: currentPosters.slice()
           },
           schedule: currentSchedule
         };

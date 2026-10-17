@@ -499,7 +499,6 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             return
 
         elif path == '/api/import':
-            import json, os
             db_file = os.path.join(BASE_DIR, 'database', 'invitation_data.json')
             try:
                 with open(db_file, 'w', encoding='utf-8') as f:
@@ -547,6 +546,46 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
                     "filename": unique_name,
                     "sizeBytes": len(video_bytes),
                     "message": "Video uploaded successfully!"
+                }, ensure_ascii=False).encode('utf-8'))
+                return
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode('utf-8'))
+                return
+
+        elif path == '/api/upload-image':
+            try:
+                import re, base64, time, mimetypes
+                filename = payload.get('filename', 'poster.jpg')
+                safe_name = re.sub(r'[^a-zA-Z0-9_\.-]', '_', filename)
+                if not safe_name.lower().endswith(('.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif')):
+                    safe_name += '.jpg'
+
+                unique_name = f"image_{int(time.time())}_{safe_name}"
+                image_dir = os.path.join(BASE_DIR, 'assets', 'images')
+                os.makedirs(image_dir, exist_ok=True)
+                dest_path = os.path.join(image_dir, unique_name)
+
+                b64_str = payload.get('base64Data', '')
+                if ',' in b64_str:
+                    b64_str = b64_str.split(',', 1)[1]
+
+                image_bytes = base64.b64decode(b64_str)
+                with open(dest_path, 'wb') as f:
+                    f.write(image_bytes)
+
+                rel_url = f"assets/images/{unique_name}"
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    "success": True,
+                    "url": rel_url,
+                    "filename": unique_name,
+                    "sizeBytes": len(image_bytes),
+                    "message": "Image uploaded successfully!"
                 }, ensure_ascii=False).encode('utf-8'))
                 return
             except Exception as e:
@@ -689,7 +728,6 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             payload = {}
 
         if path == '/api/import':
-            import json, os
             db_file = os.path.join(BASE_DIR, 'database', 'invitation_data.json')
             try:
                 with open(db_file, 'w', encoding='utf-8') as f:

@@ -296,6 +296,121 @@ document.addEventListener('DOMContentLoaded', () => {
   // currentConfig is mutable so countdown & copy-acc always see latest data
   let currentConfig = getInvitationConfig();
 
+  // ── Video Poster Gallery Slideshow (brand-new animations: book-open + water-drop) ──
+  function stopPosterGalleryTimer() {
+    if (window.__posterGalleryTimer) {
+      clearInterval(window.__posterGalleryTimer);
+      window.__posterGalleryTimer = null;
+    }
+  }
+
+  function hidePosterGallery() {
+    const el = document.getElementById('video-poster-gallery');
+    if (el) el.classList.add('poster-gallery-hidden');
+  }
+
+  function showPosterGallery() {
+    const el = document.getElementById('video-poster-gallery');
+    if (el && (window.__posterGalleryList || []).length >= 2) {
+      el.classList.remove('poster-gallery-hidden');
+    }
+  }
+
+  function paintPosterSlide(index) {
+    const stage = document.getElementById('poster-gallery-stage');
+    const drops = document.getElementById('poster-gallery-drops');
+    const list = window.__posterGalleryList || [];
+    if (!stage || !list.length) return;
+
+    const n = list.length;
+    index = ((index % n) + n) % n;
+    window.__posterGalleryIndex = index;
+
+    const slide = document.createElement('div');
+    slide.className = 'poster-slide ' + (index % 2 === 0 ? 'anim-book-open' : 'anim-water-drop');
+    slide.style.backgroundImage = 'url("' + String(list[index]).replace(/["\\]/g, '') + '")';
+    stage.appendChild(slide);
+
+    // Retire older slides so only the newest animates in.
+    Array.prototype.forEach.call(stage.querySelectorAll('.poster-slide'), (s) => {
+      if (s !== slide) {
+        s.classList.remove('anim-book-open', 'anim-water-drop');
+        s.classList.add('poster-slide-out');
+        setTimeout(() => s.remove(), 950);
+      }
+    });
+    while (stage.children.length > 3) stage.removeChild(stage.firstChild);
+
+    // Book-spine sweep on book-open steps.
+    const book = document.getElementById('poster-gallery-book');
+    if (book && index % 2 === 0) {
+      book.classList.remove('book-sweep');
+      void book.offsetWidth;
+      book.classList.add('book-sweep');
+    }
+
+    // Water-droplet index dots.
+    if (drops) {
+      Array.prototype.forEach.call(drops.querySelectorAll('.poster-drop-dot'), (d, i) => {
+        d.classList.toggle('active', i === index);
+      });
+    }
+  }
+
+  function buildPosterDrops(count) {
+    const drops = document.getElementById('poster-gallery-drops');
+    if (!drops) return;
+    drops.innerHTML = '';
+    for (let i = 0; i < count; i++) {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'poster-drop-dot';
+      dot.setAttribute('aria-label', 'Poster ' + (i + 1));
+      dot.style.animationDelay = (i * 90) + 'ms';
+      dot.addEventListener('click', (e) => {
+        e.stopPropagation();
+        paintPosterSlide(i);
+        startPosterGalleryTimer();
+      });
+      drops.appendChild(dot);
+    }
+  }
+
+  function startPosterGalleryTimer() {
+    stopPosterGalleryTimer();
+    if ((window.__posterGalleryList || []).length < 2) return;
+    window.__posterGalleryTimer = setInterval(() => {
+      paintPosterSlide((window.__posterGalleryIndex || 0) + 1);
+    }, 3800);
+  }
+
+  function setupPosterGallery(list) {
+    const el = document.getElementById('video-poster-gallery');
+    const stage = document.getElementById('poster-gallery-stage');
+    if (!el || !stage) return;
+
+    const clean = (Array.isArray(list) ? list : [])
+      .map(u => String(u || '').trim())
+      .filter(Boolean);
+    window.__posterGalleryList = clean;
+    window.__posterGalleryIndex = 0;
+
+    if (clean.length < 2) {
+      el.classList.add('poster-gallery-hidden');
+      el.setAttribute('aria-hidden', 'true');
+      stage.innerHTML = '';
+      stopPosterGalleryTimer();
+      return;
+    }
+
+    el.setAttribute('aria-hidden', 'false');
+    stage.innerHTML = '';
+    buildPosterDrops(clean.length);
+    paintPosterSlide(0);
+    el.classList.remove('poster-gallery-hidden');
+    startPosterGalleryTimer();
+  }
+
   function applyInvitationConfig(config) {
     // Appearance first (theme mode, colors, language, fonts)
     applyAppearance(config);
@@ -329,7 +444,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // one track at random and auto-advances to another when it finishes.
     if (window.traditionalAudio && typeof window.traditionalAudio.setPlaylist === 'function') {
       let playlist = Array.isArray(config.bgMusicPlaylist) ? config.bgMusicPlaylist : [];
-      if (!playlist.length && config.bgMusicUrl) {
+      const hadTracks = playlist.length > 0;
+      // Respect the per-track enable checkbox from the admin music list.
+      playlist = playlist.filter(t => t && t.src && t.enabled !== false);
+      if (!playlist.length && !hadTracks && config.bgMusicUrl) {
         playlist = [{ type: 'file', src: config.bgMusicUrl, title: 'Background Music' }];
       }
       window.traditionalAudio.setPlaylist(playlist);
@@ -482,6 +600,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     }
+
+    // Poster gallery slideshow (2+ images) — new animations
+    let posterList = Array.isArray(config.videoPosters) ? config.videoPosters.slice() : [];
+    if (!posterList.length && Array.isArray(vAlbum.posters)) posterList = vAlbum.posters.slice();
+    if (!posterList.length && videoPoster) posterList = [videoPoster];
+    setupPosterGallery(posterList);
   }
 
   // Apply local/cached config immediately for fast render
@@ -1184,6 +1308,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function startVideoPlayback() {
     if (!weddingVideo) return;
+    stopPosterGalleryTimer();
+    hidePosterGallery();
     // Auto-pause background music so audio doesn't clash
     if (window.traditionalAudio && window.traditionalAudio.isPlaying) {
       window.traditionalAudio.stopBackgroundMusic();
@@ -1211,6 +1337,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (weddingVideo) {
     weddingVideo.addEventListener('play', () => {
       if (videoOverlay) videoOverlay.classList.add('hidden');
+      stopPosterGalleryTimer();
+      hidePosterGallery();
       if (window.traditionalAudio && window.traditionalAudio.isPlaying) {
         window.traditionalAudio.stopBackgroundMusic();
         if (btnMusic) btnMusic.classList.remove('spinning');
@@ -1219,10 +1347,14 @@ document.addEventListener('DOMContentLoaded', () => {
     weddingVideo.addEventListener('pause', () => {
       if (weddingVideo.currentTime === 0 || weddingVideo.ended) {
         if (videoOverlay) videoOverlay.classList.remove('hidden');
+        showPosterGallery();
+        startPosterGalleryTimer();
       }
     });
     weddingVideo.addEventListener('ended', () => {
       if (videoOverlay) videoOverlay.classList.remove('hidden');
+      showPosterGallery();
+      startPosterGalleryTimer();
     });
   }
 

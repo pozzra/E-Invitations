@@ -1569,4 +1569,291 @@ button {
   }
 }
 
+/* ==========================================================================
+   Video Poster Gallery Slideshow  (brand-new animations)
+   Two custom transitions alternate as slides advance:
+     1) "Book-Open"  — the page swings open from the spine (rotateY)
+     2) "Water-Drop" — the image falls in like a droplet and settles with a bounce
+   ========================================================================== */
+.poster-gallery {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: #000;
+  perspective: 1400px;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.poster-gallery.poster-gallery-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.poster-gallery-stage {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+.poster-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  will-change: transform, opacity, filter;
+  backface-visibility: hidden;
+}
+
+/* Animation 1: open-book page reveal */
+.poster-slide.anim-book-open {
+  transform-origin: left center;
+  animation: posterBookOpen 1.15s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes posterBookOpen {
+  0% {
+    transform: rotateY(-108deg) scale(0.92);
+    opacity: 0;
+    filter: brightness(0.35) blur(6px);
+    box-shadow: inset 0 0 140px rgba(0, 0, 0, 0.95);
+  }
+  55% {
+    opacity: 1;
+    filter: brightness(1.06) blur(0);
+  }
+  100% {
+    transform: rotateY(0deg) scale(1);
+    opacity: 1;
+    filter: brightness(1) blur(0);
+    box-shadow: inset 0 0 0 rgba(0, 0, 0, 0);
+  }
+}
+
+/* Animation 2: water-droplet fall with bounce + ripple */
+.poster-slide.anim-water-drop {
+  transform-origin: center top;
+  animation: posterWaterDrop 1.3s cubic-bezier(0.28, 1.4, 0.4, 1) both;
+}
+
+@keyframes posterWaterDrop {
+  0% {
+    transform: translateY(-118%) scale(0.7, 1.25);
+    opacity: 0;
+    filter: blur(10px) brightness(0.6);
+    border-radius: 0 0 60% 60%;
+  }
+  45% {
+    opacity: 1;
+    filter: blur(0) brightness(1.06);
+    border-radius: 0 0 42% 42%;
+  }
+  70% {
+    transform: translateY(4%) scale(1.04, 0.96);
+  }
+  100% {
+    transform: translateY(0) scale(1, 1);
+    opacity: 1;
+    filter: blur(0) brightness(1);
+    border-radius: 0;
+  }
+}
+
+/* Outgoing slide */
+.poster-slide.poster-slide-out {
+  animation: posterSlideOut 0.9s ease forwards;
+}
+
+@keyframes posterSlideOut {
+  to {
+    opacity: 0;
+    transform: scale(1.08);
+    filter: brightness(0.5) blur(4px);
+  }
+}
+
+/* Book spine sweep (decorative, plays on book-open slides) */
+.poster-gallery-book {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  margin-left: -1.5px;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(to bottom,
+      rgba(229, 185, 85, 0) 0%,
+      rgba(229, 185, 85, 0.85) 50%,
+      rgba(229, 185, 85, 0) 100%);
+  box-shadow: 0 0 18px rgba(229, 185, 85, 0.8);
+}
+
+.poster-gallery-book.book-sweep {
+  animation: posterBookSpine 1.15s ease both;
+}
+
+@keyframes posterBookSpine {
+  0% {
+    opacity: 0;
+    transform: scaleY(0.2);
+  }
+  40% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scaleY(1);
+  }
+}
+
+/* Water-droplet navigation dots */
+.poster-gallery-drops {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 10px;
+  z-index: 3;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.poster-drop-dot {
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.32);
+  border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  animation: posterDropFall 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.poster-drop-dot.active {
+  background: var(--gold-gradient);
+  transform: scale(1.35);
+  box-shadow: 0 0 14px rgba(229, 185, 85, 0.9);
+}
+
+@keyframes posterDropFall {
+  0% {
+    transform: translateY(-60px) scaleY(1.6);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  80% {
+    transform: translateY(4px) scaleY(0.85);
+  }
+  100% {
+    transform: translateY(0) scaleY(1);
+    opacity: 1;
+  }
+}
+
+/* ==========================================================================
+   Admin: Video Poster Gallery manager
+   ========================================================================== */
+.poster-count-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--primary-gold-light);
+  background: rgba(229, 185, 85, 0.12);
+  border: 1px solid rgba(229, 185, 85, 0.35);
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+}
+
+.poster-admin-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.poster-admin-item {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid rgba(229, 185, 85, 0.3);
+  background: rgba(0, 0, 0, 0.28);
+  animation: posterAdminDrop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.poster-admin-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.poster-admin-idx {
+  position: absolute;
+  left: 4px;
+  bottom: 4px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #1a060a;
+  background: var(--gold-gradient);
+  border-radius: 50%;
+}
+
+.poster-admin-remove {
+  position: absolute;
+  right: 3px;
+  top: 3px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  border-radius: 50%;
+  background: rgba(200, 30, 60, 0.9);
+  color: #fff;
+  font-size: 0.7rem;
+  line-height: 1;
+}
+
+.poster-admin-remove:hover {
+  background: #e01e3c;
+}
+
+.poster-admin-empty {
+  grid-column: 1 / -1;
+  padding: 12px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  border: 1px dashed rgba(229, 185, 85, 0.25);
+  border-radius: var(--radius-sm);
+}
+
+@keyframes posterAdminDrop {
+  0% {
+    transform: translateY(-16px) scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
 

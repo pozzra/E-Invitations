@@ -59,6 +59,9 @@ class TraditionalAudioController {
         return null;
       })
       .filter(Boolean);
+    // Track whether the admin intentionally provided an empty list
+    // (e.g. every song unchecked) so we stay silent instead of forcing a default.
+    this.playlistEmpty = this.playlist.length === 0;
   }
 
   isYouTube(src) {
@@ -73,6 +76,7 @@ class TraditionalAudioController {
 
   pickRandomTrack() {
     if (!this.playlist.length) {
+      if (this.playlistEmpty) return null;
       return { type: 'file', src: 'assets/audio/bg_music.mp3', title: 'Default Background Music' };
     }
     if (this.playlist.length === 1) return this.playlist[0];
@@ -258,6 +262,7 @@ class TraditionalAudioController {
   playRandomTrack() {
     if (!this.isPlaying) return;
     const track = this.pickRandomTrack();
+    if (!track) { this.stopBackgroundMusic(); return; }
     this.currentTrack = track;
     if (track.type === 'youtube') {
       this.playYouTube(track.src);

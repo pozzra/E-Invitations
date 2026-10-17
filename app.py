@@ -316,6 +316,37 @@ def api_upload_video():
         return json_response({'success': False, 'error': str(e)}, status=500)
 
 
+@app.route('/api/upload-image', methods=['POST'])
+def api_upload_image():
+    payload = request.get_json(silent=True) or {}
+    try:
+        filename = payload.get('filename', 'poster.jpg')
+        safe_name = re.sub(r'[^a-zA-Z0-9_\.-]', '_', filename)
+        if not safe_name.lower().endswith(('.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif')):
+            safe_name += '.jpg'
+        unique_name = f'image_{int(time.time())}_{safe_name}'
+        image_dir = os.path.join(BASE_DIR, 'assets', 'images')
+        os.makedirs(image_dir, exist_ok=True)
+
+        b64_str = payload.get('base64Data', '')
+        if ',' in b64_str:
+            b64_str = b64_str.split(',', 1)[1]
+        image_bytes = base64.b64decode(b64_str)
+
+        with open(os.path.join(image_dir, unique_name), 'wb') as f:
+            f.write(image_bytes)
+
+        return json_response({
+            'success': True,
+            'url': f'assets/images/{unique_name}',
+            'filename': unique_name,
+            'sizeBytes': len(image_bytes),
+            'message': 'Image uploaded successfully!',
+        })
+    except Exception as e:
+        return json_response({'success': False, 'error': str(e)}, status=500)
+
+
 @app.route('/api/upload-mp3', methods=['POST'])
 def api_upload_mp3():
     payload = request.get_json(silent=True) or {}
