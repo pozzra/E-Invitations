@@ -379,118 +379,108 @@ html[data-theme="light"] .hero-overlay {
   max-width: 360px;
   perspective: 1200px;
   text-align: center;
-}
-
-.envelope-card {
+}.envelope-card {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 5.3;
-  background: linear-gradient(145deg, #2a2110 0%, #12100a 50%, #1e1608 100%);
-  border-radius: 16px;
-  border: 2px solid rgba(229, 185, 85, 0.5);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(212, 175, 55, 0.35);
+  aspect-ratio: 4 / 5.5;
+  background: linear-gradient(160deg, #1e1708 0%, #0e0c06 50%, #1a1507 100%);
+  border-radius: 20px;
+  border: 1.5px solid rgba(229, 185, 85, 0.45);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.85),
+    0 0 40px rgba(212, 175, 55, 0.25),
+    inset 0 1px 0 rgba(229, 185, 85, 0.2);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  padding: 68px 20px 36px;
+  padding: 80px 24px 32px;
   overflow: hidden;
   cursor: pointer;
   transform-style: preserve-3d;
-  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              box-shadow 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .envelope-card:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 45px rgba(229, 185, 85, 0.5);
+  transform: translateY(-6px) scale(1.015);
+  box-shadow:
+    0 32px 70px rgba(0, 0, 0, 0.9),
+    0 0 55px rgba(229, 185, 85, 0.45),
+    inset 0 1px 0 rgba(255, 243, 180, 0.3);
 }
 
+/* kbach top/bottom — hidden (removed by user request) */
 .envelope-kbach-top,
 .envelope-kbach-bottom {
-  position: absolute;
-  width: 140px;
-  max-width: 65%;
-  height: 20px;
-  left: 50%;
-  pointer-events: none;
-  opacity: 0.95;
-  background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%20240%2032%27%20width%3D%27240%27%20height%3D%2732%27%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%27khmerGold%27%20x1%3D%270%25%27%20y1%3D%270%25%27%20x2%3D%27100%25%27%20y2%3D%27100%25%27%3E%20%3Cstop%20offset%3D%270%25%27%20stop-color%3D%27%23fff2b2%27/%3E%20%3Cstop%20offset%3D%2730%25%27%20stop-color%3D%27%23f5cb68%27/%3E%20%3Cstop%20offset%3D%2765%25%27%20stop-color%3D%27%23d49b28%27/%3E%20%3Cstop%20offset%3D%27100%25%27%20stop-color%3D%27%2391600d%27/%3E%20%3C/linearGradient%3E%20%3Cfilter%20id%3D%27goldGlow%27%20x%3D%27-20%25%27%20y%3D%27-20%25%27%20width%3D%27140%25%27%20height%3D%27140%25%27%3E%20%3CfeDropShadow%20dx%3D%270%27%20dy%3D%271.5%27%20stdDeviation%3D%271.5%27%20flood-color%3D%27%23e5b955%27%20flood-opacity%3D%270.4%27/%3E%20%3C/filter%3E%20%3C/defs%3E%20%3Cg%20fill%3D%27url%28%23khmerGold%29%27%20filter%3D%27url%28%23goldGlow%29%27%3E%20%3Cpath%20d%3D%27M120%202%20C122%208%20126%2012%20130%2014%20C126%2015%20123%2018%20123%2023%20C121%2021%20120%2019%20120%2017%20C120%2019%20119%2021%20117%2023%20C117%2018%20114%2015%20110%2014%20C114%2012%20118%208%20120%202%20Z%27/%3E%20%3Ccircle%20cx%3D%27120%27%20cy%3D%2715%27%20r%3D%272.2%27%20fill%3D%27%23fff9db%27/%3E%20%3Cpath%20d%3D%27M120%2019%20C121.5%2022%20123.5%2025%20125%2028%20C122%2027%20121%2026%20120%2025%20C119%2026%20118%2027%20115%2028%20C116.5%2025%20118.5%2022%20120%2019%20Z%27/%3E%20%3Cpath%20d%3D%27M114%2016%20C105%2013%2095%2010%2082%2012%20C74%2013.5%2067%2017%2058%2017%20C50%2017%2044%2014%2036%2010%20C34%209%2032%209%2033%2011%20C35%2015%2042%2020%2052%2020%20C64%2020%2072%2015%2082%2014%20C94%2013%20103%2016%20112%2018%20Z%27/%3E%20%3Cpath%20d%3D%27M88%2012%20C82%207%2074%206%2068%208%20C72%2010%2075%2012%2079%2013%20C82%2013.5%2085%2013%2088%2012%20Z%27/%3E%20%3Cpath%20d%3D%27M62%2017%20C56%2012%2048%2011%2042%2013%20C47%2015%2051%2017%2055%2018%20C57.5%2018%2060%2017.5%2062%2017%20Z%27/%3E%20%3Cpath%20d%3D%27M35%2011%20C26%207%2016%208%208%2012%20C6%2013%204%2015%206%2015%20C8%2015%2012%2013%2018%2012%20C24%2011%2030%2012%2035%2014%20Z%27/%3E%20%3Ccircle%20cx%3D%276%27%20cy%3D%2714%27%20r%3D%271.5%27/%3E%20%3Ccircle%20cx%3D%2720%27%20cy%3D%2711.5%27%20r%3D%271.2%27/%3E%20%3Ccircle%20cx%3D%2746%27%20cy%3D%2711%27%20r%3D%271.4%27/%3E%20%3Ccircle%20cx%3D%2772%27%20cy%3D%277%27%20r%3D%271.6%27/%3E%20%3Cpath%20d%3D%27M126%2016%20C135%2013%20145%2010%20158%2012%20C166%2013.5%20173%2017%20182%2017%20C190%2017%20196%2014%20204%2010%20C206%209%20208%209%20207%2011%20C205%2015%20198%2020%20188%2020%20C176%2020%20168%2015%20158%2014%20C146%2013%20137%2016%20128%2018%20Z%27/%3E%20%3Cpath%20d%3D%27M152%2012%20C158%207%20166%206%20172%208%20C168%2010%20165%2012%20161%2013%20C158%2013.5%20155%2013%20152%2012%20Z%27/%3E%20%3Cpath%20d%3D%27M178%2017%20C184%2012%20192%2011%20198%2013%20C193%2015%20189%2017%20185%2018%20C182.5%2018%20180%2017.5%20178%2017%20Z%27/%3E%20%3Cpath%20d%3D%27M205%2011%20C214%207%20224%208%20232%2012%20C234%2013%20236%2015%20234%2015%20C232%2015%20228%2013%20222%2012%20C216%2011%20210%2012%20205%2014%20Z%27/%3E%20%3Ccircle%20cx%3D%27234%27%20cy%3D%2714%27%20r%3D%271.5%27/%3E%20%3Ccircle%20cx%3D%27220%27%20cy%3D%2711.5%27%20r%3D%271.2%27/%3E%20%3Ccircle%20cx%3D%27194%27%20cy%3D%2711%27%20r%3D%271.4%27/%3E%20%3Ccircle%20cx%3D%27168%27%20cy%3D%277%27%20r%3D%271.6%27/%3E%20%3C/g%3E%20%3C/svg%3E") no-repeat center/contain;
-}
-
-.envelope-kbach-top {
-  top: 14px;
-  transform: translateX(-50%);
-  z-index: 6;
-}
-
-.envelope-kbach-bottom {
-  bottom: 8px;
-  transform: translateX(-50%) rotate(180deg);
-  z-index: 6;
+  display: none;
 }
 
 .envelope-open-hint {
-  margin-top: 6px;
-  margin-bottom: 14px;
+  margin-top: 4px;
+  margin-bottom: 8px;
   z-index: 4;
+  text-align: center;
 }
 
 .envelope-open-hint span {
-  font-size: 0.8rem;
-  color: var(--primary-gold-light);
-  letter-spacing: 0.5px;
+  font-size: 0.78rem;
+  color: rgba(229, 185, 85, 0.85);
+  letter-spacing: 1px;
   display: inline-block;
-  animation: hintGlowPulse 2.5s infinite alternate;
-  text-shadow: 0 0 10px rgba(229, 185, 85, 0.4);
+  animation: hintGlowPulse 2.8s ease-in-out infinite alternate;
 }
 
 @keyframes hintGlowPulse {
-  0% { opacity: 0.75; transform: scale(0.98); }
-  100% { opacity: 1; transform: scale(1.02); filter: drop-shadow(0 0 8px rgba(229, 185, 85, 0.6)); }
+  0%   { opacity: 0.6; letter-spacing: 0.5px; }
+  100% { opacity: 1;   letter-spacing: 1.5px; text-shadow: 0 0 12px rgba(229, 185, 85, 0.7); }
 }
 
 .envelope-header {
-  margin-top: 10px;
+  margin-top: 0;
+  text-align: center;
+  z-index: 4;
 }
 
 .envelope-badge {
   display: inline-block;
-  padding: 4px 16px;
-  font-size: 0.78rem;
-  letter-spacing: 2px;
+  padding: 5px 18px;
+  font-size: 0.72rem;
+  letter-spacing: 2.5px;
   text-transform: uppercase;
   color: var(--primary-gold-light);
-  border: 1px solid var(--primary-gold);
+  border: 1px solid rgba(229, 185, 85, 0.5);
   border-radius: var(--radius-full);
-  background: rgba(229, 185, 85, 0.12);
+  background: rgba(229, 185, 85, 0.08);
+  backdrop-filter: blur(4px);
 }
 
 .envelope-title {
   font-family: var(--font-khmer-heading);
   color: var(--primary-gold);
-  font-size: 1.25rem;
-  line-height: 1.9;
-  margin-top: 12px;
-  text-shadow: 0 2px 10px rgba(229, 185, 85, 0.4);
+  font-size: 1.3rem;
+  line-height: 1.85;
+  margin-top: 10px;
+  text-shadow: 0 2px 16px rgba(229, 185, 85, 0.5);
 }
 
 .envelope-seal-wrapper {
   position: relative;
-  width: 130px;
-  height: 130px;
-  margin: 15px auto;
+  width: 120px;
+  height: 120px;
+  margin: 10px auto;
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 4;
 }
 
 .seal-pulse-ring {
   position: absolute;
-  inset: -12px;
+  inset: -14px;
   border-radius: 50%;
-  border: 2px solid var(--primary-gold);
-  opacity: 0.6;
-  animation: sealPulse 2.4s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+  border: 1.5px solid rgba(229, 185, 85, 0.6);
+  animation: sealPulse 2.6s ease-in-out infinite;
 }
 
 .envelope-seal-img {
@@ -498,131 +488,134 @@ html[data-theme="light"] .hero-overlay {
   height: 100%;
   object-fit: cover;
   border-radius: 50%;
-  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.7));
-  transition: transform 0.3s ease;
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.7));
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              filter 0.4s ease;
 }
 
 .envelope-card:hover .envelope-seal-img {
-  transform: rotate(5deg) scale(1.05);
+  transform: rotate(6deg) scale(1.06);
+  filter: drop-shadow(0 8px 24px rgba(229, 185, 85, 0.5));
 }
 
 .envelope-guest-tag {
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   color: var(--text-cream);
-  background: rgba(0, 0, 0, 0.4);
-  padding: 8px 18px;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 8px 20px;
   border-radius: var(--radius-full);
-  border: 1px dashed rgba(229, 185, 85, 0.4);
+  border: 1px solid rgba(229, 185, 85, 0.3);
   max-width: 90%;
   margin: 0 auto;
+  text-align: center;
+  z-index: 4;
+  backdrop-filter: blur(4px);
 }
 
 .envelope-guest-name {
   color: var(--primary-gold-light);
   font-weight: 700;
+  margin-top: 3px;
+  font-size: 1rem;
+  text-shadow: 0 1px 8px rgba(229, 185, 85, 0.4);
 }
 
-/* ── Envelope flap (closed) ─────────────────────────────────────────────── */
+/* ── Envelope flap ─────────────────────────────────────────────── */
 .envelope-flap {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 96px;
-  background: linear-gradient(160deg, #352a12 0%, #1a1409 55%, #221a0b 100%);
+  height: 90px;
+  background: linear-gradient(160deg, #2e2410 0%, #1a1409 55%, #221a0b 100%);
   clip-path: polygon(0 0, 100% 0, 50% 100%);
-  filter: drop-shadow(0 4px 7px rgba(229, 185, 85, 0.35));
+  filter: drop-shadow(0 4px 8px rgba(229, 185, 85, 0.3));
   transform-origin: top center;
   transform: rotateX(0deg);
-  transition: transform 0.9s cubic-bezier(0.6, 0, 0.25, 1);
+  transition: transform 1.1s cubic-bezier(0.4, 0, 0.15, 1);
   backface-visibility: hidden;
   z-index: 5;
   pointer-events: none;
 }
 
-/* ── Letter tucked inside the envelope (revealed on open) ───────────────── */
+/* ── Letter inside ───────────────────────── */
 .envelope-letter {
   position: absolute;
-  left: 6%;
-  right: 6%;
-  top: 86px;
-  bottom: 18px;
-  border-radius: 10px;
-  background: linear-gradient(180deg, #fffdf6 0%, #f3e9d3 100%);
-  border: 1px solid rgba(229, 185, 85, 0.7);
-  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.45), inset 0 0 30px rgba(229, 185, 85, 0.12);
-  transform: translateY(105%);
+  left: 5%;
+  right: 5%;
+  top: 80px;
+  bottom: 16px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #fffef8 0%, #f4ead6 100%);
+  border: 1px solid rgba(229, 185, 85, 0.65);
+  box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.4), inset 0 0 24px rgba(229, 185, 85, 0.1);
+  transform: translateY(108%);
   opacity: 0;
   z-index: 1;
   pointer-events: none;
 }
 
-/* ── Opened state (triggered on click) ──────────────────────────────────── */
+/* ── Opening state ──────────────────────── */
 .envelope-card.is-opening {
   pointer-events: none;
-  transform: translateY(10px) scale(1.02);
-  transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: envelopeCardLift 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes envelopeCardLift {
+  0%   { transform: translateY(0) scale(1); }
+  30%  { transform: translateY(-10px) scale(1.025); }
+  100% { transform: translateY(8px) scale(1.01); }
 }
 
 .envelope-card.is-opening .envelope-flap {
-  transform: rotateX(-180deg);
+  transform: rotateX(-185deg);
+  transition: transform 1.15s cubic-bezier(0.4, 0, 0.15, 1);
 }
 
 .envelope-card.is-opening .envelope-letter {
-  animation: letterEmerge 1s cubic-bezier(0.16, 1, 0.3, 1) 0.35s forwards;
+  animation: letterEmerge 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
 }
 
 .envelope-card.is-opening .envelope-header,
 .envelope-card.is-opening .envelope-guest-tag,
-.envelope-card.is-opening .envelope-open-hint,
-.envelope-card.is-opening .envelope-kbach-bottom {
-  animation: envelopeContentIn 0.55s ease 0.35s forwards;
+.envelope-card.is-opening .envelope-open-hint {
+  animation: envelopeFadeOut 0.5s ease 0.3s forwards;
 }
 
 @keyframes letterEmerge {
-  0% { opacity: 0; transform: translateY(105%); }
-  35% { opacity: 1; }
-  100% { opacity: 1; transform: translateY(-10px); }
+  0%   { opacity: 0; transform: translateY(108%); }
+  20%  { opacity: 1; }
+  100% { opacity: 1; transform: translateY(-16px); }
 }
 
-@keyframes envelopeContentIn {
-  to { opacity: 0; transform: translateY(-20px) scale(0.94); }
+@keyframes envelopeFadeOut {
+  0%   { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-18px) scale(0.96); }
 }
 
 .envelope-seal-wrapper.break-seal .envelope-seal-img {
-  animation: sealBreakExplosion 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: sealBreakExplosion 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes sealBreakExplosion {
-  0% { transform: scale(1) rotate(0deg); filter: brightness(1) drop-shadow(0 0 10px rgba(229, 185, 85, 0.5)); }
-  40% { transform: scale(1.35) rotate(15deg); filter: brightness(2) drop-shadow(0 0 40px rgba(255, 230, 120, 1)); }
-  100% { transform: scale(1.8) rotate(-20deg); opacity: 0; filter: brightness(3) drop-shadow(0 0 80px rgba(255, 255, 255, 1)); }
+  0%   { transform: scale(1) rotate(0deg);   filter: brightness(1) drop-shadow(0 0 10px rgba(229,185,85,0.5)); }
+  40%  { transform: scale(1.3) rotate(12deg); filter: brightness(1.8) drop-shadow(0 0 40px rgba(255,230,120,0.9)); }
+  100% { transform: scale(2) rotate(-15deg);  opacity: 0; filter: brightness(3) drop-shadow(0 0 80px rgba(255,255,255,1)); }
 }
 
 .invitation-body.entry-card-float {
-  animation: cardEntryReveal 1.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: cardEntryReveal 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes cardEntryReveal {
-  0% { opacity: 0; transform: translateY(60px) scale(0.96); }
+  0%   { opacity: 0; transform: translateY(50px) scale(0.97); }
   100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.envelope-open-hint {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  color: var(--primary-gold);
-  font-size: 0.95rem;
-  font-weight: 600;
-  animation: floatBounce 2s infinite ease-in-out;
-}
-
 @keyframes sealPulse {
-  0% { transform: scale(0.9); opacity: 0.8; }
-  50% { transform: scale(1.15); opacity: 0.2; }
-  100% { transform: scale(0.9); opacity: 0.8; }
+  0%   { transform: scale(0.88); opacity: 0.8; }
+  50%  { transform: scale(1.18); opacity: 0.2; }
+  100% { transform: scale(0.88); opacity: 0.8; }
 }
 
 @keyframes floatBounce {
