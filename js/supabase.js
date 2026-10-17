@@ -2,27 +2,48 @@
  * Supabase Cloud Database Integration for Khmer E-Invitation
  * Supports Real-time RSVP, Live Guestbook Wishes, Dynamic Config, and VIP Guests.
  * Includes automatic LocalStorage fallback if Supabase is offline or not configured.
+ *
+ * Auto-connect: built-in defaults mean the site connects to Supabase out of the
+ * box (no manual setup). These are PUBLIC client keys (anon/publishable) and are
+ * safe to ship in front-end code; Row Level Security protects the data.
+ * Admins can still override them from the Admin / Cloud Sync panels.
  */
+
+const DEFAULT_SUPABASE_URL = 'https://htooctdmmtcpujkfhbna.supabase.co';
+const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0b29jdGRtbXRjcHVqa2ZoYm5hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE5NzY1OTIsImV4cCI6MjEwNzU1MjU5Mn0.onLnKaW5fekx81nbHgLiCM0wMbCfqED3Bjj2C8mR_l0';
+
+// Active invitation record id in Supabase (multi-tenant schema). rsvps rows link
+// to this via invitation_id. Must match server.py's INVITATION_ID default.
+const DEFAULT_INVITATION_ID = '8957c601-8044-4935-aa3d-1f369b0befa1';
 
 class SupabaseService {
   constructor() {
     this.client = null;
     this.isConfigured = false;
+    this.defaultUrl = DEFAULT_SUPABASE_URL;
+    this.defaultKey = DEFAULT_SUPABASE_KEY;
+    this.invitationId = localStorage.getItem('supabase_invitation_id') || DEFAULT_INVITATION_ID;
     this.loadCredentials();
   }
 
   loadCredentials() {
-    const url = localStorage.getItem('supabase_url');
-    const key = localStorage.getItem('supabase_anon_key');
+    const url = localStorage.getItem('supabase_url') || DEFAULT_SUPABASE_URL;
+    const key = localStorage.getItem('supabase_anon_key') || DEFAULT_SUPABASE_KEY;
 
     if (url && key && window.supabase) {
       try {
         this.client = window.supabase.createClient(url.trim(), key.trim());
         this.isConfigured = true;
+        this.url = url.trim();
+        // Persist defaults so every page/view shares the same active connection.
+        if (!localStorage.getItem('supabase_url')) localStorage.setItem('supabase_url', url.trim());
+        if (!localStorage.getItem('supabase_anon_key')) localStorage.setItem('supabase_anon_key', key.trim());
       } catch (err) {
         console.warn('Failed to initialize Supabase client:', err);
         this.isConfigured = false;
       }
+    } else if (!window.supabase) {
+      console.warn('Supabase library (CDN) not loaded yet; will retry.');
     }
   }
 
@@ -37,10 +58,12 @@ class SupabaseService {
   }
 
   clearCredentials() {
+    // Reset back to the built-in defaults rather than fully disconnecting.
     localStorage.removeItem('supabase_url');
     localStorage.removeItem('supabase_anon_key');
     this.client = null;
     this.isConfigured = false;
+    this.loadCredentials();
   }
 
   async testConnection(url, key) {
@@ -87,12 +110,12 @@ class SupabaseService {
     if (this.isConfigured && this.client) {
       try {
         const { data, error } = await this.client.from('rsvps').insert([{
-          name: rsvpData.name,
-          phone: rsvpData.phone || '',
-          attendance: rsvpData.attendance,
-          count: parseInt(rsvpData.count || 0),
-          wishes: rsvpData.wishes || '',
-          submitted_at: rsvpData.submittedAt || new Date().toISOString()
+          invitation_id: this.invitationId,
+          guest_name: rsvpData.name,
+          guest_phone: rsvpData.phone || '',
+          attendance_status: rsvpData.attendance || 'attending',
+          guest_count: parseInt(rsvpData.count || 0),
+          wish_message: rsvpData.wishes || ''
         }]);
 
         if (error) {
@@ -114,16 +137,16 @@ class SupabaseService {
         const { data, error } = await this.client
           .from('rsvps')
           .select('*')
-          .order('submitted_at', { ascending: false });
+          .order('created_at', { ascending: false });
 
         if (!error && Array.isArray(data) && data.length > 0) {
           return data.map(r => ({
-            name: r.name,
-            phone: r.phone,
-            attendance: r.attendance,
-            count: r.count,
-            wishes: r.wishes,
-            submittedAt: r.submitted_at
+            name: r.guest_name || r.name,
+            phone: r.guest_phone || r.phone || '',
+            attendance: r.attendance_status || r.attendance || 'attending',
+            count: (r.guest_count !== undefined && r.guest_count !== null) ? r.guest_count : (r.count || 0),
+            wishes: (r.wish_message !== undefined && r.wish_message !== null) ? r.wish_message : (r.wishes || ''),
+            submittedAt: r.created_at || r.submitted_at
           }));
         }
       } catch (err) {
@@ -171,9 +194,9 @@ class SupabaseService {
 
     if (this.isConfigured && this.client) {
       try {
-        let query = this.client.from('rsvps').delete().eq('name', name);
+        let query = this.client.from('rsvps').delete().eq('guest_name', name);
         if (submittedAt) {
-          query = query.eq('submitted_at', submittedAt);
+          query = query.eq('created_at', submittedAt);
         }
         await query;
       } catch (err) {
@@ -189,7 +212,7 @@ class SupabaseService {
 
     if (this.isConfigured && this.client) {
       try {
-        await this.client.from('rsvps').delete().neq('name', '___dummy_placeholder___');
+        await this.client.from('rsvps').delete().eq('invitation_id', this.invitationId);
       } catch (err) {
         console.warn('Failed to clear RSVPs from Supabase:', err);
       }
@@ -432,3 +455,26 @@ class SupabaseService {
 }
 
 window.appSupabase = new SupabaseService();
+
+// Retry auto-connect if the Supabase CDN library loads after this script,
+// then broadcast a global event so pages can enable real-time sync.
+(function ensureConnected() {
+  if (window.appSupabase.isConfigured) {
+    window.dispatchEvent(new CustomEvent('supabase-ready'));
+    return;
+  }
+  let tries = 0;
+  const timer = setInterval(() => {
+    tries++;
+    window.appSupabase.loadCredentials();
+    if (window.appSupabase.isConfigured) {
+      clearInterval(timer);
+      console.log('[Supabase] Auto-connected via built-in credentials.');
+      window.dispatchEvent(new CustomEvent('supabase-ready'));
+    } else if (tries > 40) {
+      clearInterval(timer);
+      console.warn('[Supabase] Auto-connect timed out; running offline.');
+    }
+  }, 250);
+})();
+

@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "app.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "app.py"
+    }
+  ],
+  "env": {
+    "PORT": "8080",
+    "HOST": "0.0.0.0",
+    "ENVIRONMENT": "production",
+    "PYTHONUNBUFFERED": "1"
+  }
+}

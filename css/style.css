@@ -3,7 +3,9 @@
    Traditional Khmer Royal Gold & Deep Burgundy Theme
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Battambang:wght@300;400;700&family=Cinzel:wght@500;700;900&family=Kantumruy+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Moul&family=Playfair+Display:ital,wght@0,600;0,800;1,400&display=swap');
+/* Fonts are loaded via <link rel="preconnect"> + stylesheet links in each HTML
+   document (see index.html, admin/index.html, databasecloud/index.html,
+   generate/index.html) to avoid render-blocking @import chains and Khmer FOUC. */
 
 :root {
   --primary-gold: #e5b955;
@@ -25,9 +27,10 @@
   --text-muted: #c7beab;
   --text-highlight: #ffeaa7;
 
-  --font-khmer-heading: 'Moul', serif;
-  --font-khmer-body: 'Kantumruy Pro', sans-serif;
-  --font-khmer-sub: 'Battambang', sans-serif;
+  --font-khmer-heading: 'Moul', 'Noto Serif Khmer', serif;
+  --font-khmer-body: 'Kantumruy Pro', 'Hanuman', sans-serif;
+  --font-khmer-sub: 'Battambang', 'Hanuman', sans-serif;
+  --font-khmer-serif: 'Noto Serif Khmer', 'Hanuman', serif;
   --font-number: 'Cinzel', serif;
 
   --radius-sm: 8px;
@@ -36,6 +39,11 @@
   --radius-full: 9999px;
 
   --shadow-lux: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(212, 175, 55, 0.15);
+
+  /* Fluid type scale (used by headings for crisp Khmer rendering on all sizes) */
+  --fluid-title: clamp(1.5rem, 5.2vw, 1.95rem);
+  --fluid-section: clamp(1.05rem, 3.6vw, 1.25rem);
+  --fluid-body: clamp(0.95rem, 3.4vw, 1.05rem);
 }
 
 * {
@@ -272,6 +280,7 @@ body::before {
   font-family: var(--font-khmer-heading);
   color: var(--primary-gold);
   font-size: 1.25rem;
+  line-height: 1.9;
   margin-top: 12px;
   text-shadow: 0 2px 10px rgba(229, 185, 85, 0.4);
 }
@@ -482,13 +491,14 @@ body::before {
 
 .hero-title {
   font-family: var(--font-khmer-heading);
-  font-size: 1.85rem;
-  line-height: 1.5;
+  font-size: var(--fluid-title);
+  line-height: 1.8;
   background: var(--gold-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 2px 10px rgba(229, 185, 85, 0.5));
   margin-bottom: 14px;
+  padding: 0.08em 0;
 }
 
 .guest-personal-card {
@@ -527,6 +537,7 @@ body::before {
 .couple-name {
   font-family: var(--font-khmer-heading);
   font-size: 1.25rem;
+  line-height: 1.75;
   color: #fff;
   text-shadow: 0 2px 12px rgba(229, 185, 85, 0.7);
 }
@@ -579,7 +590,8 @@ body::before {
 
 .section-title {
   font-family: var(--font-khmer-heading);
-  font-size: 1.2rem;
+  font-size: var(--fluid-section);
+  line-height: 1.85;
   color: var(--primary-gold);
   text-shadow: 0 2px 8px rgba(229, 185, 85, 0.3);
 }
@@ -1417,4 +1429,113 @@ body::before {
   background: rgba(229, 185, 85, 0.06);
   border-color: rgba(229, 185, 85, 0.25);
 }
+
+/* ==========================================================================
+   Khmer Typography Refinements
+   Moul and other Khmer display faces have tall ascenders/descenders and
+   stacked diacritics, so they need extra line-height and vertical padding.
+   ========================================================================== */
+[lang="km"],
+:lang(km) {
+  font-feature-settings: "kern" 1, "liga" 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  word-break: normal;
+  overflow-wrap: break-word;
+  line-break: normal;
+}
+
+h1, h2, h3, h4,
+.hero-title,
+.section-title,
+.envelope-title,
+.couple-name,
+.person-name,
+.wish-author {
+  line-height: 1.85;
+  padding-top: 0.06em;
+  padding-bottom: 0.06em;
+}
+
+body,
+input,
+select,
+textarea,
+button {
+  font-family: var(--font-khmer-body);
+}
+
+.form-input,
+.form-textarea,
+.form-label,
+.section-subtitle,
+.timeline-desc,
+.wish-message {
+  line-height: 1.8;
+}
+
+/* Number / Latin date styling stays elegant and upright */
+.hero-solar-date,
+.hero-lunar-date,
+.timeline-time,
+.cd-number,
+.countdown-value {
+  font-family: var(--font-number);
+  letter-spacing: 0.02em;
+}
+
+/* ==========================================================================
+   Responsive Breakpoints (mobile-first)
+   ========================================================================== */
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 1.6rem;
+  }
+
+  .section-title {
+    font-size: 1.05rem;
+  }
+
+  .envelope-title {
+    font-size: 1.1rem;
+  }
+
+  .couple-name {
+    font-size: 1.1rem;
+  }
+
+  .app-viewport {
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 380px) {
+  html, body {
+    font-size: 15px;
+  }
+
+  .hero-title {
+    font-size: 1.45rem;
+  }
+
+  .tab-btn-lux,
+  .nav-tab-btn {
+    font-size: 0.75rem;
+    padding: 8px 6px;
+  }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 

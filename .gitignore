@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Vercel / Render
+.vercel/
+.render/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Uploads (keep folders but ignore runtime uploads)
+assets/videos/video_*
+assets/music/music_*

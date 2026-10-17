@@ -9,6 +9,10 @@ import http.server
 import json
 import os
 import sys
+import urllib.request
+import urllib.error
+import urllib.parse
+from datetime import datetime, timezone
 from urllib.parse import urlparse, parse_qs
 
 PORT = int(os.environ.get('PORT', 8080))
@@ -41,12 +45,178 @@ def save_db(data):
         print(f"Error saving {DB_FILE}: {e}")
         return False
 
+# ==========================================================================
+# Supabase dynamic connection (auto)
+# --------------------------------------------------------------------------
+# The client anon/publishable key is a PUBLIC key (safe to ship). It is used
+# here so the Python backend auto-syncs with the same Cloud database the
+# browser uses, with no manual setup. Override via env vars if needed:
+#   SUPABASE_URL, SUPABASE_KEY
+# The Postgres connection string / DB password is NEVER hardcoded - set it in
+# the host's environment (DATABASE_URL) if direct Postgres access is required.
+# ==========================================================================
+SUPABASE_URL = os.environ.get('SUPABASE_URL', 'https://htooctdmmtcpujkfhbna.supabase.co').rstrip('/')
+SUPABASE_KEY = os.environ.get(
+    'SUPABASE_KEY',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0b29jdGRtbXRjcHVqa2ZoYm5hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE5NzY1OTIsImV4cCI6MjEwNzU1MjU5Mn0.onLnKaW5fekx81nbHgLiCM0wMbCfqED3Bjj2C8mR_l0',
+)
+SUPABASE_ENABLED = bool(SUPABASE_URL and SUPABASE_KEY)
+
+# The active invitation record id in Supabase (multi-tenant schema). RSVPs link
+# to this via rsvps.invitation_id. Override with env INVITATION_ID if needed.
+INVITATION_ID = os.environ.get('INVITATION_ID', '8957c601-8044-4935-aa3d-1f369b0befa1')
+
+
+def _sb_request(method, table, query='', data=None, prefer=None, timeout=8):
+    """Low-level PostgREST call to Supabase. Returns parsed JSON or None on failure."""
+    if not SUPABASE_ENABLED:
+        return None
+    url = f"{SUPABASE_URL}/rest/v1/{table}{query}"
+    headers = {
+        'apikey': SUPABASE_KEY,
+        'Authorization': f'Bearer {SUPABASE_KEY}',
+        'Content-Type': 'application/json',
+    }
+    if prefer:
+        headers['Prefer'] = prefer
+    body = json.dumps(data, ensure_ascii=False).encode('utf-8') if data is not None else None
+    req = urllib.request.Request(url, data=body, headers=headers, method=method)
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            raw = resp.read().decode('utf-8')
+            return json.loads(raw) if raw.strip() else []
+    except urllib.error.HTTPError as e:
+        detail = ''
+        try:
+            detail = e.read().decode('utf-8')[:200]
+        except Exception:
+            pass
+        print(f"[Supabase] {method} {table} HTTP {e.code}: {detail}")
+        return None
+    except Exception as e:
+        print(f"[Supabase] {method} {table} error: {e}")
+        return None
+
+
+def _now_iso():
+    return datetime.now(timezone.utc).isoformat()
+
+
+def sb_test_connection():
+    """Return (ok, message) describing Supabase reachability."""
+    if not SUPABASE_ENABLED:
+        return False, 'Supabase not configured'
+    res = _sb_request('GET', 'invitation_config', '?select=id&limit=1')
+    if res is None:
+        return False, 'Supabase unreachable or tables missing'
+    return True, 'Supabase connected'
+
+
+def sb_fetch_config():
+    rows = _sb_request('GET', 'invitation_config', '?id=eq.wedding_main&select=config_json')
+    if isinstance(rows, list) and rows:
+        cfg = rows[0].get('config_json')
+        return cfg if isinstance(cfg, dict) and cfg else None
+    return None
+
+
+def sb_save_config(config):
+    return _sb_request(
+        'POST', 'invitation_config', '',
+        [{'id': 'wedding_main', 'config_json': config, 'updated_at': _now_iso()}],
+        prefer='resolution=merge-duplicates,return=minimal',
+    )
+
+
+def sb_fetch_rsvps():
+    rows = _sb_request('GET', 'rsvps', '?select=*&order=created_at.desc')
+    if not isinstance(rows, list):
+        return None
+    return [
+        {
+            'name': r.get('guest_name') or r.get('name'),
+            'phone': r.get('guest_phone') or r.get('phone') or '',
+            'attendance': r.get('attendance_status') or r.get('attendance') or 'attending',
+            'count': r.get('guest_count') if r.get('guest_count') is not None else (r.get('count') or 0),
+            'wishes': r.get('wish_message') if r.get('wish_message') is not None else (r.get('wishes') or ''),
+            'submittedAt': r.get('created_at') or r.get('submitted_at'),
+        }
+        for r in rows
+    ]
+
+
+def sb_push_rsvp(r):
+    row = {
+        'invitation_id': INVITATION_ID,
+        'guest_name': r.get('name'),
+        'guest_phone': r.get('phone', ''),
+        'attendance_status': r.get('attendance', 'attending'),
+        'guest_count': int(r.get('count') or 0),
+        'wish_message': r.get('wishes', ''),
+    }
+    return _sb_request('POST', 'rsvps', '', [row], prefer='return=minimal')
+
+
+def sb_fetch_wishes():
+    rows = _sb_request('GET', 'wishes', '?select=*&order=created_at.desc')
+    if not isinstance(rows, list):
+        return None
+    return [
+        {
+            'name': w.get('name'),
+            'date_display': w.get('date_display') or 'ថ្មីៗនេះ',
+            'message': w.get('message'),
+        }
+        for w in rows
+    ]
+
+
+def sb_push_wish(w):
+    return _sb_request(
+        'POST', 'wishes', '',
+        [{
+            'name': w.get('name'),
+            'date_display': w.get('date_display') or w.get('date') or 'ថ្មីៗនេះ',
+            'message': w.get('message'),
+        }],
+        prefer='return=minimal',
+    )
+
+
+def sb_delete_rsvp(name, submitted_at=None):
+    query = f'?guest_name=eq.{urllib.parse.quote(str(name))}'
+    if submitted_at:
+        query += f'&created_at=eq.{urllib.parse.quote(str(submitted_at))}'
+    return _sb_request('DELETE', 'rsvps', query)
+
+
+def sb_delete_wish(name, message):
+    query = (
+        f'?name=eq.{urllib.parse.quote(str(name))}'
+        f'&message=eq.{urllib.parse.quote(str(message))}'
+    )
+    return _sb_request('DELETE', 'wishes', query)
+
+
+def sb_clear_rsvps():
+    return _sb_request('DELETE', 'rsvps', f'?invitation_id=eq.{urllib.parse.quote(INVITATION_ID)}')
+
+
+def sb_clear_wishes():
+    return _sb_request('DELETE', 'wishes', '?name=neq.__none__')
+
+
 class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-        self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+        path = urlparse(self.path).path
+        if path.startswith('/api/'):
+            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+        else:
+            # Cache static assets (Khmer fonts, CSS, JS, images, audio, video)
+            self.send_header('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400')
         super().end_headers()
 
     def do_OPTIONS(self):
@@ -58,38 +228,55 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
         path = parsed.path
 
         if path == '/api/rsvps':
-            db = load_db()
+            # Prefer Supabase (Cloud, shared with all clients), fall back to local JSON
+            rsvps = sb_fetch_rsvps()
+            if rsvps is None:
+                db = load_db()
+                rsvps = db.get("rsvps", [])
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.end_headers()
-            self.wfile.write(json.dumps(db.get("rsvps", []), ensure_ascii=False).encode('utf-8'))
+            self.wfile.write(json.dumps(rsvps, ensure_ascii=False).encode('utf-8'))
             return
 
         elif path == '/api/wishes':
-            db = load_db()
+            wishes = sb_fetch_wishes()
+            if wishes is None:
+                db = load_db()
+                wishes = db.get("wishes", [])
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.end_headers()
-            self.wfile.write(json.dumps(db.get("wishes", []), ensure_ascii=False).encode('utf-8'))
+            self.wfile.write(json.dumps(wishes, ensure_ascii=False).encode('utf-8'))
             return
 
         elif path == '/api/config':
-            db = load_db()
+            cfg = sb_fetch_config()
+            if cfg is None:
+                db = load_db()
+                cfg = db.get("invitation_config", {})
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.end_headers()
-            self.wfile.write(json.dumps(db.get("invitation_config", {}), ensure_ascii=False).encode('utf-8'))
+            self.wfile.write(json.dumps(cfg, ensure_ascii=False).encode('utf-8'))
             return
 
         elif path == '/api/test-db':
             db = load_db()
             db_size = os.path.getsize(DB_FILE) if os.path.exists(DB_FILE) else 0
+            sb_ok, sb_msg = sb_test_connection()
             res = {
                 "success": True,
                 "status": "connected",
                 "message": "Connected to Local Database JSON successfully!",
                 "databasePath": "database/invitation_data.json",
                 "databaseSizeBytes": db_size,
+                "supabase": {
+                    "enabled": SUPABASE_ENABLED,
+                    "connected": sb_ok,
+                    "url": SUPABASE_URL,
+                    "message": sb_msg
+                },
                 "counts": {
                     "rsvps": len(db.get("rsvps", [])),
                     "wishes": len(db.get("wishes", [])),
@@ -147,21 +334,6 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             }, ensure_ascii=False).encode('utf-8'))
             return
 
-        elif path == '/api/import':
-            # Import database from JSON - for POST requests
-            # In browser, use POST method (e.g., via HTML form or curl)
-            # For GET requests, show instructions
-            self.send_response(200)
-            self.send_header('Content-Type', 'text/html; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(json.dumps({
-                "message": "Use POST method to import database",
-                "instructions": {
-                    "curl": "curl -X POST -H 'Content-Type: application/json' -d @yourfile.json https://e-invitations.onrender.com/api/import",
-                    "html_form": "<form method='POST' enctype='multipart/form-data' action='/api/import'><input type='file' name='database'/><button type='submit'>Import</button></form>"
-                }
-            }, ensure_ascii=False).encode('utf-8'))
-            return
 
         # Friendly direct routes
         if path in ('/databasecloud', '/databasecloud/'):
@@ -212,12 +384,13 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             db = load_db()
             if "rsvps" not in db:
                 db["rsvps"] = []
-            
+
             # Add or update RSVP
             db["rsvps"].insert(0, payload)
 
             # If wish included, also store in wishes list
             wishes_text = payload.get('wishes', '').strip()
+            new_wish = None
             if wishes_text:
                 new_wish = {
                     "name": payload.get('name', 'ភ្ញៀវកិត្តិយស'),
@@ -229,6 +402,11 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
                 db["wishes"].insert(0, new_wish)
 
             save_db(db)
+
+            # Sync to Supabase Cloud so every client updates in real time
+            sb_push_rsvp(payload)
+            if new_wish:
+                sb_push_wish(new_wish)
 
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
@@ -242,6 +420,7 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
                 db["wishes"] = []
             db["wishes"].insert(0, payload)
             save_db(db)
+            sb_push_wish(payload)
 
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
@@ -253,6 +432,8 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             db = load_db()
             db["invitation_config"] = payload
             save_db(db)
+            # Push config to Supabase so all connected clients re-render live
+            sb_save_config(payload)
 
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
@@ -417,6 +598,7 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             db = load_db()
             db["rsvps"] = [r for r in db.get("rsvps", []) if not (r.get("name") == name and (not submitted_at or r.get("submittedAt") == submitted_at))]
             save_db(db)
+            sb_delete_rsvp(name, submitted_at)
 
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
@@ -428,6 +610,7 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             db = load_db()
             db["rsvps"] = []
             save_db(db)
+            sb_clear_rsvps()
 
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
@@ -441,6 +624,7 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             db = load_db()
             db["wishes"] = [w for w in db.get("wishes", []) if not (w.get("name") == name and w.get("message") == msg)]
             save_db(db)
+            sb_delete_wish(name, msg)
 
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
@@ -452,6 +636,7 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             db = load_db()
             db["wishes"] = []
             save_db(db)
+            sb_clear_wishes()
 
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')

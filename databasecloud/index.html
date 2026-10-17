@@ -2,9 +2,12 @@
 <html lang="km">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>⚡ Supabase Cloud Database Sync | E-Invitation</title>
   <meta name="description" content="ផ្ទាំងគ្រប់គ្រង និងត្រួតពិនិត្យទិន្នន័យ Supabase Cloud Database Real-time សម្រាប់សំបុត្រអាពាហ៍ពិពាហ៍">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Battambang:wght@300;400;700&family=Cinzel:wght@500;700;900&family=Hanuman:wght@300;400;700&family=Kantumruy+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Moul&family=Noto+Serif+Khmer:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="../css/style.css">
   <!-- Supabase JS Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -280,18 +283,45 @@
       <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">
         គ្រាន់តែចុច <strong>«ចម្លង SQL»</strong> រួច paste ចូលក្នុង <strong>Supabase Dashboard ➔ SQL Editor ➔ Run</strong> ជាការស្រេច!
       </p>
-      <textarea id="sql-schema-code" class="form-textarea" rows="14" readonly style="font-family: monospace; font-size: 0.75rem; background: #050a12; color: #85e8ba;">-- 1. Create RSVPs table
-create table if not exists public.rsvps (
+      <textarea id="sql-schema-code" class="form-textarea" rows="14" readonly style="font-family: monospace; font-size: 0.75rem; background: #050a12; color: #85e8ba;">-- 1. Invitations table (multi-tenant parent record)
+create table if not exists public.invitations (
   id uuid default gen_random_uuid() primary key,
-  name text not null,
-  phone text default '',
-  attendance text not null default 'attending',
-  count integer default 1,
-  wishes text default '',
-  submitted_at timestamp with time zone default timezone('utc'::text, now())
+  user_id uuid,
+  slug text unique,
+  title text,
+  couple_names_khmer text,
+  couple_names_en text,
+  event_type text default 'wedding',
+  event_date timestamp with time zone,
+  venue_name text,
+  venue_address text,
+  map_url text,
+  music_url text,
+  cover_url text,
+  story_text text,
+  theme_config jsonb,
+  is_active boolean default true,
+  is_suspended boolean default false,
+  view_count integer default 0,
+  created_at timestamp with time zone default timezone('utc'::text, now()),
+  updated_at timestamp with time zone default timezone('utc'::text, now())
 );
 
--- 2. Create Wishes table
+-- 2. Create RSVPs table (linked to an invitation)
+create table if not exists public.rsvps (
+  id uuid default gen_random_uuid() primary key,
+  invitation_id uuid references public.invitations(id) on delete cascade,
+  guest_name text not null,
+  guest_phone text default '',
+  attendance_status text not null default 'attending',
+  guest_count integer default 1,
+  wish_message text default '',
+  is_hidden boolean default false,
+  ip_hash text,
+  created_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+-- 3. Create Wishes table
 create table if not exists public.wishes (
   id uuid default gen_random_uuid() primary key,
   name text not null,
@@ -300,7 +330,7 @@ create table if not exists public.wishes (
   created_at timestamp with time zone default timezone('utc'::text, now())
 );
 
--- 3. Create Invitation Config table
+-- 4. Create Invitation Config table
 create table if not exists public.invitation_config (
   id text primary key,
   config_json jsonb not null,
@@ -308,13 +338,20 @@ create table if not exists public.invitation_config (
 );
 
 -- Enable RLS & Public Access Policies for E-Invitation
+alter table public.invitations enable row level security;
 alter table public.rsvps enable row level security;
 alter table public.wishes enable row level security;
 alter table public.invitation_config enable row level security;
 
+create policy "Public full access on invitations" on public.invitations for all using (true) with check (true);
 create policy "Public full access on rsvps" on public.rsvps for all using (true) with check (true);
 create policy "Public full access on wishes" on public.wishes for all using (true) with check (true);
 create policy "Public full access on config" on public.invitation_config for all using (true) with check (true);
+
+-- Seed the active invitation (must match INVITATION_ID in server.py / js/supabase.js)
+insert into public.invitations (id, slug, couple_names_khmer, event_type, is_active)
+values ('8957c601-8044-4935-aa3d-1f369b0befa1', 'amra-wedding', 'ជា វិបុល & ស៊ុន ទេវី', 'wedding', true)
+on conflict (id) do nothing;
 
 -- Insert Complete Wedding Invitation Configuration Seed
 insert into public.invitation_config (id, config_json, updated_at)
@@ -403,9 +440,9 @@ values
       const statusPill = document.getElementById('status-pill');
       const form = document.getElementById('supabase-config-form');
 
-      // Load saved credentials
-      const savedUrl = localStorage.getItem('supabase_url') || 'https://htooctdmmtcpujkfhbna.supabase.co';
-      const savedKey = localStorage.getItem('supabase_anon_key') || '';
+      // Load saved credentials (fall back to built-in defaults for auto-connect)
+      const savedUrl = localStorage.getItem('supabase_url') || (window.appSupabase && window.appSupabase.defaultUrl) || '';
+      const savedKey = localStorage.getItem('supabase_anon_key') || (window.appSupabase && window.appSupabase.defaultKey) || '';
 
       urlInput.value = savedUrl;
       keyInput.value = savedKey;
@@ -522,12 +559,12 @@ values
           const rsvps = res.ok ? await res.json() : [];
           for (const r of rsvps) {
             await window.appSupabase.client.from('rsvps').insert([{
-              name: r.name,
-              phone: r.phone || '',
-              attendance: r.attendance,
-              count: parseInt(r.count || 1),
-              wishes: r.wishes || '',
-              submitted_at: r.submittedAt || new Date().toISOString()
+              invitation_id: window.appSupabase.invitationId,
+              guest_name: r.name,
+              guest_phone: r.phone || '',
+              attendance_status: r.attendance || 'attending',
+              guest_count: parseInt(r.count || 1),
+              wish_message: r.wishes || ''
             }]);
           }
 
@@ -537,8 +574,7 @@ values
             await window.appSupabase.client.from('wishes').insert([{
               name: w.name,
               date_display: w.date_display || w.date || 'ថ្មីៗនេះ',
-              message: w.message,
-              created_at: new Date().toISOString()
+              message: w.message
             }]);
           }
 
@@ -604,7 +640,7 @@ values
           const { data: rsvps, error: rError } = await window.appSupabase.client
             .from('rsvps')
             .select('*')
-            .order('submitted_at', { ascending: false });
+            .order('created_at', { ascending: false });
 
           const rTbody = document.getElementById('cloud-rsvps-tbody');
           const rCount = document.getElementById('count-cloud-rsvps');
@@ -614,20 +650,28 @@ values
             if (rsvps.length === 0) {
               rTbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">មិនទាន់មានទិន្នន័យ RSVP ក្នុង Supabase Cloud នៅឡើយ</td></tr>';
             } else {
-              rTbody.innerHTML = rsvps.map(r => `
+              rTbody.innerHTML = rsvps.map(r => {
+                const rName = r.guest_name || r.name || '';
+                const rPhone = r.guest_phone || r.phone || '';
+                const rAtt = r.attendance_status || r.attendance;
+                const rCount = (r.guest_count !== undefined && r.guest_count !== null) ? r.guest_count : (r.count || 0);
+                const rWish = (r.wish_message !== undefined && r.wish_message !== null) ? r.wish_message : (r.wishes || '');
+                const rWhen = r.created_at || r.submitted_at;
+                return `
                 <tr>
-                  <td style="color: var(--text-muted); font-size: 0.75rem;">${escapeHtml(r.submitted_at ? new Date(r.submitted_at).toLocaleString('km-KH') : '-')}</td>
-                  <td style="font-weight: 700; color: #85e8ba;">${escapeHtml(r.name || '')}</td>
-                  <td>${escapeHtml(r.phone || '-')}</td>
+                  <td style="color: var(--text-muted); font-size: 0.75rem;">${escapeHtml(rWhen ? new Date(rWhen).toLocaleString('km-KH') : '-')}</td>
+                  <td style="font-weight: 700; color: #85e8ba;">${escapeHtml(rName)}</td>
+                  <td>${escapeHtml(rPhone || '-')}</td>
                   <td>
-                    <span style="display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; ${r.attendance === 'attending' ? 'background: rgba(46,204,113,0.2); color: #2ecc71;' : 'background: rgba(255,107,107,0.2); color: #ff6b6b;'}">
-                      ${r.attendance === 'attending' ? 'ចូលរួម' : 'មិនអាចចូលរួម'}
+                    <span style="display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; ${rAtt === 'attending' ? 'background: rgba(46,204,113,0.2); color: #2ecc71;' : 'background: rgba(255,107,107,0.2); color: #ff6b6b;'}">
+                      ${rAtt === 'attending' ? 'ចូលរួម' : 'មិនអាចចូលរួម'}
                     </span>
                   </td>
-                  <td>${escapeHtml(String(r.count || 0))} នាក់</td>
-                  <td style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(r.wishes || '-')}</td>
+                  <td>${escapeHtml(String(rCount))} នាក់</td>
+                  <td style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(rWish || '-')}</td>
                 </tr>
-              `).join('');
+              `;
+              }).join('');
             }
           }
         } catch (e) {

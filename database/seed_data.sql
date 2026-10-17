@@ -3,18 +3,45 @@
 -- ពិធីមង្គលការ ជា វិបុល ❤️ ស៊ុន ទេវី
 -- =============================================================================
 
--- 1. Create RSVPs table
-create table if not exists public.rsvps (
+-- 1. Create Invitations table (multi-tenant parent record)
+create table if not exists public.invitations (
   id uuid default gen_random_uuid() primary key,
-  name text not null,
-  phone text default '',
-  attendance text not null default 'attending',
-  count integer default 1,
-  wishes text default '',
-  submitted_at timestamp with time zone default timezone('utc'::text, now())
+  user_id uuid,
+  slug text unique,
+  title text,
+  couple_names_khmer text,
+  couple_names_en text,
+  event_type text default 'wedding',
+  event_date timestamp with time zone,
+  venue_name text,
+  venue_address text,
+  map_url text,
+  music_url text,
+  cover_url text,
+  story_text text,
+  theme_config jsonb,
+  is_active boolean default true,
+  is_suspended boolean default false,
+  view_count integer default 0,
+  created_at timestamp with time zone default timezone('utc'::text, now()),
+  updated_at timestamp with time zone default timezone('utc'::text, now())
 );
 
--- 2. Create Wishes table (សៀវភៅជូនពរឌីជីថល)
+-- 2. Create RSVPs table (linked to an invitation)
+create table if not exists public.rsvps (
+  id uuid default gen_random_uuid() primary key,
+  invitation_id uuid references public.invitations(id) on delete cascade,
+  guest_name text not null,
+  guest_phone text default '',
+  attendance_status text not null default 'attending',
+  guest_count integer default 1,
+  wish_message text default '',
+  is_hidden boolean default false,
+  ip_hash text,
+  created_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+-- 3. Create Wishes table (សៀវភៅជូនពរឌីជីថល)
 create table if not exists public.wishes (
   id uuid default gen_random_uuid() primary key,
   name text not null,
@@ -23,18 +50,20 @@ create table if not exists public.wishes (
   created_at timestamp with time zone default timezone('utc'::text, now())
 );
 
--- 3. Create Invitation Config table (ព័ត៌មានលម្អិតលិខិតអញ្ជើញ)
+-- 4. Create Invitation Config table (ព័ត៌មានលម្អិតលិខិតអញ្ជើញ)
 create table if not exists public.invitation_config (
   id text primary key,
   config_json jsonb not null,
   updated_at timestamp with time zone default timezone('utc'::text, now())
 );
 
--- 4. Enable Row Level Security (RLS) & Policies
+-- 5. Enable Row Level Security (RLS) & Policies
+alter table public.invitations enable row level security;
 alter table public.rsvps enable row level security;
 alter table public.wishes enable row level security;
 alter table public.invitation_config enable row level security;
 
+create policy "Public full access on invitations" on public.invitations for all using (true) with check (true);
 create policy "Public full access on rsvps" on public.rsvps for all using (true) with check (true);
 create policy "Public full access on wishes" on public.wishes for all using (true) with check (true);
 create policy "Public full access on config" on public.invitation_config for all using (true) with check (true);
@@ -42,6 +71,11 @@ create policy "Public full access on config" on public.invitation_config for all
 -- =============================================================================
 -- SEED DATA: INSERT ALL INVITATION INFORMATION
 -- =============================================================================
+
+-- Seed the active invitation (id must match INVITATION_ID in server.py / js/supabase.js)
+insert into public.invitations (id, slug, couple_names_khmer, couple_names_en, event_type, is_active)
+values ('8957c601-8044-4935-aa3d-1f369b0befa1', 'amra-wedding', 'ជា វិបុល & ស៊ុន ទេវី', 'Vibol & Devi', 'wedding', true)
+on conflict (id) do nothing;
 
 -- Seed Global Invitation Configuration
 insert into public.invitation_config (id, config_json, updated_at)

@@ -1,1 +1,2 @@
-# No external dependencies - uses only Python standard library
+# Python dependencies for the E-Invitation API server + Vercel deployment
+Flask>=3.0.0

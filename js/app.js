@@ -405,7 +405,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Supabase Real-time Auto-Update ──────────────────────────────────────────
   // Whenever any table changes in Supabase, the page updates automatically
   // without a refresh. Works for: invitation_config, wishes, rsvps.
-  if (window.appSupabase && window.appSupabase.isConfigured) {
+  let realtimeReady = false;
+
+  function setupRealtime() {
+    if (realtimeReady) return;
+    if (!window.appSupabase || !window.appSupabase.isConfigured) return;
+
+    realtimeReady = true;
     console.log('[Realtime] Subscribing to Supabase real-time updates...');
 
     // 🔴 Live config: re-apply ALL page fields the moment admin saves in Supabase
@@ -442,9 +448,17 @@ document.addEventListener('DOMContentLoaded', () => {
         updateConnectionStatus(false, 'Local Cache', 'Connection lost');
       }
     }, 30000); // Check every 30 seconds
+  }
+
+  // Connect immediately if already configured, or as soon as the auto-connect
+  // retry succeeds (handles the Supabase CDN loading after this script).
+  if (window.appSupabase && window.appSupabase.isConfigured) {
+    setupRealtime();
   } else {
-    console.log('[Realtime] Supabase not configured, running in offline mode');
-    updateConnectionStatus(false, 'Local Cache', 'Not configured');
+    console.log('[Realtime] Waiting for Supabase auto-connect...');
+    window.addEventListener('supabase-ready', () => {
+      loadAllDataFromSupabase().then(() => setupRealtime());
+    });
   }
   // ────────────────────────────────────────────────────────────────────────────
 
