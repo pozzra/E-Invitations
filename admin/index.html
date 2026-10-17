@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Battambang:wght@300;400;700&family=Cinzel:wght@500;700;900&family=Hanuman:wght@300;400;700&family=Kantumruy+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Moul&family=Noto+Serif+Khmer:wght@400;600;700&display=swap">
-  <link rel="stylesheet" href="../css/style.css?v=20261017e">
+  <link rel="stylesheet" href="../css/style.css">
   <style>
     body {
       background-color: #060913;
@@ -238,7 +238,7 @@
         </button>
       </form>
       <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 16px;">
-        ព័ត៌មានលំនាំដើម៖ User: <code>admin</code> | Pass: <code>admin889900</code>
+        ព័ត៌មានលំនាំដើម៖ User: <code>admin</code> | Pass: <code>********</code>
       </div>
     </div>
   </div>
@@ -409,26 +409,8 @@
             <input type="text" id="cfg-video-url" class="form-input" placeholder="assets/videos/... ឬ https://...">
           </div>
           <div class="form-group">
-            <label class="form-label" style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
-              <span>🖼️ រូបភាពគម្របវីដេអូ (Poster / Thumbnail Gallery)</span>
-              <span id="video-poster-count" class="poster-count-pill">0 / 10</span>
-            </label>
-            <input type="hidden" id="cfg-video-poster" value="">
-            <div style="display: flex; gap: 8px;">
-              <input type="text" id="cfg-video-poster-input" class="form-input"
-                placeholder="assets/images/couple.jpg ឬ https://...">
-              <button type="button" id="btn-add-poster-url" class="btn-primary-lux"
-                style="white-space: nowrap; padding: 10px 16px;">+ បន្ថែម</button>
-            </div>
-            <div style="display: flex; gap: 8px; margin-top: 8px; align-items: center;">
-              <input type="file" id="cfg-video-poster-file" accept="image/*" class="form-input" style="padding: 8px;">
-              <span style="font-size: 0.72rem; color: var(--text-muted); white-space: nowrap;">ផ្ទុកពីកុំព្យូទ័រ</span>
-            </div>
-            <div id="video-poster-list" class="poster-admin-list"></div>
-            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; line-height: 1.5;">
-              អាចបន្ថែមបានរហូតដល់ 10 រូប។ បើមានចាប់ពី 2 រូបឡើងទៅ គេហទំព័រភ្ញៀវនឹងបង្ហាញជា
-              <strong>Slideshow ចលនាថ្មី</strong> (បើកដូចសៀវភៅ + តំណក់ទឹកធ្លាក់)។
-            </div>
+            <label class="form-label">រូបភាពគម្របវីដេអូ (Poster / Thumbnail URL)</label>
+            <input type="text" id="cfg-video-poster" class="form-input" placeholder="assets/images/couple.jpg">
           </div>
         </div>
 
@@ -484,28 +466,6 @@
         <h3 class="section-title" style="font-size: 1.15rem; margin-bottom: 16px;">🗓️ កាលបរិច្ឆេទ & នាឡិការាប់ថយក្រោយ
         </h3>
 
-        <!-- Quick ceremony date & time picker (auto-fills everything below) -->
-        <div class="form-group"
-          style="background: rgba(229,185,85,0.06); border: 1.5px dashed var(--primary-gold); border-radius: var(--radius-sm); padding: 14px;">
-          <label class="form-label" style="color: var(--primary-gold-light); font-weight: 700;">
-            📅 ជ្រើសរើសកាលបរិច្ឆេទមង្គល (Pick Ceremony Date &amp; Time)
-          </label>
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label" for="cfg-date-picker" style="font-size: 0.75rem; cursor: pointer;">ថ្ងៃ (Date) 📅</label>
-              <input type="date" id="cfg-date-picker" class="form-input" style="cursor: pointer;">
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="cfg-time-picker" style="font-size: 0.75rem; cursor: pointer;">ម៉ោង (Time) ⏰</label>
-              <input type="time" id="cfg-time-picker" class="form-input" value="07:00" style="cursor: pointer;">
-            </div>
-          </div>
-          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">
-            ជ្រើសរើសថ្ងៃ និងម៉ោង — ប្រព័ន្ធនឹងបំពេញ <strong>ថ្ងៃខែឆ្នាំសកល</strong> និង
-            <strong>Countdown</strong> ជាស្វ័យប្រវត្តិ។
-          </div>
-        </div>
-
         <div class="form-group">
           <label class="form-label">ថ្ងៃខែឆ្នាំសកល (Solar Date Display)</label>
           <input type="text" id="cfg-solar-date" class="form-input" placeholder="ថ្ងៃអាទិត្យ ទី១៥ ខែវិច្ឆិកា ឆ្នាំ២០២៦">
@@ -519,11 +479,9 @@
 
         <div class="form-group">
           <label class="form-label">កាលបរិច្ឆេទ និងម៉ោងសម្រាប់រាប់ថយក្រោយ (Countdown Target Date & Time)</label>
-          <input type="hidden" id="cfg-target-time">
-          <div id="cfg-target-display" class="form-input"
-            style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.25); cursor: default;">—</div>
+          <input type="datetime-local" id="cfg-target-time" class="form-input">
           <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
-            * ថ្ងៃត្រូវបានគណនាដោយស្វ័យប្រវត្តិពីការជ្រើសរើសខាងលើ។ ម៉ោង អាចបញ្ចូលដោយដៃ។
+            * ប្រព័ន្ធនឹងរាប់ថយក្រោយដល់កាលបរិច្ឆេទដែលបានជ្រើសរើសនេះ។
           </div>
         </div>
       </div>
@@ -887,20 +845,6 @@
 
           <div id="music-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;"></div>
 
-          <div class="form-group" style="margin-bottom: 14px;">
-            <label class="form-label">🎨 ពណ៌អក្សរបញ្ជីចម្រៀង (Playlist Font Color)</label>
-            <div style="display: flex; gap: 8px; align-items: center;">
-              <input type="color" id="cfg-music-list-color" value="#fbf6ec"
-                style="width: 56px; height: 38px; padding: 2px; background: transparent; border: 1px solid rgba(229,185,85,0.35); border-radius: 6px; cursor: pointer;">
-              <button type="button" id="btn-music-color-auto" class="btn-gold-secondary ripple-effect"
-                style="width: auto; margin-top: 0; padding: 8px 14px; white-space: nowrap;">🔄 Auto (តាមផ្ទាំង)</button>
-            </div>
-            <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px;">
-              ជ្រើសពណ៌អក្សរឈ្មោះបទចម្រៀង។ <strong>Auto</strong> នឹងប្តូរពណ៌ស្វ័យប្រវត្តិតាម
-              Dark/Light Mode របស់ឧបករណ៍។
-            </p>
-          </div>
-
           <div class="form-group">
             <label class="form-label">បន្ថែមតាម URL (Audio URL ឬ YouTube URL)</label>
             <div style="display: flex; gap: 8px;">
@@ -950,17 +894,6 @@
             <input type="text" id="cfg-footer-credit" class="form-input"
               placeholder="Designed with Khmer Traditional Heritage & Modern Elegance">
           </div>
-        </div>
-
-        <!-- 5. Section Headings, Subtitles & Button Labels (admin-editable) -->
-        <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
-          <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 6px;">🏷️ ចំណងជើងផ្នែក
-            & ស្លាក (Section Headings & Labels)</h4>
-          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 12px;">
-            កែអត្ថបទចំណងជើងផ្នែក ចំណងជើងរង និងអក្សរលើប៊ូតុងទាំងអស់លើគេហទំព័រភ្ញៀវ
-            តាមចិត្តរបស់អ្នក។ ចុច <strong>រក្សាទុក</strong> ដើម្បីអនុវត្ត។
-          </p>
-          <div id="section-texts-fields" class="form-grid-2"></div>
         </div>
 
       </div>
@@ -1110,37 +1043,7 @@
           </div>
         </div>
 
-        <!-- D. App Icon / Favicon (list, max 10, choose one) -->
-        <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
-          <h4
-            style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
-            <span>🖼️ រូបតំណាងគេហទំព័រ (App Icon / Favicon)</span>
-            <span id="icon-count" class="poster-count-pill">0 / 10</span>
-          </h4>
-          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px;">
-            ផ្ទុករូបតំណាងពីកុំព្យូទ័រ (.ico / .png / .jpg / .svg) បានរហូតដល់ 10 រូប ហើយជ្រើសរើស
-            <strong>មួយ</strong> ដើម្បីបង្ហាញលើ Tab វេបប្រោស័រ និងពេលរក្សាទុកលើទូរស័ព្ទ។
-          </p>
-          <div style="display: flex; gap: 8px;">
-            <input type="text" id="cfg-icon-url" class="form-input"
-              placeholder="assets/images/favicon.png ឬ https://...">
-            <button type="button" id="btn-add-icon-url" class="btn-primary-lux"
-              style="white-space: nowrap; padding: 10px 16px;">+ បន្ថែម</button>
-          </div>
-          <div style="display: flex; gap: 8px; margin-top: 8px; align-items: center;">
-            <input type="file" id="cfg-icon-file"
-              accept=".ico,.png,.jpg,.jpeg,.webp,.svg,image/x-icon,image/vnd.microsoft.icon,image/png,image/jpeg,image/webp,image/svg+xml,image/*"
-              class="form-input" style="padding: 8px;">
-            <span style="font-size: 0.72rem; color: var(--text-muted); white-space: nowrap;">ផ្ទុកពីកុំព្យូទ័រ</span>
-          </div>
-          <div id="icon-list" class="icon-admin-list"></div>
-          <button type="button" id="btn-clear-icon"
-            style="margin-top: 10px; font-size: 0.75rem; padding: 6px 12px; background: none; border: 1px solid rgba(229,185,85,0.4); color: var(--primary-gold-light); border-radius: 6px; cursor: pointer;">
-            ✕ លុបទាំងអស់ និងប្រើលំនាំដើម (Use Default)
-          </button>
-        </div>
-
-        <!-- E. Sections Visibility -->
+        <!-- D. Sections Visibility -->
         <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
           <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 8px;">🧩 ការបង្ហាញផ្នែកនីមួយៗ (Show
             / Hide Sections)</h4>
@@ -1513,7 +1416,7 @@ values
 
   <!-- Supabase SDK & Admin Script Logic -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../js/supabase.js?v=20261017e"></script>
+  <script src="../js/supabase.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       // 🌐 Smart API Base URL: redirect to Python server on port 8080 when
@@ -1522,25 +1425,9 @@ values
         ? '' // Same-origin: relative paths work fine
         : 'http://localhost:8080'; // Live Server / other dev ports → point to Python API
 
-      // 🛟 Safety net: surface any uncaught script error instead of failing silently
-      window.addEventListener('error', (ev) => {
-        try {
-          if (typeof showToast === 'function') showToast('⚠️ Script error: ' + (ev.message || 'unknown'));
-          console.error('[Admin] Uncaught error:', ev.error || ev.message);
-        } catch (_) { }
-      });
-      window.addEventListener('unhandledrejection', (ev) => {
-        try {
-          if (typeof showToast === 'function') showToast('⚠️ ' + ((ev.reason && ev.reason.message) || 'Async error'));
-          console.error('[Admin] Unhandled rejection:', ev.reason);
-        } catch (_) { }
-      });
-
       // 🎵 Background Music playlist state (max 10 tracks)
       const MAX_MUSIC = 10;
       let musicPlaylist = [];
-      // Playlist song-title font color. '' = Auto (follows the dark/light theme).
-      let musicListColor = '';
 
       // 🔄 Auto-load Supabase credentials from localStorage on page load
       if (window.appSupabase) {
@@ -1556,15 +1443,8 @@ values
       const AUTH_USER = 'admin';
       const AUTH_PASS = 'admin889900';
 
-      function isAuthenticated() {
-        // Persist across reloads / new tabs (sessionStorage alone is dropped by
-        // some mobile browsers when the tab is backgrounded or reopened).
-        return localStorage.getItem('khmer_admin_auth') === 'true'
-          || sessionStorage.getItem('khmer_admin_auth') === 'true';
-      }
-
       function checkAuth() {
-        const isAuth = isAuthenticated();
+        const isAuth = sessionStorage.getItem('khmer_admin_auth') === 'true';
         if (isAuth) {
           loginOverlay.style.display = 'none';
           adminDashboard.style.display = 'block';
@@ -1598,7 +1478,6 @@ values
           const p = document.getElementById('login-password').value.trim();
 
           if (u === AUTH_USER && p === AUTH_PASS) {
-            localStorage.setItem('khmer_admin_auth', 'true');
             sessionStorage.setItem('khmer_admin_auth', 'true');
             showToast('✅ ចូលគ្រប់គ្រងបានជោគជ័យ!');
             checkAuth();
@@ -1610,7 +1489,6 @@ values
 
       if (btnLogout) {
         btnLogout.addEventListener('click', () => {
-          localStorage.removeItem('khmer_admin_auth');
           sessionStorage.removeItem('khmer_admin_auth');
           showToast('👋 បានចាកចេញពីប្រព័ន្ធ');
           checkAuth();
@@ -1717,7 +1595,6 @@ values
         bgMusicPlaylist: [
           { type: 'file', src: 'assets/audio/bg_music.mp3', title: 'Default Background Music' }
         ],
-        musicListColor: '',
         sections: {
           countdown: true,
           parents: true,
@@ -1743,32 +1620,6 @@ values
         },
         thankYouText: 'សូមថ្លែងអំណរគុណយ៉ាងជ្រាលជ្រៅចំពោះវត្តមានដ៏ឧត្តុង្គឧត្តមរបស់លោកអ្នក',
         footerCredit: 'Designed with Khmer Traditional Heritage & Modern Elegance',
-        texts: {
-          envelopeBadge: 'E-INVITATION • លិខិតអញ្ជើញ',
-          envelopeGuestLabel: 'សូមគោរពអញ្ជើញ៖',
-          countdownTitle: 'រាប់ថយក្រោយដល់ថ្ងៃសិរីមង្គល',
-          countdownSubtitle: 'Countdown to Auspicious Day',
-          addToCalendarBtn: 'កត់ត្រាក្នុងប្រតិទិន (Add to Calendar)',
-          parentsTitle: 'មាតាបិតាទាំងសងខាង',
-          parentsSubtitle: 'The Honorable Parents',
-          scheduleTitle: 'កាលវិភាគកម្មវិធីសិរីមង្គល',
-          scheduleSubtitle: 'Wedding Ceremony Schedule',
-          venueTitle: 'ទីតាំងប្រារព្ធពិធី',
-          venueSubtitle: 'Ceremony & Banquet Venue',
-          mapsBtn: 'បើកមើលផែនទី (Google Maps)',
-          giftTitle: 'ចំណងដៃអាពាហ៍ពិពាហ៍ឌីជីថល',
-          giftSubtitle: 'Wedding Gift & Blessings',
-          giftQrBtn: 'ស្កេន QR Code ចងដៃ (Digital Blessing)',
-          rsvpTitle: 'ការបញ្ជាក់ការចូលរួម (RSVP)',
-          rsvpSubtitle: 'Please Confirm Your Attendance',
-          rsvpSubmitBtn: 'ផ្ញើការបញ្ជាក់ (Submit RSVP)',
-          wishesTitle: 'សៀវភៅជូនពរឌីជីថល',
-          wishesSubtitle: 'Guestbook & Warm Wishes',
-          vipTitle: 'បង្កើតតំណភ្ជាប់អញ្ជើញផ្ទាល់ខ្លួន',
-          vipSubtitle: 'Generate Personalized VIP Link',
-          khqrTitle: 'ចំណងដៃអាពាហ៍ពិពាហ៍',
-          khqrSubtitle: 'Scan KHQR to Send Blessing'
-        },
         schedule: [
           { time: '07:00 AM', title: 'ពិធីហែជំនូន និងសែនព្រេន', desc: "Groom's Procession & Ancestor Blessing Ceremony" },
           { time: '09:30 AM', title: 'ពិធីកាត់សក់បង្កក់សិរី', desc: 'Traditional Hair Cutting & Purification Ceremony' },
@@ -1780,10 +1631,6 @@ values
         videoDesc: 'សូមទស្សនាវីដេអូអនុស្សាវរីយ៍ដ៏មានអត្ថន័យ និងសាច់រឿងនៃក្តីស្រឡាញ់របស់គូស្វាមីភរិយាថ្មី',
         videoUrl: '',
         videoPoster: 'assets/images/couple.jpg',
-        videoPosters: ['assets/images/couple.jpg'],
-        faviconUrl: '',
-        faviconList: [],
-        faviconIndex: 0,
         bankAppLink: ''
       };
 
@@ -1813,312 +1660,6 @@ values
         }
       }
 
-      // ── App Icon / Favicon list (max 10, choose one active) ──────────────────
-      const ICON_MAX = 10;
-      let currentIcons = [];
-      let currentIconIndex = 0;
-
-      function normalizeIcons(cfg) {
-        let list = Array.isArray(cfg.faviconList) ? cfg.faviconList.slice() : [];
-        list = list
-          .map(entry => {
-            if (typeof entry === 'string') return { src: entry.trim(), title: '' };
-            if (entry && entry.src) return { src: String(entry.src).trim(), title: entry.title || '' };
-            return null;
-          })
-          .filter(x => x && x.src)
-          .slice(0, ICON_MAX);
-        if (!list.length && cfg.faviconUrl) list = [{ src: String(cfg.faviconUrl).trim(), title: '' }];
-        currentIconIndex = Math.min(Math.max(0, parseInt(cfg.faviconIndex, 10) || 0), Math.max(0, list.length - 1));
-        return list;
-      }
-
-      function updateIconCount() {
-        const el = document.getElementById('icon-count');
-        if (el) el.textContent = currentIcons.length + ' / ' + ICON_MAX;
-      }
-
-      function renderIconList() {
-        const wrap = document.getElementById('icon-list');
-        if (!wrap) return;
-        updateIconCount();
-        if (!currentIcons.length) {
-          wrap.innerHTML = '<div class="poster-admin-empty">មិនទាន់មានរូបតំណាង — បន្ថែម URL ឬផ្ទុករូបភាពខាងលើ។</div>';
-          return;
-        }
-        wrap.innerHTML = currentIcons.map((ic, i) => {
-          const active = i === currentIconIndex;
-          return `
-            <div style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid ${active ? 'rgba(229,185,85,0.85)' : 'rgba(229,185,85,0.2)'}; ${active ? 'box-shadow: 0 0 12px rgba(229,185,85,0.3);' : ''} border-radius: 6px; padding: 7px 10px;">
-              <input type="radio" name="icon-select" class="icon-select-radio" data-index="${i}" ${active ? 'checked' : ''}
-                title="ជ្រើសរើសរូបតំណាងនេះ (Set as active)"
-                style="width: 16px; height: 16px; flex: 0 0 auto; accent-color: #e5b955; cursor: pointer;">
-              <img src="${escapeAttr(adminAssetUrl(ic.src))}" alt="icon ${i + 1}" loading="lazy" onerror="this.style.opacity=0.25"
-                style="width: 34px; height: 34px; flex: 0 0 auto; object-fit: contain; border: 1px solid rgba(229,185,85,0.25); border-radius: 4px; background: rgba(0,0,0,0.25);">
-              <input type="text" class="icon-name-input" data-index="${i}" value="${escapeAttr(ic.title || '')}"
-                placeholder="ឈ្មោះ (Name)"
-              style="flex: 1; min-width: 0; font-size: 0.78rem; color: ${musicListColor || 'var(--text-cream)'}; background: transparent; border: 1px solid transparent; border-radius: 4px; padding: 3px 6px;">
-              <span style="font-size: 0.66rem; color: ${active ? 'var(--primary-gold-light)' : 'var(--text-muted)'}; text-transform: uppercase;">${active ? '✓ Active' : 'icon'}</span>
-              <button type="button" class="btn-remove-icon" data-index="${i}"
-                style="background: none; border: 1px solid rgba(255,107,107,0.4); color: #ff6b6b; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 0.72rem;">✕</button>
-            </div>
-          `;
-        }).join('');
-
-        wrap.querySelectorAll('.icon-select-radio').forEach(radio => {
-          radio.addEventListener('change', () => {
-            currentIconIndex = parseInt(radio.getAttribute('data-index'), 10) || 0;
-            renderIconList();
-          });
-        });
-        wrap.querySelectorAll('.icon-name-input').forEach(inp => {
-          inp.addEventListener('focus', () => { inp.style.borderColor = 'rgba(229,185,85,0.5)'; });
-          inp.addEventListener('blur', () => {
-            inp.style.borderColor = 'transparent';
-            const idx = parseInt(inp.getAttribute('data-index'), 10);
-            if (currentIcons[idx]) currentIcons[idx].title = inp.value.trim();
-          });
-        });
-        wrap.querySelectorAll('.btn-remove-icon').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const idx = parseInt(btn.getAttribute('data-index'), 10);
-            currentIcons.splice(idx, 1);
-            if (currentIconIndex >= currentIcons.length) currentIconIndex = Math.max(0, currentIcons.length - 1);
-            renderIconList();
-          });
-        });
-      }
-
-      function addIconUrl(url, silent) {
-        url = String(url || '').trim();
-        if (!url) return;
-        if (currentIcons.length >= ICON_MAX) {
-          if (!silent) showToast('⚠️ អាចបន្ថែមរូបតំណាងបានត្រឹម ' + ICON_MAX + ' រូបប៉ុណ្ណោះ');
-          return;
-        }
-        if (currentIcons.some(ic => ic.src === url)) {
-          if (!silent) showToast('ℹ️ រូបតំណាងនេះមានរួចហើយ');
-          return;
-        }
-        currentIcons.push({ src: url, title: '' });
-        if (currentIcons.length === 1) currentIconIndex = 0;
-        renderIconList();
-        if (!silent) showToast('🖼️ បានបន្ថែមរូបតំណាង (' + currentIcons.length + '/' + ICON_MAX + ')');
-      }
-
-      // ── Video Poster Gallery (up to 10 images) ───────────────────────────────
-      const POSTER_MAX = 10;
-      let currentPosters = [];
-
-      function adminAssetUrl(u) {
-        if (!u) return '';
-        return /^(https?:|data:|blob:|\/)/i.test(u) ? u : '../' + String(u).replace(/^\.?\//, '');
-      }
-
-      function normalizePosters(cfg) {
-        let list = Array.isArray(cfg.videoPosters) ? cfg.videoPosters.slice() : [];
-        if (!list.length && cfg.videoPoster) list = [cfg.videoPoster];
-        return list
-          .map(u => String(u || '').trim())
-          .filter(Boolean)
-          .slice(0, POSTER_MAX);
-      }
-
-      function updatePosterCount() {
-        const el = document.getElementById('video-poster-count');
-        if (el) el.textContent = currentPosters.length + ' / ' + POSTER_MAX;
-      }
-
-      function renderPosterAdminList() {
-        const wrap = document.getElementById('video-poster-list');
-        if (!wrap) return;
-        updatePosterCount();
-        if (!currentPosters.length) {
-          wrap.innerHTML = '<div class="poster-admin-empty">មិនទាន់មានរូបភាពគម្រប — បន្ថែម URL ឬផ្ទុករូបភាពខាងលើ។</div>';
-          return;
-        }
-        wrap.innerHTML = currentPosters.map((url, i) =>
-          '<div class="poster-admin-item" data-index="' + i + '">' +
-          '<img src="' + escapeAttr(adminAssetUrl(url)) + '" alt="poster ' + (i + 1) + '" loading="lazy" onerror="this.style.opacity=0.25">' +
-          '<span class="poster-admin-idx">' + (i + 1) + '</span>' +
-          '<button type="button" class="poster-admin-remove" data-remove="' + i + '" title="លុបរូបភាពនេះ">✕</button>' +
-          '</div>'
-        ).join('');
-      }
-
-      function addPosterUrl(url, silent) {
-        url = String(url || '').trim();
-        if (!url) return;
-        if (currentPosters.length >= POSTER_MAX) {
-          if (!silent) showToast('⚠️ អាចបន្ថែមរូបភាពគម្របបានត្រឹម ' + POSTER_MAX + ' រូបប៉ុណ្ណោះ');
-          return;
-        }
-        if (currentPosters.indexOf(url) !== -1) {
-          if (!silent) showToast('ℹ️ រូបភាពនេះមានរួចហើយ');
-          return;
-        }
-        currentPosters.push(url);
-        renderPosterAdminList();
-        if (!silent) showToast('🖼️ បានបន្ថែមរូបភាពគម្រប (' + currentPosters.length + '/' + POSTER_MAX + ')');
-      }
-
-      function removePoster(index) {
-        if (index < 0 || index >= currentPosters.length) return;
-        currentPosters.splice(index, 1);
-        renderPosterAdminList();
-      }
-
-      // ── Ceremony date & time picker → auto-fills Solar date / Countdown ───────
-      const KH_DIGITS = ['០', '១', '២', '៣', '៤', '៥', '៦', '៧', '៨', '៩'];
-      const KH_WEEKDAYS = ['ថ្ងៃអាទិត្យ', 'ថ្ងៃច័ន្ទ', 'ថ្ងៃអង្គារ', 'ថ្ងៃពុធ', 'ថ្ងៃព្រហស្បតិ៍', 'ថ្ងៃសុក្រ', 'ថ្ងៃសៅរ៍'];
-      const KH_MONTHS = ['មករា', 'កុម្ភៈ', 'មីនា', 'មេសា', 'ឧសភា', 'មិថុនា', 'កក្កដា', 'សីហា', 'កញ្ញា', 'តុលា', 'វិច្ឆិកា', 'ធ្នូ'];
-
-      function toKhmerDigits(n) {
-        return String(n).replace(/[0-9]/g, d => KH_DIGITS[+d]);
-      }
-
-      function formatKhmerSolarDate(dateStr) {
-        // dateStr: "YYYY-MM-DD"
-        const parts = String(dateStr || '').split('-');
-        if (parts.length !== 3) return '';
-        const y = parseInt(parts[0], 10), m = parseInt(parts[1], 10), d = parseInt(parts[2], 10);
-        if (!y || !m || !d) return '';
-        const wd = KH_WEEKDAYS[new Date(y, m - 1, d).getDay()] || '';
-        return `${wd} ទី${toKhmerDigits(d)} ខែ${KH_MONTHS[m - 1]} ឆ្នាំ${toKhmerDigits(y)}`;
-      }
-
-      function updateTargetDisplay() {
-        const el = document.getElementById('cfg-target-display');
-        const target = document.getElementById('cfg-target-time');
-        if (!el || !target) return;
-        const v = target.value || '';
-        if (!v) { el.textContent = '—'; return; }
-        const parts = v.split('T');
-        const dParts = (parts[0] || '').split('-');
-        const tParts = (parts[1] || '07:00').split(':');
-        if (dParts.length !== 3) { el.textContent = v; return; }
-        let h = parseInt(tParts[0], 10) || 0;
-        const mm = String(tParts[1] || '00').padStart(2, '0');
-        const ap = h >= 12 ? 'PM' : 'AM';
-        h = h % 12; if (h === 0) h = 12;
-        el.textContent = `${dParts[2]}/${dParts[1]}/${dParts[0]} • ${String(h).padStart(2, '0')}:${mm} ${ap}`;
-      }
-
-      function applyDatePicker(target) {
-        const dateEl = document.getElementById('cfg-date-picker');
-        const timeEl = document.getElementById('cfg-time-picker');
-        if (dateEl && timeEl && dateEl.value) {
-          document.getElementById('cfg-target-time').value = `${dateEl.value}T${timeEl.value || '07:00'}`;
-        }
-        if (target !== 'time' && dateEl && dateEl.value) {
-          const solarEl = document.getElementById('cfg-solar-date');
-          if (solarEl) solarEl.value = formatKhmerSolarDate(dateEl.value);
-        }
-        updateTargetDisplay();
-      }
-
-      function syncDatePickersFromTarget() {
-        const targetEl = document.getElementById('cfg-target-time');
-        const dateEl = document.getElementById('cfg-date-picker');
-        const timeEl = document.getElementById('cfg-time-picker');
-        if (!targetEl) return;
-        const val = (targetEl.value || '').slice(0, 16);
-        if (val) {
-          if (dateEl) dateEl.value = val.slice(0, 10);
-          if (timeEl) timeEl.value = val.slice(11, 16) || '07:00';
-        }
-        updateTargetDisplay();
-      }
-
-      const cfgDatePicker = document.getElementById('cfg-date-picker');
-      const cfgTimePicker = document.getElementById('cfg-time-picker');
-
-      function openNativePicker(el) {
-        if (!el) return;
-        try { if (typeof el.showPicker === 'function') el.showPicker(); } catch (e) { /* ignore */ }
-      }
-
-      if (cfgDatePicker) {
-        cfgDatePicker.addEventListener('click', () => openNativePicker(cfgDatePicker));
-        cfgDatePicker.addEventListener('change', () => { applyDatePicker('date'); });
-      }
-      if (cfgTimePicker) {
-        cfgTimePicker.addEventListener('click', () => openNativePicker(cfgTimePicker));
-        cfgTimePicker.addEventListener('change', () => { applyDatePicker('time'); });
-      }
-
-      // Clicking the label opens the matching native picker too.
-      const dateLabel = document.querySelector('label[for="cfg-date-picker"]');
-      if (dateLabel) {
-        dateLabel.addEventListener('click', () => {
-          if (cfgDatePicker) { cfgDatePicker.focus(); openNativePicker(cfgDatePicker); }
-        });
-      }
-      const timeLabel = document.querySelector('label[for="cfg-time-picker"]');
-      if (timeLabel) {
-        timeLabel.addEventListener('click', () => {
-          if (cfgTimePicker) { cfgTimePicker.focus(); openNativePicker(cfgTimePicker); }
-        });
-      }
-
-      // 🏷️ Admin-editable section headings, subtitles & button labels on the
-      //    client. Each key maps to a config.texts entry + [data-cfg-text] elem.
-      const TEXT_FIELD_DEFS = [
-        { key: 'envelopeBadge', label: 'ស្លាកលើស្រោមសំបុត្រ (Envelope Badge)' },
-        { key: 'envelopeGuestLabel', label: 'ពាក្យគោរពលើស្រោមសំបុត្រ (Guest Label)' },
-        { key: 'countdownTitle', label: 'ចំណងជើង៖ រាប់ថយក្រោយ (Countdown Title)' },
-        { key: 'countdownSubtitle', label: 'ចំណងជើងរង៖ រាប់ថយក្រោយ (Countdown Subtitle)' },
-        { key: 'addToCalendarBtn', label: 'ប៊ូតុង៖ កត់ត្រាក្នុងប្រតិទិន (Add to Calendar)' },
-        { key: 'parentsTitle', label: 'ចំណងជើង៖ មាតាបិតា (Parents Title)' },
-        { key: 'parentsSubtitle', label: 'ចំណងជើងរង៖ មាតាបិតា (Parents Subtitle)' },
-        { key: 'scheduleTitle', label: 'ចំណងជើង៖ កាលវិភាគ (Schedule Title)' },
-        { key: 'scheduleSubtitle', label: 'ចំណងជើងរង៖ កាលវិភាគ (Schedule Subtitle)' },
-        { key: 'venueTitle', label: 'ចំណងជើង៖ ទីតាំង (Venue Title)' },
-        { key: 'venueSubtitle', label: 'ចំណងជើងរង៖ ទីតាំង (Venue Subtitle)' },
-        { key: 'mapsBtn', label: 'ប៊ូតុង៖ ផែនទី (Maps Button)' },
-        { key: 'giftTitle', label: 'ចំណងជើង៖ ចំណងដៃឌីជីថល (Gift Title)' },
-        { key: 'giftSubtitle', label: 'ចំណងជើងរង៖ ចំណងដៃឌីជីថល (Gift Subtitle)' },
-        { key: 'giftQrBtn', label: 'ប៊ូតុង៖ ស្កេន QR (QR Button)' },
-        { key: 'rsvpTitle', label: 'ចំណងជើង៖ RSVP' },
-        { key: 'rsvpSubtitle', label: 'ចំណងជើងរង៖ RSVP' },
-        { key: 'rsvpSubmitBtn', label: 'ប៊ូតុង៖ ផ្ញើការបញ្ជាក់ (Submit RSVP)' },
-        { key: 'wishesTitle', label: 'ចំណងជើង៖ សៀវភៅជូនពរ (Wishes Title)' },
-        { key: 'wishesSubtitle', label: 'ចំណងជើងរង៖ សៀវភៅជូនពរ (Wishes Subtitle)' },
-        { key: 'vipTitle', label: 'ចំណងជើង៖ តំណភ្ជាប់ VIP (VIP Title)' },
-        { key: 'vipSubtitle', label: 'ចំណងជើងរង៖ តំណភ្ជាប់ VIP (VIP Subtitle)' },
-        { key: 'khqrTitle', label: 'ចំណងជើង Modal៖ ចំណងដៃ (KHQR Title)' },
-        { key: 'khqrSubtitle', label: 'ចំណងជើងរង Modal៖ KHQR (KHQR Subtitle)' }
-      ];
-
-      function renderSectionTextFields() {
-        const container = document.getElementById('section-texts-fields');
-        if (!container) return;
-        container.innerHTML = TEXT_FIELD_DEFS.map(d => `
-          <div class="form-group">
-            <label class="form-label" style="font-size: 0.78rem;">${escapeHtml(d.label)}</label>
-            <input type="text" id="cfg-text-${d.key}" class="form-input" data-text-key="${d.key}"
-              placeholder="${escapeHtml((defaultConfig.texts && defaultConfig.texts[d.key]) || '')}">
-          </div>
-        `).join('');
-      }
-
-      function collectSectionTexts() {
-        const out = {};
-        TEXT_FIELD_DEFS.forEach(d => {
-          const el = document.getElementById('cfg-text-' + d.key);
-          out[d.key] = el ? el.value.trim() : ((defaultConfig.texts && defaultConfig.texts[d.key]) || '');
-        });
-        return out;
-      }
-
-      function loadSectionTextFields(cfg) {
-        const src = Object.assign({}, defaultConfig.texts, (cfg && cfg.texts) || {});
-        TEXT_FIELD_DEFS.forEach(d => {
-          const el = document.getElementById('cfg-text-' + d.key);
-          if (el) el.value = src[d.key] || '';
-        });
-      }
-
       function loadConfigurationToForm() {
         const cfg = getConfig();
         currentSchedule = Array.isArray(cfg.schedule) ? JSON.parse(JSON.stringify(cfg.schedule)) : defaultConfig.schedule;
@@ -2136,7 +1677,6 @@ values
         if (cfg.targetDateTime) {
           document.getElementById('cfg-target-time').value = cfg.targetDateTime.slice(0, 16);
         }
-        syncDatePickersFromTarget();
 
         document.getElementById('cfg-venue-name').value = cfg.venueName || '';
         document.getElementById('cfg-venue-address').value = cfg.venueAddress || '';
@@ -2166,18 +1706,10 @@ values
             title: cfg.bgMusicUrl.startsWith('data:') ? 'Uploaded Track' : cfg.bgMusicUrl
           }];
         }
-        // Playlist font color ('' = Auto → follows dark/light mode)
-        musicListColor = cfg.musicListColor || '';
-        if (document.getElementById('cfg-music-list-color')) {
-          document.getElementById('cfg-music-list-color').value = musicListColor || '#fbf6ec';
-        }
         renderMusicList();
         if (document.getElementById('cfg-seal-image')) document.getElementById('cfg-seal-image').value = cfg.sealImage || '';
         if (document.getElementById('cfg-thankyou-text')) document.getElementById('cfg-thankyou-text').value = cfg.thankYouText || '';
         if (document.getElementById('cfg-footer-credit')) document.getElementById('cfg-footer-credit').value = cfg.footerCredit || '';
-
-        // Section headings, subtitles & button labels (admin-editable)
-        loadSectionTextFields(cfg);
 
         // Sections visibility checkboxes (show / hide blocks on the client site)
         const secCfg = cfg.sections || {};
@@ -2199,22 +1731,16 @@ values
         if (document.getElementById('cfg-font-khmer-heading')) document.getElementById('cfg-font-khmer-heading').value = fontsCfg.khmerHeading || '';
         if (document.getElementById('cfg-font-english')) document.getElementById('cfg-font-english').value = fontsCfg.english || '';
         if (document.getElementById('cfg-font-custom-url')) document.getElementById('cfg-font-custom-url').value = fontsCfg.customUrl || '';
-        if (document.getElementById('cfg-font-custom-family'))
-          document.getElementById('cfg-font-custom-family').value = fontsCfg.customFamily || '';
+        if (document.getElementById('cfg-font-custom-family')) document.getElementById('cfg-font-custom-family').value = fontsCfg.customFamily || '';
         syncColorControls();
 
-        // App Icon / Favicon list
-        currentIcons = normalizeIcons(cfg);
-        renderIconList();
         // Video Album Fields
         if (document.getElementById('cfg-video-title')) document.getElementById('cfg-video-title').value = cfg.videoTitle || '';
         if (document.getElementById('cfg-video-subtitle')) document.getElementById('cfg-video-subtitle').value = cfg.videoSubtitle || '';
         if (document.getElementById('cfg-video-desc')) document.getElementById('cfg-video-desc').value = cfg.videoDesc || '';
         if (document.getElementById('cfg-video-url')) document.getElementById('cfg-video-url').value = cfg.videoUrl || '';
-        currentPosters = normalizePosters(cfg);
-        renderPosterAdminList();
-        if (document.getElementById('cfg-video-poster')) document.getElementById('cfg-video-poster').value = currentPosters[0] || '';
-        updateAdminVideoPreview(cfg.videoUrl || '', currentPosters[0] || '');
+        if (document.getElementById('cfg-video-poster')) document.getElementById('cfg-video-poster').value = cfg.videoPoster || '';
+        updateAdminVideoPreview(cfg.videoUrl || '', cfg.videoPoster || '');
 
         renderScheduleEditor();
       }
@@ -2367,10 +1893,7 @@ values
         }
 
         listEl.innerHTML = musicPlaylist.map((t, i) => `
-          <div style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 7px 10px; ${t.enabled === false ? 'opacity: 0.45;' : ''}">
-            <input type="checkbox" class="music-enable-checkbox" data-index="${i}" ${t.enabled === false ? '' : 'checked'}
-              title="${t.enabled === false ? 'បិទ — មិនបង្ហាញបទនេះលើគេហទំព័រ' : 'បើក — បង្ហាញបទនេះលើគេហទំព័រ'}"
-              style="width: 16px; height: 16px; flex: 0 0 auto; accent-color: #e5b955; cursor: pointer;">
+          <div style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 7px 10px;">
             <span style="font-size: 0.9rem;">${t.type === 'youtube' ? '▶️' : '🎵'}</span>
             <input type="text" class="music-title-input" data-index="${i}"
               value="${escapeAttr(t.title || t.src)}" title="ចុចដើម្បីកែឈ្មោះបទ (Rename song)"
@@ -2379,14 +1902,6 @@ values
             <button type="button" class="btn-remove-music" data-index="${i}" style="background: none; border: 1px solid rgba(255,107,107,0.4); color: #ff6b6b; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 0.72rem;">✕</button>
           </div>
         `).join('');
-
-        listEl.querySelectorAll('.music-enable-checkbox').forEach(cb => {
-          cb.addEventListener('change', () => {
-            const idx = parseInt(cb.getAttribute('data-index'), 10);
-            if (musicPlaylist[idx]) musicPlaylist[idx].enabled = cb.checked;
-            renderMusicList();
-          });
-        });
 
         listEl.querySelectorAll('.btn-remove-music').forEach(btn => {
           btn.addEventListener('click', () => {
@@ -2444,24 +1959,6 @@ values
         });
       }
 
-      // 🎨 Playlist font color picker. Empty value = Auto (follows dark/light).
-      const musicColorInput = document.getElementById('cfg-music-list-color');
-      if (musicColorInput) {
-        musicColorInput.addEventListener('input', () => {
-          musicListColor = musicColorInput.value || '';
-          renderMusicList();
-        });
-      }
-      const btnMusicColorAuto = document.getElementById('btn-music-color-auto');
-      if (btnMusicColorAuto) {
-        btnMusicColorAuto.addEventListener('click', () => {
-          musicListColor = '';
-          if (musicColorInput) musicColorInput.value = '#fbf6ec';
-          renderMusicList();
-          showToast('🔄 ពណ៌អក្សរត្រូវបានកំណត់ជា Auto (តាម Dark/Light Mode)');
-        });
-      }
-
       // Handle MP3 Upload → store on the Python server, then add the URL
       const musicFileInput = document.getElementById('cfg-music-file');
       if (musicFileInput) {
@@ -2503,9 +2000,6 @@ values
         });
       }
       renderMusicList();
-
-      // Build the admin-editable section heading / label fields once at startup
-      renderSectionTextFields();
 
       // Handle QR Code Image Upload & Preview
       const qrFileInput = document.getElementById('cfg-qr-file');
@@ -2599,140 +2093,10 @@ values
         });
       }
 
-      function syncPosterPrimary() {
-        const hidden = document.getElementById('cfg-video-poster');
-        if (hidden) hidden.value = currentPosters[0] || '';
-        updateAdminVideoPreview(document.getElementById('cfg-video-url')?.value, currentPosters[0] || '');
-      }
-
-      const posterAddBtn = document.getElementById('btn-add-poster-url');
-      const posterUrlInput = document.getElementById('cfg-video-poster-input');
-      if (posterAddBtn) {
-        posterAddBtn.addEventListener('click', () => {
-          addPosterUrl(posterUrlInput?.value);
-          if (posterUrlInput) posterUrlInput.value = '';
-          syncPosterPrimary();
-        });
-      }
-      if (posterUrlInput) {
-        posterUrlInput.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            addPosterUrl(posterUrlInput.value);
-            posterUrlInput.value = '';
-            syncPosterPrimary();
-          }
-        });
-      }
-
-      const posterListEl = document.getElementById('video-poster-list');
-      if (posterListEl) {
-        posterListEl.addEventListener('click', (e) => {
-          const btn = e.target.closest('[data-remove]');
-          if (!btn) return;
-          removePoster(parseInt(btn.getAttribute('data-remove'), 10));
-          syncPosterPrimary();
-        });
-      }
-
-      const posterFileInput = document.getElementById('cfg-video-poster-file');
-      if (posterFileInput) {
-        posterFileInput.addEventListener('change', async (e) => {
-          const file = e.target.files[0];
-          if (!file) return;
-          if (currentPosters.length >= POSTER_MAX) {
-            showToast('⚠️ អាចបន្ថែមរូបភាពគម្របបានត្រឹម ' + POSTER_MAX + ' រូបប៉ុណ្ណោះ');
-            posterFileInput.value = '';
-            return;
-          }
-          if (file.size > 6 * 1024 * 1024) {
-            showToast('⚠️ រូបភាពធំពេក (កំណត់ត្រឹម 6MB)');
-          }
-          const reader = new FileReader();
-          reader.onload = async (re) => {
-            const base64Data = re.target.result;
-            try {
-              const res = await fetch(`${API_BASE}/api/upload-image`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ filename: file.name, base64Data: base64Data })
-              });
-              if (!res.ok) throw new Error('upload failed');
-              const data = await res.json();
-              addPosterUrl(data.url);
-              showToast('🖼️ បានផ្ទុករូបភាពគម្របឡើងជោគជ័យ!');
-            } catch (err) {
-              console.warn('Poster upload failed, using inline preview:', err);
-              addPosterUrl(base64Data);
-              showToast('⚠️ រក្សាទុកជា Preview ក្នុងឧបករណ៍ (មិនបានផ្ទុកទៅ Server)');
-            }
-            syncPosterPrimary();
-            posterFileInput.value = '';
-          };
-          reader.readAsDataURL(file);
-        });
-      }
-
-      // ── App Icon / Favicon list (add via URL or device upload; choose one) ─────
-      const iconUrlInput = document.getElementById('cfg-icon-url');
-      const iconFileInput = document.getElementById('cfg-icon-file');
-      const btnAddIconUrl = document.getElementById('btn-add-icon-url');
-      if (btnAddIconUrl) {
-        btnAddIconUrl.addEventListener('click', () => {
-          addIconUrl(iconUrlInput?.value);
-          if (iconUrlInput) iconUrlInput.value = '';
-        });
-      }
-      if (iconUrlInput) {
-        iconUrlInput.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            addIconUrl(iconUrlInput.value);
-            iconUrlInput.value = '';
-          }
-        });
-      }
-      if (iconFileInput) {
-        iconFileInput.addEventListener('change', async (e) => {
-          const file = e.target.files[0];
-          if (!file) return;
-          if (currentIcons.length >= ICON_MAX) {
-            showToast('⚠️ អាចបន្ថែមរូបតំណាងបានត្រឹម ' + ICON_MAX + ' រូបប៉ុណ្ណោះ');
-            iconFileInput.value = '';
-            return;
-          }
-          const reader = new FileReader();
-          reader.onload = async (re) => {
-            const base64Data = re.target.result;
-            try {
-              const res = await fetch(`${API_BASE}/api/upload-image`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ filename: file.name, base64Data: base64Data })
-              });
-              if (!res.ok) throw new Error('upload failed');
-              const data = await res.json();
-              addIconUrl(data.url);
-              showToast('🖼️ បានផ្ទុករូបតំណាងឡើងជោគជ័យ!');
-            } catch (err) {
-              console.warn('Icon upload failed, using inline preview:', err);
-              addIconUrl(base64Data);
-              showToast('⚠️ រក្សាទុកជា Preview ក្នុងឧបករណ៍ (មិនបានផ្ទុកទៅ Server)');
-            }
-            iconFileInput.value = '';
-          };
-          reader.readAsDataURL(file);
-        });
-      }
-      const btnClearIcon = document.getElementById('btn-clear-icon');
-      if (btnClearIcon) {
-        btnClearIcon.addEventListener('click', () => {
-          currentIcons = [];
-          currentIconIndex = 0;
-          if (iconUrlInput) iconUrlInput.value = '';
-          if (iconFileInput) iconFileInput.value = '';
-          renderIconList();
-          showToast('↩️ បានលុបរូបតំណាងទាំងអស់ (នឹងប្រើលំនាំដើមវិញ)');
+      const videoPosterInput = document.getElementById('cfg-video-poster');
+      if (videoPosterInput) {
+        videoPosterInput.addEventListener('input', (e) => {
+          updateAdminVideoPreview(document.getElementById('cfg-video-url')?.value, e.target.value);
         });
       }
 
@@ -2832,9 +2196,6 @@ values
           bankAccNum: document.getElementById('cfg-bank-accnum').value.trim(),
           bankName: document.getElementById('cfg-bank-name').value.trim(),
           bankAppLink: document.getElementById('cfg-bank-applink').value.trim(),
-          faviconList: currentIcons.slice(),
-          faviconIndex: currentIconIndex,
-          faviconUrl: (currentIcons[currentIconIndex] && currentIcons[currentIconIndex].src) || '',
           qrImage: document.getElementById('cfg-qr-image').value.trim(),
           couplePhoto: document.getElementById('cfg-couple-photo').value.trim(),
           blessingVerse: document.getElementById('cfg-blessing-verse') ? document.getElementById('cfg-blessing-verse').value.trim() : defaultConfig.blessingVerse,
@@ -2844,8 +2205,7 @@ values
           invitationGreeting: document.getElementById('cfg-invitation-greeting') ? document.getElementById('cfg-invitation-greeting').value.trim() : defaultConfig.invitationGreeting,
           invitationSubtext: document.getElementById('cfg-invitation-subtext') ? document.getElementById('cfg-invitation-subtext').value.trim() : defaultConfig.invitationSubtext,
           bgMusicPlaylist: musicPlaylist,
-          musicListColor: musicListColor,
-          bgMusicUrl: ((musicPlaylist.find(t => t.enabled !== false) || musicPlaylist[0] || {}).src) || defaultConfig.bgMusicUrl,
+          bgMusicUrl: (musicPlaylist[0] && musicPlaylist[0].src) || defaultConfig.bgMusicUrl,
           sections: SECTION_KEYS.reduce((acc, key) => {
             const cb = document.getElementById('cfg-show-' + key);
             acc[key] = cb ? cb.checked : true;
@@ -2875,21 +2235,18 @@ values
           sealImage: document.getElementById('cfg-seal-image') ? document.getElementById('cfg-seal-image').value.trim() : defaultConfig.sealImage,
           thankYouText: document.getElementById('cfg-thankyou-text') ? document.getElementById('cfg-thankyou-text').value.trim() : defaultConfig.thankYouText,
           footerCredit: document.getElementById('cfg-footer-credit') ? document.getElementById('cfg-footer-credit').value.trim() : defaultConfig.footerCredit,
-          texts: collectSectionTexts(),
           videoTitle: document.getElementById('cfg-video-title') ? document.getElementById('cfg-video-title').value.trim() : defaultConfig.videoTitle,
           videoSubtitle: document.getElementById('cfg-video-subtitle') ? document.getElementById('cfg-video-subtitle').value.trim() : defaultConfig.videoSubtitle,
           videoDesc: document.getElementById('cfg-video-desc') ? document.getElementById('cfg-video-desc').value.trim() : defaultConfig.videoDesc,
           videoUrl: document.getElementById('cfg-video-url') ? document.getElementById('cfg-video-url').value.trim() : defaultConfig.videoUrl,
-          videoPoster: currentPosters[0] || '',
-          videoPosters: currentPosters.slice(),
+          videoPoster: document.getElementById('cfg-video-poster') ? document.getElementById('cfg-video-poster').value.trim() : defaultConfig.videoPoster,
           videoAlbum: {
             enabled: true,
             title: document.getElementById('cfg-video-title') ? document.getElementById('cfg-video-title').value.trim() : defaultConfig.videoTitle,
             subtitle: document.getElementById('cfg-video-subtitle') ? document.getElementById('cfg-video-subtitle').value.trim() : defaultConfig.videoSubtitle,
             desc: document.getElementById('cfg-video-desc') ? document.getElementById('cfg-video-desc').value.trim() : defaultConfig.videoDesc,
             videoUrl: document.getElementById('cfg-video-url') ? document.getElementById('cfg-video-url').value.trim() : defaultConfig.videoUrl,
-            posterUrl: currentPosters[0] || '',
-            posters: currentPosters.slice()
+            posterUrl: document.getElementById('cfg-video-poster') ? document.getElementById('cfg-video-poster').value.trim() : defaultConfig.videoPoster
           },
           schedule: currentSchedule
         };
@@ -3265,43 +2622,17 @@ values
       function getAdminWishes() {
         try {
           const stored = localStorage.getItem('khmer_wedding_wishes');
-          // An existing key (even an empty list) is authoritative — never re-seed
-          // defaults, otherwise deleted wishes would reappear.
-          if (stored !== null) {
+          if (stored) {
             let parsed = JSON.parse(stored);
-            if (!Array.isArray(parsed)) parsed = [];
-            parsed = parsed.filter(w => w && w.name !== 'sadasd' && w.message !== 'ggode' && w.name !== 'test');
-            localStorage.setItem('khmer_wedding_wishes', JSON.stringify(parsed));
-            return parsed;
+            if (Array.isArray(parsed)) {
+              parsed = parsed.filter(w => w && w.name !== 'sadasd' && w.message !== 'ggode' && w.name !== 'test');
+              localStorage.setItem('khmer_wedding_wishes', JSON.stringify(parsed));
+              return parsed.length > 0 ? parsed : defaultWishesList;
+            }
           }
+          return defaultWishesList;
         } catch {
           return defaultWishesList;
-        }
-        // First run only: seed the sample wishes once.
-        localStorage.setItem('khmer_wedding_wishes', JSON.stringify(defaultWishesList));
-        return defaultWishesList;
-      }
-
-      // Tombstones: remember deleted wishes (name+message) so a stale remote copy
-      // cannot bring them back. A '__all__' sentinel marks a full clear.
-      function getDeletedWishes() {
-        try {
-          const s = localStorage.getItem('khmer_wedding_wishes_deleted');
-          const arr = s ? JSON.parse(s) : [];
-          return Array.isArray(arr) ? arr : [];
-        } catch { return []; }
-      }
-      function setDeletedWishes(arr) {
-        localStorage.setItem('khmer_wedding_wishes_deleted', JSON.stringify(arr || []));
-      }
-      function isWishDeleted(w, tombstones) {
-        return (tombstones || []).some(t => t && t.name === (w.name || '') && t.message === (w.message || ''));
-      }
-      function markWishDeleted(w) {
-        const list = getDeletedWishes();
-        if (!list.some(t => t && t.name === (w.name || '') && t.message === (w.message || ''))) {
-          list.push({ name: w.name || '', message: w.message || '' });
-          setDeletedWishes(list);
         }
       }
 
@@ -3314,24 +2645,7 @@ values
         if (window.appSupabase) {
           const remoteWishes = await window.appSupabase.fetchWishes();
           if (remoteWishes && remoteWishes.length > 0) {
-            if (localStorage.getItem('khmer_wedding_wishes_cleared') === '1') {
-              // Admin explicitly cleared the guestbook — ignore stale remote rows.
-              wishes = [];
-            } else {
-              // Merge remote wishes but drop any the admin deleted locally
-              // (tombstones) or that are already present, so deletions stick.
-              const tombstones = getDeletedWishes();
-              const merged = wishes.slice();
-              const seen = merged.map(w => (w.name || '') + '\u0000' + (w.message || ''));
-              remoteWishes.forEach(w => {
-                const key = (w.name || '') + '\u0000' + (w.message || '');
-                if (isWishDeleted(w, tombstones) || seen.indexOf(key) !== -1) return;
-                merged.push(w);
-                seen.push(key);
-              });
-              wishes = merged;
-              localStorage.setItem('khmer_wedding_wishes', JSON.stringify(wishes));
-            }
+            wishes = remoteWishes;
           }
         }
 
@@ -3366,11 +2680,8 @@ values
 
             if (confirm(`តើអ្នកពិតជាចង់លុបពាក្យជូនពររបស់ "${wName}" មែនទេ?`)) {
               let cur = getAdminWishes();
-              const removed = cur[idx] || { name: wName, message: wMsg };
               cur.splice(idx, 1);
               localStorage.setItem('khmer_wedding_wishes', JSON.stringify(cur));
-              // Tombstone so a stale remote row can't resurrect this wish.
-              markWishDeleted(removed);
 
               if (window.appSupabase) {
                 await window.appSupabase.deleteWish(wName, wMsg);
@@ -3401,8 +2712,6 @@ values
           const currentWishes = getAdminWishes();
           currentWishes.unshift(newWish);
           localStorage.setItem('khmer_wedding_wishes', JSON.stringify(currentWishes));
-          // Adding a wish means the guestbook is no longer "cleared".
-          localStorage.removeItem('khmer_wedding_wishes_cleared');
 
           if (window.appSupabase) {
             await window.appSupabase.submitWish(newWish);
@@ -3419,8 +2728,6 @@ values
       document.getElementById('btn-reset-default-wishes').addEventListener('click', async () => {
         if (confirm('តើអ្នកពិតជាចង់ផ្ទុកឡើងវិញនូវពាក្យជូនពរគំរូដើមទាំង ៣ មែនទេ?')) {
           localStorage.setItem('khmer_wedding_wishes', JSON.stringify(defaultWishesList));
-          localStorage.removeItem('khmer_wedding_wishes_cleared');
-          setDeletedWishes([]);
           if (window.appSupabase) {
             await window.appSupabase.clearAllWishes();
             for (const w of defaultWishesList) {
@@ -3436,8 +2743,6 @@ values
       document.getElementById('btn-clear-wishes').addEventListener('click', async () => {
         if (confirm('តើអ្នកពិតជាចង់សម្អាតពាក្យជូនពរទាំងអស់ចេញពីសៀវភៅឌីជីថលមែនទេ?')) {
           localStorage.setItem('khmer_wedding_wishes', JSON.stringify([]));
-          localStorage.setItem('khmer_wedding_wishes_cleared', '1');
-          setDeletedWishes([]);
           if (window.appSupabase) {
             await window.appSupabase.clearAllWishes();
           }
@@ -3638,9 +2943,7 @@ values
       if (btnDisconnectSupabase) {
         btnDisconnectSupabase.addEventListener('click', () => {
           if (confirm('តើអ្នកពិតជាចង់ផ្តាច់ការភ្ជាប់ពី Supabase មែនទេ?')) {
-            if (window.appSupabase && window.appSupabase.clearCredentials) {
-              window.appSupabase.clearCredentials();
-            }
+            window.appSupabase.clearCredentials();
             updateSupabaseStatusUi();
             loadRsvpList();
             showToast('🔌 បានផ្តាច់ការភ្ជាប់ពី Supabase រួចរាល់');
