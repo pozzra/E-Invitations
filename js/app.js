@@ -916,7 +916,9 @@ document.addEventListener('DOMContentLoaded', () => {
   updateCountdown();
   countdownInterval = setInterval(updateCountdown, 1000);
 
-  // 4. Add to Calendar (.ics and Google Calendar)
+  // 4. Add to Calendar — opens the NATIVE calendar app on mobile
+  //    (Android: intent:// INSERT event, iOS: text/calendar data URI),
+  //    and Google Calendar in a new tab on desktop.
   const btnCalendar = document.getElementById('btn-add-calendar');
   if (btnCalendar) {
     btnCalendar.addEventListener('click', () => {
@@ -924,14 +926,15 @@ document.addEventListener('DOMContentLoaded', () => {
       const groomName = currentConfig.groomName || 'ជា វិបុល';
       const brideName = currentConfig.brideName || 'ស៊ុន ទេវី';
       const venueName = currentConfig.venueName || 'Koh Pich Exhibition Center';
-      const venueAddress = (currentConfig.venueAddress || 'Phnom Penh').replace(/\n/g, ', ').replace(/📍.*?[:：]\s*/g, '').trim();
+      const venueAddressRaw = (currentConfig.venueAddress || 'Phnom Penh');
+      const venueAddress = venueAddressRaw.replace(/\n/g, ', ').replace(/📍.*?[:：]\s*/g, '').trim();
 
-      const title = encodeURIComponent(`ពិធីសិរីមង្គលអាពាហ៍ពិពាហ៍ ${groomName} ❤️ ${brideName}`);
-      const details = encodeURIComponent(`សូមគោរពអញ្ជើញចូលរួមជាអធិបតី និងជាភ្ញៀវកិត្តិយស ក្នុងពិធីមង្គលការរបស់ ${groomName} និង ${brideName} នៅ${venueName}។`);
-      const location = encodeURIComponent(venueAddress || venueName);
+      const titleText = `ពិធីសិរីមង្គលអាពាហ៍ពិពាហ៍ ${groomName} ❤️ ${brideName}`;
+      const detailsText = `សូមគោរពអញ្ជើញចូលរួមជាអធិបតី និងជាភ្ញៀវកិត្តិយស ក្នុងពិធីមង្គលការរបស់ ${groomName} និង ${brideName} នៅ${venueName}។`;
+      const locationText = venueAddress || venueName;
 
       // Build dates from targetDateTime in config
-      let startISO = currentConfig.targetDateTime || '2026-11-15T07:00:00+07:00';
+      const startISO = currentConfig.targetDateTime || '2026-11-15T07:00:00+07:00';
       const startD = new Date(startISO);
       const endD = new Date(startD.getTime() + 8 * 60 * 60 * 1000); // +8 hours
 
@@ -940,9 +943,97 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       const dates = `${toCalDate(startD)}/${toCalDate(endD)}`;
 
-      const googleCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}&dates=${dates}`;
-      window.open(googleCalUrl, '_blank');
+      const googleCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE`
+        + `&text=${encodeURIComponent(titleText)}`
+        + `&details=${encodeURIComponent(detailsText)}`
+        + `&location=${encodeURIComponent(locationText)}`
+        + `&dates=${dates}`;
+
+      // Properly escaped iCalendar (.ics) payload
+      function icsEscape(s) {
+        return String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+      }
+      function buildICS() {
+        return [
+          'BEGIN:VCALENDAR',
+          'VERSION:2.0',
+          'PRODID:-//Khmer E-Invitation//EN',
+          'CALSCALE:GREGORIAN',
+          'METHOD:PUBLISH',
+          'BEGIN:VEVENT',
+          `UID:${Date.now()}@khmer-e-invitation`,
+          `DTSTAMP:${toCalDate(new Date())}`,
+          `DTSTART:${toCalDate(startD)}`,
+          `DTEND:${toCalDate(endD)}`,
+          `SUMMARY:${icsEscape(titleText)}`,
+          `DESCRIPTION:${icsEscape(detailsText)}`,
+          `LOCATION:${icsEscape(locationText)}`,
+          'BEGIN:VALARM',
+          'TRIGGER:-PT3H',
+          'ACTION:DISPLAY',
+          'DESCRIPTION:Reminder',
+          'END:VALARM',
+          'END:VEVENT',
+          'END:VCALENDAR'
+        ].join('\r\n');
+      }
+
+      const ua = navigator.userAgent || '';
+      const isAndroid = /Android/i.test(ua);
+      const isIOS = /iPhone|iPad|iPod/i.test(ua)
+        && !window.MSStream
+        || (/iPhone|iPad|iPod/i.test(ua))
+        || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+      // ── Android: hand the event to the installed Calendar app ──────────────
+      if (isAndroid) {
+        const intentUrl = 'intent:#Intent;action=android.intent.action.INSERT;'
+          + 'type=vnd.android.cursor.item/event;'
+          + `S.title=${encodeURIComponent(titleText)};`
+          + `S.description=${encodeURIComponent(detailsText)};`
+          + `S.eventLocation=${encodeURIComponent(locationText)};`
+          + `l.beginTime=${startD.getTime()};`
+          + `l.endTime=${endD.getTime()};`
+          + 'end';
+        showToast('📅 កំពុងបើកកម្មវិធីប្រតិទិន...');
+        const fallback = setTimeout(() => {
+          // No calendar app handled the intent → open ICS so the OS can offer an app
+          if (!document.hidden) triggerIcsDownload();
+        }, 1500);
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) clearTimeout(fallback);
+        }, { once: true });
+        window.location.href = intentUrl;
+        return;
+      }
+
+      // ── iOS / iPadOS: text/calendar opens the Calendar "Add Event" sheet ────
+      if (isIOS) {
+        showToast('📅 កំពុងបើកកម្មវិធីប្រតិទិន...');
+        const ics = buildICS();
+        window.location.href = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics);
+        return;
+      }
+
+      // ── Desktop: Google Calendar in a new tab (fallback: download .ics) ─────
+      function triggerIcsDownload() {
+        try {
+          const blob = new Blob([buildICS()], { type: 'text/calendar;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'wedding-invitation.ics';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(url), 4000);
+        } catch (e) {
+          window.open(googleCalUrl, '_blank');
+        }
+      }
+
       showToast('📅 កំពុងបើកកម្មវិធីប្រតិទិន...');
+      window.open(googleCalUrl, '_blank');
     });
   }
 
@@ -985,22 +1076,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   ];
 
+  function getDeletedWishes() {
+    try {
+      const s = localStorage.getItem('khmer_wedding_wishes_deleted');
+      const arr = s ? JSON.parse(s) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch { return []; }
+  }
+  function isWishDeleted(w, tombstones) {
+    return (tombstones || []).some(t => t && t.name === (w.name || '') && t.message === (w.message || ''));
+  }
+
   function getStoredWishes() {
     try {
       const stored = localStorage.getItem('khmer_wedding_wishes');
-      if (stored) {
+      // An existing key (even an empty list) is authoritative — do NOT fall back
+      // to the sample wishes, otherwise deleted wishes would reappear.
+      if (stored !== null) {
         let parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) {
-          // Filter out temporary test entries like sadasd / ggode
-          parsed = parsed.filter(w => w && w.name !== 'sadasd' && w.message !== 'ggode' && w.name !== 'test');
-          localStorage.setItem('khmer_wedding_wishes', JSON.stringify(parsed));
-          return parsed.length > 0 ? parsed : defaultWishes;
-        }
+        if (!Array.isArray(parsed)) parsed = [];
+        parsed = parsed.filter(w => w && w.name !== 'sadasd' && w.message !== 'ggode' && w.name !== 'test');
+        localStorage.setItem('khmer_wedding_wishes', JSON.stringify(parsed));
+        return parsed;
       }
-      return defaultWishes;
     } catch {
       return defaultWishes;
     }
+    // First run only: seed the sample wishes once.
+    localStorage.setItem('khmer_wedding_wishes', JSON.stringify(defaultWishes));
+    return defaultWishes;
   }
 
   async function renderWishes() {
@@ -1014,8 +1118,15 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const remoteWishes = await window.appSupabase.fetchWishes();
         if (remoteWishes && remoteWishes.length > 0) {
-          wishes = remoteWishes.filter(w => w && w.name !== 'sadasd' && w.message !== 'ggode');
-          localStorage.setItem('khmer_wedding_wishes', JSON.stringify(wishes));
+          if (localStorage.getItem('khmer_wedding_wishes_cleared') === '1') {
+            wishes = [];
+          } else {
+            const tombstones = getDeletedWishes();
+            wishes = remoteWishes
+              .filter(w => w && w.name !== 'sadasd' && w.message !== 'ggode')
+              .filter(w => !isWishDeleted(w, tombstones));
+            localStorage.setItem('khmer_wedding_wishes', JSON.stringify(wishes));
+          }
         }
       } catch (err) {
         console.warn('Remote wishes fetch failed, using local:', err);

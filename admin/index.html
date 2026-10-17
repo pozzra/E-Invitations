@@ -3122,17 +3122,43 @@ values
       function getAdminWishes() {
         try {
           const stored = localStorage.getItem('khmer_wedding_wishes');
-          if (stored) {
+          // An existing key (even an empty list) is authoritative — never re-seed
+          // defaults, otherwise deleted wishes would reappear.
+          if (stored !== null) {
             let parsed = JSON.parse(stored);
-            if (Array.isArray(parsed)) {
-              parsed = parsed.filter(w => w && w.name !== 'sadasd' && w.message !== 'ggode' && w.name !== 'test');
-              localStorage.setItem('khmer_wedding_wishes', JSON.stringify(parsed));
-              return parsed.length > 0 ? parsed : defaultWishesList;
-            }
+            if (!Array.isArray(parsed)) parsed = [];
+            parsed = parsed.filter(w => w && w.name !== 'sadasd' && w.message !== 'ggode' && w.name !== 'test');
+            localStorage.setItem('khmer_wedding_wishes', JSON.stringify(parsed));
+            return parsed;
           }
-          return defaultWishesList;
         } catch {
           return defaultWishesList;
+        }
+        // First run only: seed the sample wishes once.
+        localStorage.setItem('khmer_wedding_wishes', JSON.stringify(defaultWishesList));
+        return defaultWishesList;
+      }
+
+      // Tombstones: remember deleted wishes (name+message) so a stale remote copy
+      // cannot bring them back. A '__all__' sentinel marks a full clear.
+      function getDeletedWishes() {
+        try {
+          const s = localStorage.getItem('khmer_wedding_wishes_deleted');
+          const arr = s ? JSON.parse(s) : [];
+          return Array.isArray(arr) ? arr : [];
+        } catch { return []; }
+      }
+      function setDeletedWishes(arr) {
+        localStorage.setItem('khmer_wedding_wishes_deleted', JSON.stringify(arr || []));
+      }
+      function isWishDeleted(w, tombstones) {
+        return (tombstones || []).some(t => t && t.name === (w.name || '') && t.message === (w.message || ''));
+      }
+      function markWishDeleted(w) {
+        const list = getDeletedWishes();
+        if (!list.some(t => t && t.name === (w.name || '') && t.message === (w.message || ''))) {
+          list.push({ name: w.name || '', message: w.message || '' });
+          setDeletedWishes(list);
         }
       }
 
@@ -3145,7 +3171,24 @@ values
         if (window.appSupabase) {
           const remoteWishes = await window.appSupabase.fetchWishes();
           if (remoteWishes && remoteWishes.length > 0) {
-            wishes = remoteWishes;
+            if (localStorage.getItem('khmer_wedding_wishes_cleared') === '1') {
+              // Admin explicitly cleared the guestbook — ignore stale remote rows.
+              wishes = [];
+            } else {
+              // Merge remote wishes but drop any the admin deleted locally
+              // (tombstones) or that are already present, so deletions stick.
+              const tombstones = getDeletedWishes();
+              const merged = wishes.slice();
+              const seen = merged.map(w => (w.name || '') + '\u0000' + (w.message || ''));
+              remoteWishes.forEach(w => {
+                const key = (w.name || '') + '\u0000' + (w.message || '');
+                if (isWishDeleted(w, tombstones) || seen.indexOf(key) !== -1) return;
+                merged.push(w);
+                seen.push(key);
+              });
+              wishes = merged;
+              localStorage.setItem('khmer_wedding_wishes', JSON.stringify(wishes));
+            }
           }
         }
 
@@ -3180,8 +3223,11 @@ values
 
             if (confirm(`តើអ្នកពិតជាចង់លុបពាក្យជូនពររបស់ "${wName}" មែនទេ?`)) {
               let cur = getAdminWishes();
+              const removed = cur[idx] || { name: wName, message: wMsg };
               cur.splice(idx, 1);
               localStorage.setItem('khmer_wedding_wishes', JSON.stringify(cur));
+              // Tombstone so a stale remote row can't resurrect this wish.
+              markWishDeleted(removed);
 
               if (window.appSupabase) {
                 await window.appSupabase.deleteWish(wName, wMsg);
@@ -3212,6 +3258,8 @@ values
           const currentWishes = getAdminWishes();
           currentWishes.unshift(newWish);
           localStorage.setItem('khmer_wedding_wishes', JSON.stringify(currentWishes));
+          // Adding a wish means the guestbook is no longer "cleared".
+          localStorage.removeItem('khmer_wedding_wishes_cleared');
 
           if (window.appSupabase) {
             await window.appSupabase.submitWish(newWish);
@@ -3228,6 +3276,8 @@ values
       document.getElementById('btn-reset-default-wishes').addEventListener('click', async () => {
         if (confirm('តើអ្នកពិតជាចង់ផ្ទុកឡើងវិញនូវពាក្យជូនពរគំរូដើមទាំង ៣ មែនទេ?')) {
           localStorage.setItem('khmer_wedding_wishes', JSON.stringify(defaultWishesList));
+          localStorage.removeItem('khmer_wedding_wishes_cleared');
+          setDeletedWishes([]);
           if (window.appSupabase) {
             await window.appSupabase.clearAllWishes();
             for (const w of defaultWishesList) {
@@ -3243,6 +3293,8 @@ values
       document.getElementById('btn-clear-wishes').addEventListener('click', async () => {
         if (confirm('តើអ្នកពិតជាចង់សម្អាតពាក្យជូនពរទាំងអស់ចេញពីសៀវភៅឌីជីថលមែនទេ?')) {
           localStorage.setItem('khmer_wedding_wishes', JSON.stringify([]));
+          localStorage.setItem('khmer_wedding_wishes_cleared', '1');
+          setDeletedWishes([]);
           if (window.appSupabase) {
             await window.appSupabase.clearAllWishes();
           }
