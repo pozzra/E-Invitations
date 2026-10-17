@@ -1402,13 +1402,6 @@ html[data-theme="light"] .hero-overlay {
   margin-top: 6px;
 }
 
-.footer-kbach-crown {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 12px;
-  filter: drop-shadow(0 2px 8px rgba(229, 185, 85, 0.5));
-}
-
 .footer-thankyou-text {
   font-family: var(--font-khmer-sub);
   font-size: 0.95rem;
@@ -1419,12 +1412,14 @@ html[data-theme="light"] .hero-overlay {
   margin: 0;
 }
 
+.footer-divider-line,
 .footer-divider-kbach {
-  height: 14px;
-  margin: 12px auto;
-  width: 70%;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 20' fill='%23e5b955'%3E%3Cpath d='M100 0 L108 8 L100 16 L92 8 Z M70 4 C85 4 85 14 100 14 C115 14 115 4 130 4 M40 8 C55 8 55 16 70 16 M130 16 C145 16 145 8 160 8' stroke='%23e5b955' stroke-width='1.5' fill='none'/%3E%3C/svg%3E") no-repeat center/contain;
-  opacity: 0.85;
+  height: 1px;
+  width: 50%;
+  max-width: 160px;
+  margin: 14px auto 12px;
+  background: linear-gradient(90deg, transparent, rgba(229, 185, 85, 0.75), transparent);
+  border: none;
 }
 
 .footer-credit-text {
