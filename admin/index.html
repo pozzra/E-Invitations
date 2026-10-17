@@ -887,6 +887,20 @@
 
           <div id="music-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;"></div>
 
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label class="form-label">🎨 ពណ៌អក្សរបញ្ជីចម្រៀង (Playlist Font Color)</label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="color" id="cfg-music-list-color" value="#fbf6ec"
+                style="width: 56px; height: 38px; padding: 2px; background: transparent; border: 1px solid rgba(229,185,85,0.35); border-radius: 6px; cursor: pointer;">
+              <button type="button" id="btn-music-color-auto" class="btn-gold-secondary ripple-effect"
+                style="width: auto; margin-top: 0; padding: 8px 14px; white-space: nowrap;">🔄 Auto (តាមផ្ទាំង)</button>
+            </div>
+            <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px;">
+              ជ្រើសពណ៌អក្សរឈ្មោះបទចម្រៀង។ <strong>Auto</strong> នឹងប្តូរពណ៌ស្វ័យប្រវត្តិតាម
+              Dark/Light Mode របស់ឧបករណ៍។
+            </p>
+          </div>
+
           <div class="form-group">
             <label class="form-label">បន្ថែមតាម URL (Audio URL ឬ YouTube URL)</label>
             <div style="display: flex; gap: 8px;">
@@ -1525,6 +1539,8 @@ values
       // 🎵 Background Music playlist state (max 10 tracks)
       const MAX_MUSIC = 10;
       let musicPlaylist = [];
+      // Playlist song-title font color. '' = Auto (follows the dark/light theme).
+      let musicListColor = '';
 
       // 🔄 Auto-load Supabase credentials from localStorage on page load
       if (window.appSupabase) {
@@ -1701,6 +1717,7 @@ values
         bgMusicPlaylist: [
           { type: 'file', src: 'assets/audio/bg_music.mp3', title: 'Default Background Music' }
         ],
+        musicListColor: '',
         sections: {
           countdown: true,
           parents: true,
@@ -1840,7 +1857,7 @@ values
                 style="width: 34px; height: 34px; flex: 0 0 auto; object-fit: contain; border: 1px solid rgba(229,185,85,0.25); border-radius: 4px; background: rgba(0,0,0,0.25);">
               <input type="text" class="icon-name-input" data-index="${i}" value="${escapeAttr(ic.title || '')}"
                 placeholder="ឈ្មោះ (Name)"
-                style="flex: 1; min-width: 0; font-size: 0.78rem; color: var(--text-cream); background: transparent; border: 1px solid transparent; border-radius: 4px; padding: 3px 6px;">
+              style="flex: 1; min-width: 0; font-size: 0.78rem; color: ${musicListColor || 'var(--text-cream)'}; background: transparent; border: 1px solid transparent; border-radius: 4px; padding: 3px 6px;">
               <span style="font-size: 0.66rem; color: ${active ? 'var(--primary-gold-light)' : 'var(--text-muted)'}; text-transform: uppercase;">${active ? '✓ Active' : 'icon'}</span>
               <button type="button" class="btn-remove-icon" data-index="${i}"
                 style="background: none; border: 1px solid rgba(255,107,107,0.4); color: #ff6b6b; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 0.72rem;">✕</button>
@@ -2149,6 +2166,11 @@ values
             title: cfg.bgMusicUrl.startsWith('data:') ? 'Uploaded Track' : cfg.bgMusicUrl
           }];
         }
+        // Playlist font color ('' = Auto → follows dark/light mode)
+        musicListColor = cfg.musicListColor || '';
+        if (document.getElementById('cfg-music-list-color')) {
+          document.getElementById('cfg-music-list-color').value = musicListColor || '#fbf6ec';
+        }
         renderMusicList();
         if (document.getElementById('cfg-seal-image')) document.getElementById('cfg-seal-image').value = cfg.sealImage || '';
         if (document.getElementById('cfg-thankyou-text')) document.getElementById('cfg-thankyou-text').value = cfg.thankYouText || '';
@@ -2419,6 +2441,24 @@ values
           } else {
             showToast('✅ បានបន្ថែមបទចម្រៀង');
           }
+        });
+      }
+
+      // 🎨 Playlist font color picker. Empty value = Auto (follows dark/light).
+      const musicColorInput = document.getElementById('cfg-music-list-color');
+      if (musicColorInput) {
+        musicColorInput.addEventListener('input', () => {
+          musicListColor = musicColorInput.value || '';
+          renderMusicList();
+        });
+      }
+      const btnMusicColorAuto = document.getElementById('btn-music-color-auto');
+      if (btnMusicColorAuto) {
+        btnMusicColorAuto.addEventListener('click', () => {
+          musicListColor = '';
+          if (musicColorInput) musicColorInput.value = '#fbf6ec';
+          renderMusicList();
+          showToast('🔄 ពណ៌អក្សរត្រូវបានកំណត់ជា Auto (តាម Dark/Light Mode)');
         });
       }
 
@@ -2804,6 +2844,7 @@ values
           invitationGreeting: document.getElementById('cfg-invitation-greeting') ? document.getElementById('cfg-invitation-greeting').value.trim() : defaultConfig.invitationGreeting,
           invitationSubtext: document.getElementById('cfg-invitation-subtext') ? document.getElementById('cfg-invitation-subtext').value.trim() : defaultConfig.invitationSubtext,
           bgMusicPlaylist: musicPlaylist,
+          musicListColor: musicListColor,
           bgMusicUrl: ((musicPlaylist.find(t => t.enabled !== false) || musicPlaylist[0] || {}).src) || defaultConfig.bgMusicUrl,
           sections: SECTION_KEYS.reduce((acc, key) => {
             const cb = document.getElementById('cfg-show-' + key);
