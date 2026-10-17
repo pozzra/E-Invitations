@@ -304,11 +304,10 @@ document.addEventListener('DOMContentLoaded', () => {
       ['--bg-deep-navy', '--bg-burgundy', '--bg-grad-1', '--bg-grad-2', '--bg-grad-3', '--bg-overlay', '--glass-bg'].forEach(v => _setVar(v, ''));
     }
 
-    // 3b) Readable text: pick the palette from the EFFECTIVE background (custom
-    //     colour if set, otherwise the dark/light default) so text is always
-    //     legible — dark background → light text, light background → dark text.
-    const effectiveBg = theme.bg || (mode === 'light' ? '#fbf6ec' : '#0a0a0d');
-    root.setAttribute('data-bg', _luminance(effectiveBg) < 0.5 ? 'dark' : 'light');
+    // 3b) Text colour follows the Theme Mode (device preference when 'auto'):
+    //     light mode → pure black text, dark mode → pure white text.
+    //     Uses only plain black & white for maximum legibility.
+    root.setAttribute('data-bg', mode === 'light' ? 'light' : 'dark');
 
     // 4) Language (sets <html lang> + data-lang; affects font priority)
     let langTag = 'km', langCode = 'kh';

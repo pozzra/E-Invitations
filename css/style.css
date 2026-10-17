@@ -107,21 +107,20 @@ html[data-theme="light"] {
   --shadow-lux: 0 16px 40px rgba(120, 90, 20, 0.18), 0 0 30px rgba(184, 134, 11, 0.12);
 }
 
-/* Auto-contrast text — chosen by the EFFECTIVE background (custom colour or
-   dark/light default), so text stays readable regardless of device theme:
-   dark background → light text, light background → dark text. */
+/* Text colour follows the Theme Mode (device preference when 'auto'):
+   light mode → pure black text, dark mode → pure white text. */
 html[data-bg="dark"] {
-  --text-cream: #fbf6ec;
-  --text-muted: #c7beab;
-  --text-gold: #f4d48a;
-  --text-highlight: #ffeaa7;
+  --text-cream: #ffffff;
+  --text-muted: #ffffff;
+  --text-gold: #ffffff;
+  --text-highlight: #ffffff;
 }
 
 html[data-bg="light"] {
-  --text-cream: #2a2118;
-  --text-muted: #6b5f4d;
-  --text-gold: #8a6508;
-  --text-highlight: #7a5c00;
+  --text-cream: #000000;
+  --text-muted: #000000;
+  --text-gold: #000000;
+  --text-highlight: #000000;
 }
 
 #particle-canvas, #confetti-canvas {
