@@ -13,6 +13,7 @@ class TraditionalAudioController {
     this.timerId = null;
     this.noteIndex = 0;
     this.useMp3 = true;
+    this.usingSynth = false;
 
     // Music playlist: [{ type: 'file'|'youtube', src, title }]
     this.playlist = [];
@@ -123,6 +124,7 @@ class TraditionalAudioController {
   }
 
   playFile(src) {
+    this.usingSynth = false;
     this.stopYouTube();
     this.initAudioElement();
     this.audioEl.src = src;
@@ -182,6 +184,7 @@ class TraditionalAudioController {
       this.startSynthMusic();
       return;
     }
+    this.usingSynth = false;
     this.stopFile();
 
     if (!this.ytReady) {
@@ -322,6 +325,7 @@ class TraditionalAudioController {
   }
 
   startSynthMusic() {
+    this.usingSynth = true;
     this.initContext();
     this.noteIndex = 0;
 
@@ -359,14 +363,73 @@ class TraditionalAudioController {
     }
   }
 
+  // Pause but KEEP the current track / position so it can be resumed as-is.
+  pauseBackgroundMusic() {
+    this.isPlaying = false;
+    if (this.audioEl) {
+      try { this.audioEl.pause(); } catch (e) {}
+    }
+    if (this._fadeTimer) {
+      clearInterval(this._fadeTimer);
+      this._fadeTimer = null;
+    }
+    // Use pauseVideo (not stopVideo) so YouTube keeps the playback position
+    if (this.ytPlayer && this.ytPlayer.pauseVideo) {
+      try { this.ytPlayer.pauseVideo(); } catch (e) {}
+    }
+    if (this.timerId) {
+      clearTimeout(this.timerId);
+      this.timerId = null;
+    }
+  }
+
+  // Resume the SAME track from where it was paused (no random switch).
+  resumeBackgroundMusic() {
+    this.isPlaying = true;
+
+    if (this.usingSynth) {
+      this.startSynthMusic();
+      return;
+    }
+
+    const track = this.currentTrack;
+    if (!track) {
+      this.playRandomTrack();
+      return;
+    }
+
+    if (track.type === 'youtube') {
+      if (this.ytPlayer && this.ytPlayer.playVideo) {
+        try {
+          this.ytPlayer.setVolume(70);
+          this.ytPlayer.playVideo();
+          return;
+        } catch (e) { /* fall through to reload */ }
+      }
+      this.playYouTube(track.src);
+      return;
+    }
+
+    // File track: keep src/position, just play again
+    if (this.audioEl && this.audioEl.src) {
+      const playPromise = this.audioEl.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => this.fadeIn()).catch(() => this.playFile(track.src));
+      } else {
+        this.fadeIn();
+      }
+      return;
+    }
+    this.playFile(track.src);
+  }
+
   toggleMusic() {
     if (this.isPlaying) {
-      this.stopBackgroundMusic();
+      this.pauseBackgroundMusic();
       return false;
-    } else {
-      this.startBackgroundMusic();
-      return true;
     }
+    this.resumeBackgroundMusic();
+    return true;
   }
 }
 
