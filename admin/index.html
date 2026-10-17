@@ -2353,6 +2353,7 @@ values
           const s = localStorage.getItem('khmer_vip_guests');
           if (s) guests = JSON.parse(s);
         } catch { }
+        if (!Array.isArray(guests)) guests = [];
 
         const baseUrl = window.location.origin + window.location.pathname.replace(/\/admin(?:\/index\.html)?\/?$/, '') + '/';
 
@@ -2361,20 +2362,26 @@ values
           return;
         }
 
-        histContainer.innerHTML = guests.map(g => {
+        histContainer.innerHTML = guests.map((g, idx) => {
           const link = `${baseUrl}?to=${encodeURIComponent(g.name)}`;
           return `
             <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: var(--radius-sm); padding: 8px 12px; gap: 8px;">
               <div style="flex: 1; overflow: hidden;">
                 <div style="font-size: 0.85rem; font-weight: 700; color: var(--primary-gold-light); text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">${escapeHtml(g.name)}</div>
               </div>
-              <div style="display: flex; gap: 6px;">
+              <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end;">
                 <button class="btn-gold-secondary ripple-effect btn-copy-admin-vip" data-url="${escapeHtml(link)}" style="padding: 4px 10px; font-size: 0.75rem; margin-top: 0; width: auto;">
                   📋 ចម្លង
                 </button>
                 <a href="${escapeHtml(link)}" target="_blank" class="btn-gold-secondary ripple-effect" style="padding: 4px 10px; font-size: 0.75rem; margin-top: 0; width: auto; text-decoration: none;">
                   👁️ មើល
                 </a>
+                <button class="btn-edit-admin-vip" data-index="${idx}" title="កែប្រែឈ្មោះ" style="background: none; border: 1px solid rgba(229,185,85,0.5); color: var(--primary-gold-light); padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem;">
+                  ✏️ កែ
+                </button>
+                <button class="btn-del-admin-vip" data-index="${idx}" title="លុបតំណភ្ជាប់" style="background: none; border: 1px solid rgba(255,107,107,0.5); color: #ff6b6b; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem;">
+                  🗑️ លុប
+                </button>
               </div>
             </div>
           `;
@@ -2385,6 +2392,37 @@ values
             navigator.clipboard.writeText(btn.getAttribute('data-url')).then(() => {
               showToast('✅ បានចម្លង Link រួចរាល់!');
             });
+          });
+        });
+
+        // ✏️ Edit a VIP guest's name (regenerates the link)
+        histContainer.querySelectorAll('.btn-edit-admin-vip').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const idx = parseInt(btn.getAttribute('data-index'), 10);
+            const guest = guests[idx];
+            if (!guest) return;
+            const newName = window.prompt('កែប្រែឈ្មោះភ្ញៀវ VIP', guest.name);
+            if (newName === null) return;
+            const trimmed = newName.trim();
+            if (!trimmed) { showToast('⚠️ សូមបញ្ចូលឈ្មោះភ្ញៀវ'); return; }
+            guests[idx] = Object.assign({}, guest, { name: trimmed, updatedAt: 'បានកែប្រែ' });
+            localStorage.setItem('khmer_vip_guests', JSON.stringify(guests));
+            loadVipHistory();
+            showToast('✅ បានកែប្រែឈ្មោះភ្ញៀវរួចរាល់!');
+          });
+        });
+
+        // 🗑️ Delete a VIP guest link
+        histContainer.querySelectorAll('.btn-del-admin-vip').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const idx = parseInt(btn.getAttribute('data-index'), 10);
+            const guest = guests[idx];
+            if (!guest) return;
+            if (!window.confirm(`លុបតំណភ្ជាប់អញ្ជើញរបស់ "${guest.name}"?`)) return;
+            guests.splice(idx, 1);
+            localStorage.setItem('khmer_vip_guests', JSON.stringify(guests));
+            loadVipHistory();
+            showToast('🗑️ បានលុបតំណភ្ជាប់ VIP រួចរាល់!');
           });
         });
       }
