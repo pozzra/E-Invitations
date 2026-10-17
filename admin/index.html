@@ -10,10 +10,120 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Battambang:wght@300;400;700&family=Cinzel:wght@500;700;900&family=Hanuman:wght@300;400;700&family=Kantumruy+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Moul&family=Noto+Serif+Khmer:wght@400;600;700&display=swap">
-  <link rel="stylesheet" href="../css/style.css?v=20261017k">
+  <link rel="stylesheet" href="../css/style.css?v=20261017l">
   <style>
     body {
-      background-color: #060913;
+      background-color: var(--bg-deep-navy, #060913);
+      color: var(--text-cream, #fbf6ec);
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    /* ==========================================================================
+       Light Mode Overrides for Admin Panel
+       ========================================================================== */
+    html[data-theme="light"] body {
+      background-color: #f7f4ec !important;
+      color: #1e150b !important;
+    }
+
+    html[data-theme="light"] .admin-topbar {
+      background: rgba(255, 255, 255, 0.94) !important;
+      border: 1px solid rgba(184, 134, 11, 0.35) !important;
+      box-shadow: 0 4px 20px rgba(120, 90, 20, 0.08) !important;
+    }
+
+    html[data-theme="light"] .tab-btn-lux {
+      background: #ffffff !important;
+      border: 1px solid rgba(184, 134, 11, 0.28) !important;
+      color: #524230 !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    html[data-theme="light"] .tab-btn-lux:hover {
+      background: rgba(184, 134, 11, 0.15) !important;
+      color: #7a5908 !important;
+    }
+
+    html[data-theme="light"] .tab-btn-lux.active {
+      background: var(--gold-gradient) !important;
+      color: #1a0508 !important;
+      border-color: var(--primary-gold) !important;
+      box-shadow: 0 0 15px rgba(184, 134, 11, 0.35) !important;
+    }
+
+    html[data-theme="light"] .card-glass {
+      background: rgba(255, 255, 255, 0.96) !important;
+      border: 1px solid rgba(184, 134, 11, 0.32) !important;
+      box-shadow: 0 10px 30px rgba(120, 90, 20, 0.1) !important;
+    }
+
+    html[data-theme="light"] .section-title {
+      color: #6d4e06 !important;
+    }
+
+    html[data-theme="light"] .section-subtitle {
+      color: #635340 !important;
+    }
+
+    html[data-theme="light"] .form-label {
+      color: #4f3906 !important;
+    }
+
+    html[data-theme="light"] .form-input,
+    html[data-theme="light"] .form-textarea,
+    html[data-theme="light"] .form-select {
+      background: #ffffff !important;
+      border: 1px solid rgba(184, 134, 11, 0.45) !important;
+      color: #1a1206 !important;
+    }
+
+    html[data-theme="light"] .form-input::placeholder,
+    html[data-theme="light"] .form-textarea::placeholder {
+      color: #8c7f6e !important;
+    }
+
+    html[data-theme="light"] .data-table-wrap {
+      border-color: rgba(184, 134, 11, 0.3) !important;
+      background: #ffffff !important;
+    }
+
+    html[data-theme="light"] .data-table th {
+      background: rgba(184, 134, 11, 0.18) !important;
+      color: #5c4206 !important;
+    }
+
+    html[data-theme="light"] .data-table td {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+      color: #1e150b !important;
+    }
+
+    html[data-theme="light"] .data-table tr:hover {
+      background: rgba(184, 134, 11, 0.06) !important;
+    }
+
+    html[data-theme="light"] .timeline-edit-item {
+      background: #ffffff !important;
+      border-color: rgba(184, 134, 11, 0.28) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+      color: #1e150b !important;
+    }
+
+    html[data-theme="light"] .login-overlay {
+      background: radial-gradient(circle at center, #ffffff 0%, #f6f0e4 60%, #eae0cd 100%) !important;
+    }
+
+    html[data-theme="light"] .login-card {
+      background: rgba(255, 255, 255, 0.98) !important;
+      border-color: var(--primary-gold) !important;
+      box-shadow: 0 20px 60px rgba(120, 90, 20, 0.18) !important;
+      color: #1e150b !important;
+    }
+
+    html[data-theme="light"] .login-card code {
+      background: rgba(184, 134, 11, 0.12);
+      color: #7a5908;
+      padding: 2px 4px;
+      border-radius: 4px;
     }
 
     .admin-wrapper {
@@ -212,32 +322,43 @@
        ========================================================================== -->
   <div class="login-overlay" id="login-overlay">
     <div class="login-card">
+      <div style="display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 12px;">
+        <button type="button" id="btn-login-theme" class="btn-gold-secondary ripple-effect"
+          style="width: auto; padding: 4px 10px; font-size: 0.78rem; margin-top: 0;" title="ប្តូរពន្លឺ / Toggle Theme">
+          <span id="login-theme-icon">🌙</span> <span id="login-theme-text">Dark</span>
+        </button>
+        <button type="button" id="btn-login-lang" class="btn-gold-secondary ripple-effect"
+          style="width: auto; padding: 4px 10px; font-size: 0.78rem; margin-top: 0;" title="ប្តូរភាសា / Switch Language">
+          <span id="login-lang-indicator">🇬🇧 EN</span>
+        </button>
+      </div>
+
       <div class="section-kbach-header">
         <div class="kbach-ornament"></div>
         <div style="font-size: 0.8rem; letter-spacing: 2px; color: var(--primary-gold); margin-bottom: 6px;">
           E-INVITATION SYSTEM</div>
-        <h2 class="section-title" style="font-size: 1.3rem;">ផ្ទាំងគ្រប់គ្រង Admin</h2>
-        <p class="section-subtitle">សូមបញ្ចូលគណនីដើម្បីគ្រប់គ្រង</p>
+        <h2 class="section-title" id="login-heading-title" style="font-size: 1.3rem;">ផ្ទាំងគ្រប់គ្រង Admin</h2>
+        <p class="section-subtitle" id="login-heading-sub">សូមបញ្ចូលគណនីដើម្បីគ្រប់គ្រង</p>
       </div>
 
       <form id="login-form" style="margin-top: 20px;">
         <div class="form-group">
-          <label class="form-label" for="login-username">ឈ្មោះអ្នកប្រើប្រាស់ (Username)</label>
+          <label class="form-label" id="label-login-username" for="login-username">ឈ្មោះអ្នកប្រើប្រាស់ (Username)</label>
           <input type="text" id="login-username" class="form-input" placeholder="admin" required
             autocomplete="username">
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="login-password">ពាក្យសម្ងាត់ (Password)</label>
+          <label class="form-label" id="label-login-password" for="login-password">ពាក្យសម្ងាត់ (Password)</label>
           <input type="password" id="login-password" class="form-input" placeholder="••••••••" required
             autocomplete="current-password">
         </div>
 
-        <button type="submit" class="btn-gold-primary ripple-effect" style="margin-top: 10px;">
+        <button type="submit" class="btn-gold-primary ripple-effect" id="btn-login-submit" style="margin-top: 10px;">
           <span>ចូលគ្រប់គ្រង (Login)</span>
         </button>
       </form>
-      <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 16px;">
+      <div id="login-hint-text" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 16px;">
         ព័ត៌មានលំនាំដើម៖ User: <code>admin</code> | Pass: <code>adm**********</code>
       </div>
     </div>
@@ -253,25 +374,37 @@
       <div>
         <div style="display: flex; align-items: center; gap: 8px;">
           <span style="font-size: 1.2rem;">👑</span>
-          <h2 style="font-family: var(--font-khmer-sub); font-size: 1.15rem; color: var(--primary-gold-light);">
+          <h2 id="admin-main-title" style="font-family: var(--font-khmer-sub); font-size: 1.15rem; color: var(--primary-gold-light);">
             ផ្ទាំងគ្រប់គ្រង E-Invitation</h2>
         </div>
-        <span style="font-size: 0.75rem; color: var(--text-muted);">Admin Panel Control Center</span>
+        <span id="admin-sub-title" style="font-size: 0.75rem; color: var(--text-muted);">Admin Panel Control Center</span>
       </div>
 
       <div class="admin-top-actions">
-        <a href="../" target="_blank" class="btn-gold-secondary ripple-effect"
+        <button id="btn-admin-theme" class="btn-gold-secondary ripple-effect"
+          style="width: auto; padding: 8px 12px; font-size: 0.82rem; margin-top: 0;"
+          title="Toggle Dark / Light Mode">
+          <span id="admin-theme-icon">🌙</span> <span id="admin-theme-text">ងងឹត</span>
+        </button>
+
+        <button id="btn-admin-lang" class="btn-gold-secondary ripple-effect"
+          style="width: auto; padding: 8px 12px; font-size: 0.82rem; margin-top: 0;"
+          title="Switch Language / ប្តូរភាសា">
+          <span id="admin-lang-indicator">🇬🇧 English</span>
+        </button>
+
+        <a href="../" target="_blank" class="btn-gold-secondary ripple-effect" id="btn-admin-preview"
           style="width: auto; padding: 8px 14px; font-size: 0.82rem; margin-top: 0; text-decoration: none;">
-          👁️ មើលសំបុត្រផ្ទាល់
+          👁️ <span id="text-admin-preview">មើលសំបុត្រផ្ទាល់</span>
         </a>
 
         <button class="btn-gold-primary ripple-effect" id="btn-save-all"
           style="width: auto; padding: 8px 18px; font-size: 0.82rem; margin-top: 0;">
-          💾 រក្សាទុក (Save)
+          💾 <span id="text-admin-save">រក្សាទុក (Save)</span>
         </button>
         <button id="btn-logout" class="btn-gold-secondary"
           style="width: auto; padding: 8px 12px; font-size: 0.82rem; margin-top: 0; border-color: #ff6b6b; color: #ff6b6b;">
-          🚪 ចាកចេញ
+          🚪 <span id="text-admin-logout">ចាកចេញ</span>
         </button>
       </div>
     </div>
@@ -1372,9 +1505,9 @@
         <div class="form-group">
           <label class="form-label">Supabase Anon Public API Key</label>
           <input type="password" id="cfg-supabase-key" class="form-input"
-            placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+            placeholder="•••••••••••••••••••• (Secured on Server)">
           <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
-            យកពី Supabase Dashboard ➔ Project Settings ➔ API ➔ Project API keys (anon public)
+            រក្សាទុកដោយសុវត្ថិភាពលើ Server (.env) — លាក់បាំងមិនឱ្យឃើញក្នុង Inspect DevTools
           </div>
         </div>
 
@@ -1574,6 +1707,234 @@ values
       // 🔄 Auto-load Supabase credentials from localStorage on page load
       if (window.appSupabase) {
         window.appSupabase.loadCredentials();
+      }
+
+      // ======================================================================
+      // 🌓 Admin Theme & 🌐 Admin Language Management
+      // ======================================================================
+      const ADMIN_I18N = {
+        kh: {
+          themeDark: 'ងងឹត',
+          themeLight: 'ភ្លឺ',
+          themeAuto: 'តាមប្រព័ន្ធ',
+          langIndicator: '🇬🇧 English',
+          loginIndicator: '🇬🇧 EN',
+          loginTitle: 'ផ្ទាំងគ្រប់គ្រង Admin',
+          loginSubtitle: 'សូមបញ្ចូលគណនីដើម្បីគ្រប់គ្រង',
+          loginUserLabel: 'ឈ្មោះអ្នកប្រើប្រាស់ (Username)',
+          loginPassLabel: 'ពាក្យសម្ងាត់ (Password)',
+          loginSubmitBtn: 'ចូលគ្រប់គ្រង (Login)',
+          adminMainTitle: 'ផ្ទាំងគ្រប់គ្រង E-Invitation',
+          adminSubTitle: 'Admin Panel Control Center',
+          previewBtn: 'មើលសំបុត្រផ្ទាល់',
+          saveBtn: 'រក្សាទុក (Save)',
+          logoutBtn: 'ចាកចេញ',
+          tabCouple: '💑 គូស្វាមី & មាតាបិតា',
+          tabVideo: '🎬 វីដេអូ & អាល់ប៊ុម',
+          tabDates: '🗓️ កាលបរិច្ឆេទ & ម៉ោង',
+          tabSchedule: '📜 កាលវិភាគកម្មវិធី',
+          tabVenue: '📍 ទីតាំង & ផែនទី',
+          tabGift: '💳 ធនាគារ & KHQR',
+          tabRsvp: '💌 បញ្ជាក់វត្តមាន RSVP',
+          tabWishes: '📖 សៀវភៅជូនពរឌីជីថល',
+          tabGeneral: '⚙️ អត្ថបទរួម & តន្ត្រី',
+          tabViplinks: '👑 បង្កើត VIP Links',
+          tabConfig: '🎨 Configurations',
+          toastThemeSwitched: '🌓 បានប្តូរ Theme រួចរាល់!',
+          toastLangSwitched: '🇰🇭 បានប្តូរភាសាទៅជា ភាសាខ្មែរ'
+        },
+        en: {
+          themeDark: 'Dark',
+          themeLight: 'Light',
+          themeAuto: 'System',
+          langIndicator: '🇰🇭 ខ្មែរ',
+          loginIndicator: '🇰🇭 KH',
+          loginTitle: 'Admin Control Panel',
+          loginSubtitle: 'Please enter your login credentials',
+          loginUserLabel: 'Username',
+          loginPassLabel: 'Password',
+          loginSubmitBtn: 'Sign In (Login)',
+          adminMainTitle: 'E-Invitation Dashboard',
+          adminSubTitle: 'Admin Panel Control Center',
+          previewBtn: 'Live Preview',
+          saveBtn: 'Save Changes',
+          logoutBtn: 'Logout',
+          tabCouple: '💑 Couple & Parents',
+          tabVideo: '🎬 Video & Album',
+          tabDates: '🗓️ Dates & Time',
+          tabSchedule: '📜 Schedule',
+          tabVenue: '📍 Venue & Map',
+          tabGift: '💳 Bank & KHQR',
+          tabRsvp: '💌 RSVP Responses',
+          tabWishes: '📖 Guest Wishes',
+          tabGeneral: '⚙️ General & Music',
+          tabViplinks: '👑 VIP Links',
+          tabConfig: '🎨 Configurations',
+          toastThemeSwitched: '🌓 Theme updated successfully!',
+          toastLangSwitched: '🇬🇧 Language switched to English'
+        }
+      };
+
+      let currentAdminTheme = 'dark';
+      let currentAdminLang = 'kh';
+
+      function applyAdminTheme(mode, save) {
+        currentAdminTheme = mode || 'dark';
+        const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+        const resolved = (mode === 'dark' || mode === 'light') ? mode : (prefersLight ? 'light' : 'dark');
+
+        document.documentElement.setAttribute('data-theme', resolved);
+        document.documentElement.setAttribute('data-bg', resolved);
+
+        const dict = ADMIN_I18N[currentAdminLang] || ADMIN_I18N.kh;
+        const isLight = resolved === 'light';
+
+        const themeIcon = isLight ? '☀️' : '🌙';
+        const themeText = isLight ? dict.themeLight : dict.themeDark;
+
+        const elIcon = document.getElementById('admin-theme-icon');
+        const elText = document.getElementById('admin-theme-text');
+        const loginIcon = document.getElementById('login-theme-icon');
+        const loginText = document.getElementById('login-theme-text');
+
+        if (elIcon) elIcon.textContent = themeIcon;
+        if (elText) elText.textContent = themeText;
+        if (loginIcon) loginIcon.textContent = themeIcon;
+        if (loginText) loginText.textContent = themeText;
+
+        const cfgSelect = document.getElementById('cfg-theme-mode');
+        if (cfgSelect && cfgSelect.value !== mode) cfgSelect.value = mode;
+
+        if (save) {
+          try { localStorage.setItem('admin-theme-mode', mode); } catch (_) {}
+        }
+      }
+
+      function applyAdminLanguage(lang, save) {
+        currentAdminLang = (lang === 'en' || lang === 'kh') ? lang : 'kh';
+        const dict = ADMIN_I18N[currentAdminLang] || ADMIN_I18N.kh;
+
+        document.documentElement.setAttribute('lang', currentAdminLang === 'en' ? 'en' : 'km');
+        document.documentElement.setAttribute('data-lang', currentAdminLang);
+
+        const elLang = document.getElementById('admin-lang-indicator');
+        const loginLang = document.getElementById('login-lang-indicator');
+        if (elLang) elLang.textContent = dict.langIndicator;
+        if (loginLang) loginLang.textContent = dict.loginIndicator;
+
+        // Login text elements
+        const elLoginTitle = document.getElementById('login-heading-title');
+        const elLoginSub = document.getElementById('login-heading-sub');
+        const elLoginUser = document.getElementById('label-login-username');
+        const elLoginPass = document.getElementById('label-login-password');
+        const elLoginBtn = document.querySelector('#btn-login-submit span');
+        if (elLoginTitle) elLoginTitle.textContent = dict.loginTitle;
+        if (elLoginSub) elLoginSub.textContent = dict.loginSubtitle;
+        if (elLoginUser) elLoginUser.textContent = dict.loginUserLabel;
+        if (elLoginPass) elLoginPass.textContent = dict.loginPassLabel;
+        if (elLoginBtn) elLoginBtn.textContent = dict.loginSubmitBtn;
+
+        // Topbar texts
+        const elMainTitle = document.getElementById('admin-main-title');
+        const elSubTitle = document.getElementById('admin-sub-title');
+        const elPrev = document.getElementById('text-admin-preview');
+        const elSave = document.getElementById('text-admin-save');
+        const elLogout = document.getElementById('text-admin-logout');
+        if (elMainTitle) elMainTitle.textContent = dict.adminMainTitle;
+        if (elSubTitle) elSubTitle.textContent = dict.adminSubTitle;
+        if (elPrev) elPrev.textContent = dict.previewBtn;
+        if (elSave) elSave.textContent = dict.saveBtn;
+        if (elLogout) elLogout.textContent = dict.logoutBtn;
+
+        // Tabs
+        const tabMap = {
+          'tab-couple': dict.tabCouple,
+          'tab-video': dict.tabVideo,
+          'tab-dates': dict.tabDates,
+          'tab-schedule': dict.tabSchedule,
+          'tab-venue': dict.tabVenue,
+          'tab-gift': dict.tabGift,
+          'tab-rsvp': dict.tabRsvp,
+          'tab-wishes': dict.tabWishes,
+          'tab-general': dict.tabGeneral,
+          'tab-viplinks': dict.tabViplinks,
+          'tab-config': dict.tabConfig
+        };
+        Object.keys(tabMap).forEach(key => {
+          const btn = document.querySelector(`.tab-btn-lux[data-tab="${key}"]`);
+          if (btn) btn.textContent = tabMap[key];
+        });
+
+        // Theme buttons text update according to current language
+        const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+        const elThemeText = document.getElementById('admin-theme-text');
+        const loginThemeText = document.getElementById('login-theme-text');
+        if (elThemeText) elThemeText.textContent = isLight ? dict.themeLight : dict.themeDark;
+        if (loginThemeText) loginThemeText.textContent = isLight ? dict.themeLight : dict.themeDark;
+
+        const cfgLang = document.getElementById('cfg-language');
+        if (cfgLang && cfgLang.value !== lang) cfgLang.value = lang;
+
+        if (save) {
+          try { localStorage.setItem('admin-lang', lang); } catch (_) {}
+        }
+      }
+
+      // Initialize Theme and Language on page load
+      const savedAdminTheme = localStorage.getItem('admin-theme-mode') || 'auto';
+      const savedAdminLang = localStorage.getItem('admin-lang') || 'kh';
+      applyAdminTheme(savedAdminTheme, false);
+      applyAdminLanguage(savedAdminLang, false);
+
+      // Listen for system theme changes if mode is auto
+      if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+          if (currentAdminTheme === 'auto') {
+            applyAdminTheme('auto', false);
+          }
+        });
+      }
+
+      // Quick toggle listeners
+      function toggleAdminThemeAction() {
+        const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+        const next = cur === 'light' ? 'dark' : 'light';
+        applyAdminTheme(next, true);
+        const dict = ADMIN_I18N[currentAdminLang] || ADMIN_I18N.kh;
+        showToast(dict.toastThemeSwitched);
+      }
+      function toggleAdminLangAction() {
+        const next = currentAdminLang === 'en' ? 'kh' : 'en';
+        applyAdminLanguage(next, true);
+        const dict = ADMIN_I18N[next] || ADMIN_I18N.kh;
+        showToast(dict.toastLangSwitched);
+      }
+
+      const btnAdminTheme = document.getElementById('btn-admin-theme');
+      if (btnAdminTheme) btnAdminTheme.addEventListener('click', toggleAdminThemeAction);
+      const btnLoginTheme = document.getElementById('btn-login-theme');
+      if (btnLoginTheme) btnLoginTheme.addEventListener('click', toggleAdminThemeAction);
+
+      const btnAdminLang = document.getElementById('btn-admin-lang');
+      if (btnAdminLang) btnAdminLang.addEventListener('click', toggleAdminLangAction);
+      const btnLoginLang = document.getElementById('btn-login-lang');
+      if (btnLoginLang) btnLoginLang.addEventListener('click', toggleAdminLangAction);
+
+      const cfgThemeSelect = document.getElementById('cfg-theme-mode');
+      if (cfgThemeSelect) {
+        cfgThemeSelect.addEventListener('change', (e) => {
+          applyAdminTheme(e.target.value, true);
+          const dict = ADMIN_I18N[currentAdminLang] || ADMIN_I18N.kh;
+          showToast(dict.toastThemeSwitched);
+        });
+      }
+      const cfgLangSelect = document.getElementById('cfg-language');
+      if (cfgLangSelect) {
+        cfgLangSelect.addEventListener('change', (e) => {
+          applyAdminLanguage(e.target.value, true);
+          const dict = ADMIN_I18N[currentAdminLang] || ADMIN_I18N.kh;
+          showToast(dict.toastLangSwitched);
+        });
       }
 
       // 1. Authentication Gate
@@ -2240,6 +2601,12 @@ values
         const fontsCfg = cfg.fonts || {};
         if (document.getElementById('cfg-theme-mode')) document.getElementById('cfg-theme-mode').value = themeCfg.mode || 'auto';
         if (document.getElementById('cfg-language')) document.getElementById('cfg-language').value = cfg.language || 'auto';
+        if (!localStorage.getItem('admin-theme-mode') && themeCfg.mode) {
+          applyAdminTheme(themeCfg.mode, false);
+        }
+        if (!localStorage.getItem('admin-lang') && cfg.language && cfg.language !== 'auto') {
+          applyAdminLanguage(cfg.language, false);
+        }
         if (document.getElementById('cfg-accent-enabled')) document.getElementById('cfg-accent-enabled').checked = !!themeCfg.accent;
         if (document.getElementById('cfg-bg-enabled')) document.getElementById('cfg-bg-enabled').checked = !!themeCfg.bg;
         setAccentColor(themeCfg.accent || '#e5b955');
@@ -2324,18 +2691,39 @@ values
         renderScheduleEditor();
       });
 
+      // Upload an image file to the server and return a short URL. If the server
+      // upload fails, fall back to an inline base64 preview (may be large).
+      async function uploadImageFileToServer(file) {
+        const base64Data = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (re) => resolve(re.target.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        try {
+          const res = await fetch(`${API_BASE}/api/upload-image`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ filename: file.name, base64Data: base64Data })
+          });
+          if (!res.ok) throw new Error('upload failed');
+          const data = await res.json();
+          if (data && data.success && data.url) return data.url;
+          throw new Error((data && data.error) || 'upload failed');
+        } catch (err) {
+          console.warn('Image upload to server failed, using inline preview:', err);
+          return base64Data;
+        }
+      }
+
       // Handle Couple Image File Upload Preview
       const photoFileInput = document.getElementById('cfg-photo-file');
       if (photoFileInput) {
-        photoFileInput.addEventListener('change', (e) => {
+        photoFileInput.addEventListener('change', async (e) => {
           const file = e.target.files[0];
           if (file) {
-            const reader = new FileReader();
-            reader.onload = (re) => {
-              document.getElementById('cfg-couple-photo').value = re.target.result;
-              showToast('📸 បានផ្ទុករូបភាពថ្មីរួចរាល់!');
-            };
-            reader.readAsDataURL(file);
+            document.getElementById('cfg-couple-photo').value = await uploadImageFileToServer(file);
+            showToast('📸 បានផ្ទុករូបភាពថ្មីរួចរាល់!');
           }
         });
       }
@@ -2343,15 +2731,11 @@ values
       // Handle Seal Image Upload
       const sealFileInput = document.getElementById('cfg-seal-file');
       if (sealFileInput) {
-        sealFileInput.addEventListener('change', (e) => {
+        sealFileInput.addEventListener('change', async (e) => {
           const file = e.target.files[0];
           if (file) {
-            const reader = new FileReader();
-            reader.onload = (re) => {
-              document.getElementById('cfg-seal-image').value = re.target.result;
-              showToast('🏅 បានផ្ទុករូបភាពត្រាមាសរួចរាល់!');
-            };
-            reader.readAsDataURL(file);
+            document.getElementById('cfg-seal-image').value = await uploadImageFileToServer(file);
+            showToast('🏅 បានផ្ទុករូបភាពត្រាមាសរួចរាល់!');
           }
         });
       }
@@ -3009,7 +3393,15 @@ values
           schedule: currentSchedule
         };
 
-        localStorage.setItem('khmer_invitation_config', JSON.stringify(newConfig));
+        // Save locally first, but never let a storage-quota error (e.g. large
+        // inline base64 images) abort the server/cloud save below.
+        let localCacheOk = true;
+        try {
+          localStorage.setItem('khmer_invitation_config', JSON.stringify(newConfig));
+        } catch (err) {
+          localCacheOk = false;
+          console.warn('Local config cache exceeded storage quota; saving to server/cloud only:', err);
+        }
 
         // Save to Server DB (/api/config)
         fetch(`${API_BASE}/api/config`, {
@@ -3023,7 +3415,9 @@ values
           window.appSupabase.saveConfig(newConfig);
         }
 
-        showToast('💾 បានរក្សាទុកការកែប្រែទាំងអស់ដោយជោគជ័យ!');
+        showToast(localCacheOk
+          ? '💾 បានរក្សាទុកការកែប្រែទាំងអស់ដោយជោគជ័យ!'
+          : '💾 បានរក្សាទុកទៅ Server/Cloud រួចរាល់ (ទំហំរូបភាពធំ មិនអាចរក្សាទុកក្នុងឧបករណ៍)។ សូមប្រើ URL រូបភាពខ្លីៗ។');
       });
 
       // ── Database Connection Diagnostics & Live Data Viewer ────────────────────────
@@ -3677,17 +4071,22 @@ values
         const badge = document.getElementById('supabase-status-badge');
         const urlInput = document.getElementById('cfg-supabase-url');
         const keyInput = document.getElementById('cfg-supabase-key');
+        // Purge any stored client key to ensure DevTools inspect / storage shows no secrets
+        try { localStorage.removeItem('supabase_anon_key'); } catch(_) {}
+
         const savedUrl = localStorage.getItem('supabase_url') || (window.appSupabase && window.appSupabase.defaultUrl) || '';
-        const savedKey = localStorage.getItem('supabase_anon_key') || (window.appSupabase && window.appSupabase.defaultKey) || '';
 
         if (urlInput) urlInput.value = savedUrl;
-        if (keyInput) keyInput.value = savedKey;
+        if (keyInput) {
+          keyInput.value = '';
+          keyInput.placeholder = '•••••••••••••••••••• (Secured on Server)';
+        }
 
         const connected = window.appSupabase && window.appSupabase.isConfigured;
 
         if (badge) {
           if (connected) {
-            badge.textContent = '🟢 បានភ្ជាប់ (Connected)';
+            badge.textContent = '🟢 បានភ្ជាប់ (Connected - Server Secured)';
             badge.style.color = '#3ecf8e';
             badge.style.borderColor = '#3ecf8e';
             badge.style.background = 'rgba(62, 207, 142, 0.15)';
@@ -3710,20 +4109,23 @@ values
       if (btnSaveSupabase) {
         btnSaveSupabase.addEventListener('click', async () => {
           const url = document.getElementById('cfg-supabase-url').value.trim();
-          const key = document.getElementById('cfg-supabase-key').value.trim();
+          const keyInput = document.getElementById('cfg-supabase-key');
+          const key = keyInput.value.trim();
 
-          if (!url || !key) {
-            showToast('សូមបញ្ចូល Supabase URL និង Anon Key');
+          if (!url) {
+            showToast('សូមបញ្ចូល Supabase URL');
             return;
           }
 
           showToast('⏳ កំពុងផ្ទៀងផ្ទាត់ការភ្ជាប់...');
           const testRes = await window.appSupabase.testConnection(url, key);
           if (testRes.success) {
-            window.appSupabase.setCredentials(url, key);
+            await window.appSupabase.setCredentials(url, key);
+            keyInput.value = '';
+            keyInput.placeholder = '•••••••••••••••••••• (Secured on Server)';
             updateSupabaseStatusUi();
             loadRsvpList();
-            showToast('⚡ បានភ្ជាប់ទៅកាន់ Supabase ដោយជោគជ័យ!');
+            showToast('⚡ បានភ្ជាប់ទៅកាន់ Supabase ដោយជោគជ័យ (Secured on Server)!');
           } else {
             showToast('❌ បរាជ័យក្នុងការភ្ជាប់៖ ' + testRes.message);
           }
@@ -3735,14 +4137,11 @@ values
         btnTestSupabase.addEventListener('click', async () => {
           const url = document.getElementById('cfg-supabase-url').value.trim();
           const key = document.getElementById('cfg-supabase-key').value.trim();
-          if (!url || !key) {
-            showToast('សូមបញ្ចូល Supabase URL និង Anon Key ជាមុនសិន');
-            return;
-          }
           showToast('⏳ កំពុងតេស្តការភ្ជាប់...');
           const res = await window.appSupabase.testConnection(url, key);
           if (res.success) {
             showToast('✅ ការភ្ជាប់ដំណើរការល្អ៖ ' + res.message);
+            updateSupabaseStatusUi();
           } else {
             showToast('❌ តេស្តបរាជ័យ៖ ' + res.message);
           }

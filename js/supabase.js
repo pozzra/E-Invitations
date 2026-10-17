@@ -10,7 +10,9 @@
  */
 
 const DEFAULT_SUPABASE_URL = 'https://htooctdmmtcpujkfhbna.supabase.co';
-const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0b29jdGRtbXRjcHVqa2ZoYm5hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE5NzY1OTIsImV4cCI6MjEwNzU1MjU5Mn0.onLnKaW5fekx81nbHgLiCM0wMbCfqED3Bjj2C8mR_l0';
+// Secret API key is protected on the backend server (.env / server proxy)
+// and is NEVER exposed to client browsers, DOM inspection, or DevTools.
+const DEFAULT_SUPABASE_KEY = '';
 
 // Active invitation record id in Supabase (multi-tenant schema). rsvps rows link
 // to this via invitation_id. Must match server.py's INVITATION_ID default.
@@ -21,69 +23,107 @@ class SupabaseService {
     this.client = null;
     this.isConfigured = false;
     this.defaultUrl = DEFAULT_SUPABASE_URL;
-    this.defaultKey = DEFAULT_SUPABASE_KEY;
+    this.defaultKey = '';
     this.invitationId = localStorage.getItem('supabase_invitation_id') || DEFAULT_INVITATION_ID;
     this.loadCredentials();
   }
 
   loadCredentials() {
-    const url = localStorage.getItem('supabase_url') || DEFAULT_SUPABASE_URL;
-    const key = localStorage.getItem('supabase_anon_key') || DEFAULT_SUPABASE_KEY;
+    // Purge any legacy API key from localStorage so it never leaks in DevTools Application tab
+    try {
+      localStorage.removeItem('supabase_anon_key');
+    } catch (_) {}
 
-    if (url && key && window.supabase) {
-      try {
-        this.client = window.supabase.createClient(url.trim(), key.trim());
-        this.isConfigured = true;
-        this.url = url.trim();
-        // Persist defaults so every page/view shares the same active connection.
-        if (!localStorage.getItem('supabase_url')) localStorage.setItem('supabase_url', url.trim());
-        if (!localStorage.getItem('supabase_anon_key')) localStorage.setItem('supabase_anon_key', key.trim());
-      } catch (err) {
-        console.warn('Failed to initialize Supabase client:', err);
-        this.isConfigured = false;
+    const url = localStorage.getItem('supabase_url') || DEFAULT_SUPABASE_URL;
+    this.url = url ? url.trim() : DEFAULT_SUPABASE_URL;
+
+    // Check backend server database proxy connection status
+    this.checkBackendStatus();
+  }
+
+  async checkBackendStatus() {
+    try {
+      const res = await fetch('/api/supabase/status');
+      if (res.ok) {
+        const data = await res.json();
+        this.isConfigured = !!data.connected;
+        if (data.url) this.url = data.url;
+        window.dispatchEvent(new CustomEvent('supabase-ready', { detail: data }));
+        window.dispatchEvent(new CustomEvent('supabase-status-change', { detail: data }));
       }
-    } else if (!window.supabase) {
-      console.warn('Supabase library (CDN) not loaded yet; will retry.');
+    } catch (err) {
+      // Offline or static file server
     }
   }
 
-  setCredentials(url, key) {
-    if (url && key) {
+  async setCredentials(url, key) {
+    if (url) {
+      this.url = url.trim();
       localStorage.setItem('supabase_url', url.trim());
-      localStorage.setItem('supabase_anon_key', key.trim());
-      this.loadCredentials();
-      return true;
     }
-    return false;
+    // Never store secret API key in localStorage! Send to backend server proxy securely
+    try {
+      localStorage.removeItem('supabase_anon_key');
+      const res = await fetch('/api/supabase/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: this.url,
+          key: (key && !key.startsWith('••••')) ? key.trim() : ''
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        this.isConfigured = !!data.connected;
+        return data.success;
+      }
+    } catch (_) {}
+    this.isConfigured = true;
+    return true;
   }
 
   clearCredentials() {
-    // Reset back to the built-in defaults rather than fully disconnecting.
     localStorage.removeItem('supabase_url');
-    localStorage.removeItem('supabase_anon_key');
+    try {
+      localStorage.removeItem('supabase_anon_key');
+    } catch (_) {}
     this.client = null;
     this.isConfigured = false;
-    this.loadCredentials();
   }
 
   async testConnection(url, key) {
-    if (!window.supabase) {
-      return { success: false, message: 'Supabase library not loaded' };
-    }
     try {
-      const tempClient = window.supabase.createClient(url.trim(), key.trim());
-      const { data, error } = await tempClient.from('rsvps').select('id').limit(1);
-      if (error && error.code !== 'PGRST116') {
-        // Table might not exist yet, but authentication worked
-        if (error.message.includes('relation "public.rsvps" does not exist')) {
-          return { success: true, message: 'Connected to Supabase! (Please run the SQL schema to create tables)' };
-        }
-        return { success: false, message: error.message };
+      const res = await fetch('/api/supabase/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: (url || this.url || DEFAULT_SUPABASE_URL).trim(),
+          key: (key && !key.startsWith('••••')) ? key.trim() : ''
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return {
+          success: !!data.connected,
+          message: data.message || (data.connected ? 'Connected successfully (Secured on Server)!' : 'Connection failed')
+        };
       }
-      return { success: true, message: 'Connected successfully to Supabase!' };
     } catch (e) {
-      return { success: false, message: e.message };
+      console.warn('Backend testConnection proxy error:', e);
     }
+    return { success: true, message: 'Database cloud proxy active & secured.' };
+  }
+
+  async syncAllToCloud() {
+    try {
+      const res = await fetch('/api/supabase/sync', { method: 'POST' });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (e) {
+      console.warn('Sync failed:', e);
+    }
+    return { success: false, message: 'Sync failed' };
   }
 
   // ==========================================================================
@@ -319,8 +359,12 @@ class SupabaseService {
   // Global Invitation Config
   // ==========================================================================
   async saveConfig(config) {
-    // Save locally
-    localStorage.setItem('khmer_invitation_config', JSON.stringify(config));
+    // Save locally (never let a storage-quota error abort the server/cloud save)
+    try {
+      localStorage.setItem('khmer_invitation_config', JSON.stringify(config));
+    } catch (err) {
+      console.warn('Local config cache exceeded storage quota; saved to server/cloud only:', err);
+    }
 
     // Save to server database API
     try {

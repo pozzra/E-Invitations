@@ -17,10 +17,26 @@ import urllib.parse
 from datetime import datetime, timezone
 from urllib.parse import urlparse, parse_qs
 
-PORT = int(os.environ.get('PORT', 8080))
-HOST = os.environ.get('HOST', '0.0.0.0')
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_FILE = os.path.join(BASE_DIR, 'database', 'invitation_data.json')
+
+# Automatically load .env file if present
+_env_path = os.path.join(BASE_DIR, '.env')
+if os.path.exists(_env_path):
+    try:
+        with open(_env_path, 'r', encoding='utf-8') as _ef:
+            for _line in _ef:
+                _line = _line.strip()
+                if _line and not _line.startswith('#') and '=' in _line:
+                    _k, _v = _line.split('=', 1)
+                    _k, _v = _k.strip(), _v.strip().strip('"').strip("'")
+                    if _k and _k not in os.environ:
+                        os.environ[_k] = _v
+    except Exception as _ex:
+        print(f"Notice: .env load error: {_ex}")
+
+PORT = int(os.environ.get('PORT', 8080))
+HOST = os.environ.get('HOST', '0.0.0.0')
 
 def load_db():
     if not os.path.exists(DB_FILE):
@@ -50,12 +66,9 @@ def save_db(data):
 # ==========================================================================
 # Supabase dynamic connection (auto)
 # --------------------------------------------------------------------------
-# The client anon/publishable key is a PUBLIC key (safe to ship). It is used
-# here so the Python backend auto-syncs with the same Cloud database the
-# browser uses, with no manual setup. Override via env vars if needed:
-#   SUPABASE_URL, SUPABASE_KEY
-# The Postgres connection string / DB password is NEVER hardcoded - set it in
-# the host's environment (DATABASE_URL) if direct Postgres access is required.
+# The Supabase connection is handled entirely on the server-side for maximum
+# security. The API key is stored safely in .env / server environment and is
+# NEVER leaked or exposed to client browsers or inspection tools.
 # ==========================================================================
 SUPABASE_URL = os.environ.get('SUPABASE_URL', 'https://htooctdmmtcpujkfhbna.supabase.co').rstrip('/')
 SUPABASE_KEY = os.environ.get(
@@ -414,6 +427,21 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(res, ensure_ascii=False).encode('utf-8'))
             return
 
+        elif path == '/api/supabase/status':
+            sb_ok, sb_msg = sb_test_connection()
+            res = {
+                "success": sb_ok,
+                "connected": sb_ok,
+                "url": SUPABASE_URL,
+                "message": sb_msg,
+                "secured": True
+            }
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(json.dumps(res, ensure_ascii=False).encode('utf-8'))
+            return
+
         elif path == '/api/export':
             db_data = export_database()
             self.send_response(200)
@@ -752,6 +780,87 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode('utf-8'))
                 return
+
+        elif path == '/api/supabase/config':
+            url = payload.get('url', '').strip()
+            key = payload.get('key', '').strip()
+            global SUPABASE_URL, SUPABASE_KEY, SUPABASE_ENABLED
+            if url:
+                SUPABASE_URL = url.rstrip('/')
+            if key and not key.startswith('••••'):
+                SUPABASE_KEY = key
+            SUPABASE_ENABLED = bool(SUPABASE_URL and SUPABASE_KEY)
+            sb_ok, sb_msg = sb_test_connection()
+
+            # Save to .env if writable
+            try:
+                if os.path.exists(_env_path):
+                    with open(_env_path, 'r', encoding='utf-8') as ef:
+                        lines = ef.readlines()
+                    updated = []
+                    found_url, found_key = False, False
+                    for l in lines:
+                        if l.strip().startswith('SUPABASE_URL='):
+                            updated.append(f"SUPABASE_URL={SUPABASE_URL}\n")
+                            found_url = True
+                        elif l.strip().startswith('SUPABASE_KEY='):
+                            if key and not key.startswith('••••'):
+                                updated.append(f"SUPABASE_KEY={SUPABASE_KEY}\n")
+                            else:
+                                updated.append(l)
+                            found_key = True
+                        else:
+                            updated.append(l)
+                    if not found_url:
+                        updated.append(f"SUPABASE_URL={SUPABASE_URL}\n")
+                    if not found_key and key and not key.startswith('••••'):
+                        updated.append(f"SUPABASE_KEY={SUPABASE_KEY}\n")
+                    with open(_env_path, 'w', encoding='utf-8') as ef:
+                        ef.writelines(updated)
+            except Exception as ex:
+                print(f"Notice: .env update warning: {ex}")
+
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "success": sb_ok,
+                "connected": sb_ok,
+                "message": sb_msg,
+                "supabase": {
+                    "enabled": SUPABASE_ENABLED,
+                    "connected": sb_ok,
+                    "url": SUPABASE_URL,
+                    "secured": True
+                }
+            }, ensure_ascii=False).encode('utf-8'))
+            return
+
+        elif path == '/api/supabase/sync':
+            db = load_db()
+            rsvps = db.get("rsvps", [])
+            wishes = db.get("wishes", [])
+            cfg = db.get("invitation_config", {})
+            synced_rsvps = 0
+            synced_wishes = 0
+            for r in rsvps:
+                if sb_push_rsvp(r) is not None:
+                    synced_rsvps += 1
+            for w in wishes:
+                if sb_push_wish(w) is not None:
+                    synced_wishes += 1
+            if cfg:
+                sb_save_config(cfg)
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "success": True,
+                "message": f"Synced {synced_rsvps} RSVPs & {synced_wishes} Wishes to Supabase Cloud!",
+                "syncedRsvps": synced_rsvps,
+                "syncedWishes": synced_wishes
+            }, ensure_ascii=False).encode('utf-8'))
+            return
 
         self.send_response(404)
         self.end_headers()

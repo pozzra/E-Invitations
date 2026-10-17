@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Battambang:wght@300;400;700&family=Cinzel:wght@500;700;900&family=Hanuman:wght@300;400;700&family=Kantumruy+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Moul&family=Noto+Serif+Khmer:wght@400;600;700&display=swap">
 
-  <link rel="stylesheet" href="css/style.css?v=20261017k">
+  <link rel="stylesheet" href="css/style.css?v=20261017l">
 </head>
 <body>
 
@@ -30,8 +30,14 @@
   <canvas id="particle-canvas"></canvas>
   <canvas id="confetti-canvas"></canvas>
 
-  <!-- Floating Quick Actions (Music Player, Calendar, Share) -->
+  <!-- Floating Quick Actions (Language, Theme, Music Player, Share) -->
   <div class="floating-actions">
+    <button class="action-btn" id="btn-toggle-lang" title="ប្តូរភាសា / Switch Language (KH / EN)" aria-label="Switch Language">
+      <span id="lang-switch-text" style="font-size: 0.74rem; font-weight: 700; font-family: var(--font-khmer-sub); letter-spacing: 0.5px;">EN</span>
+    </button>
+    <button class="action-btn" id="btn-toggle-theme" title="ប្តូរ Dark/Light Mode" aria-label="Toggle Theme Mode">
+      <span id="client-theme-icon" style="font-size: 1rem;">🌓</span>
+    </button>
     <button class="action-btn" id="btn-toggle-music" title="ចាក់/បិទតន្ត្រី" aria-label="Toggle Traditional Music">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M9 18V5l12-2v13"></path>
@@ -486,7 +492,7 @@
       <footer class="footer-section">
         <div class="footer-lotus">🪷</div>
         <p id="display-footer-thankyou">សូមថ្លែងអំណរគុណយ៉ាងជ្រាលជ្រៅចំពោះវត្តមានដ៏ឧត្តុង្គឧត្តមរបស់លោកអ្នក</p>
-        <p id="display-footer-credit" style="margin-top: 6px; font-size: 0.75rem; color: var(--primary-gold-dark);">
+        <p id="display-footer-credit" style="margin-top: 6px; font-size: 0.75rem; color: var(--primary-gold-light);">
           Designed with Khmer Traditional Heritage & Modern Elegance
         </p>
       </footer>
@@ -646,8 +652,8 @@
 
   <!-- Audio, Supabase, and App Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase.js?v=20261017k"></script>
-  <script src="js/audio.js?v=20261017k"></script>
-  <script src="js/app.js?v=20261017k"></script>
+  <script src="js/supabase.js?v=20261017l"></script>
+  <script src="js/audio.js?v=20261017l"></script>
+  <script src="js/app.js?v=20261017l"></script>
 </body>
 </html>

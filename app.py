@@ -383,6 +383,69 @@ def api_upload_mp3():
         return json_response({'success': False, 'error': str(e)}, status=500)
 
 
+@app.route('/api/supabase/config', methods=['POST'])
+def api_supabase_config():
+    payload = request.get_json(silent=True) or {}
+    url = payload.get('url', '').strip()
+    key = payload.get('key', '').strip()
+    import server
+    if url:
+        server.SUPABASE_URL = url.rstrip('/')
+    if key and not key.startswith('••••'):
+        server.SUPABASE_KEY = key
+    server.SUPABASE_ENABLED = bool(server.SUPABASE_URL and server.SUPABASE_KEY)
+    sb_ok, sb_msg = server.sb_test_connection()
+    return json_response({
+        'success': sb_ok,
+        'connected': sb_ok,
+        'message': sb_msg,
+        'supabase': {
+            'enabled': server.SUPABASE_ENABLED,
+            'connected': sb_ok,
+            'url': server.SUPABASE_URL,
+            'secured': True
+        }
+    })
+
+
+@app.route('/api/supabase/status', methods=['GET'])
+def api_supabase_status():
+    import server
+    sb_ok, sb_msg = server.sb_test_connection()
+    return json_response({
+        'success': sb_ok,
+        'connected': sb_ok,
+        'url': server.SUPABASE_URL,
+        'message': sb_msg,
+        'secured': True
+    })
+
+
+@app.route('/api/supabase/sync', methods=['POST'])
+def api_supabase_sync():
+    import server
+    db = server.load_db()
+    rsvps = db.get('rsvps', [])
+    wishes = db.get('wishes', [])
+    cfg = db.get('invitation_config', {})
+    synced_rsvps = 0
+    synced_wishes = 0
+    for r in rsvps:
+        if server.sb_push_rsvp(r) is not None:
+            synced_rsvps += 1
+    for w in wishes:
+        if server.sb_push_wish(w) is not None:
+            synced_wishes += 1
+    if cfg:
+        server.sb_save_config(cfg)
+    return json_response({
+        'success': True,
+        'message': f'Synced {synced_rsvps} RSVPs & {synced_wishes} Wishes to Supabase Cloud!',
+        'syncedRsvps': synced_rsvps,
+        'syncedWishes': synced_wishes
+    })
+
+
 # ==========================================================================
 # Static file serving (client invitation, admin panel, etc.)
 # ==========================================================================

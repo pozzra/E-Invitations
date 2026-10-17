@@ -167,9 +167,9 @@
 
         <div class="form-group">
           <label class="form-label" for="supabase-key">Supabase Anon Public API Key</label>
-          <input type="password" id="supabase-key" class="form-input" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." required>
+          <input type="password" id="supabase-key" class="form-input" placeholder="•••••••••••••••••••• (Secured on Server)">
           <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
-            យកពី Supabase Dashboard ➔ Project Settings ➔ API ➔ Project API keys (anon public)
+            រក្សាទុកដោយសុវត្ថិភាពលើ Server (.env) — លាក់បាំងមិនឱ្យឃើញក្នុង Inspect DevTools
           </div>
         </div>
 
@@ -444,22 +444,18 @@ values
       const statusPill = document.getElementById('status-pill');
       const form = document.getElementById('supabase-config-form');
 
-      // Load saved credentials (fall back to built-in defaults for auto-connect)
-      const savedUrl = localStorage.getItem('supabase_url') || (window.appSupabase && window.appSupabase.defaultUrl) || '';
-      const savedKey = localStorage.getItem('supabase_anon_key') || (window.appSupabase && window.appSupabase.defaultKey) || '';
+      // Purge any stored client key to ensure DevTools inspect / storage shows no secrets
+      try { localStorage.removeItem('supabase_anon_key'); } catch(_) {}
 
+      // Load saved URL only; key is kept secure on server backend (.env)
+      const savedUrl = localStorage.getItem('supabase_url') || (window.appSupabase && window.appSupabase.defaultUrl) || '';
       urlInput.value = savedUrl;
-      keyInput.value = savedKey;
+      keyInput.value = '';
+      keyInput.placeholder = '•••••••••••••••••••• (Secured on Server)';
 
       async function updateConnectionState() {
         const url = urlInput.value.trim();
         const key = keyInput.value.trim();
-
-        if (!url || !key) {
-          statusPill.className = 'status-pill status-disconnected';
-          statusPill.innerHTML = '⚪ មិនទាន់ភ្ជាប់ (Offline / Local)';
-          return false;
-        }
 
         statusPill.className = 'status-pill';
         statusPill.style.background = 'rgba(243, 156, 18, 0.2)';
@@ -471,7 +467,7 @@ values
           const res = await window.appSupabase.testConnection(url, key);
           if (res.success) {
             statusPill.className = 'status-pill status-connected';
-            statusPill.innerHTML = '🟢 បានភ្ជាប់ (Connected)';
+            statusPill.innerHTML = '🟢 បានភ្ជាប់ (Connected - Server Secured)';
             loadCloudData();
             return true;
           } else {
@@ -487,29 +483,25 @@ values
       }
 
       // Initial check
-      if (savedUrl && savedKey) {
-        updateConnectionState();
-      } else {
-        statusPill.className = 'status-pill status-disconnected';
-        statusPill.innerHTML = '⚪ មិនទាន់ភ្ជាប់ (Offline / Local)';
-        loadLocalDataPreview();
-      }
+      updateConnectionState();
 
       // Save & Connect
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const url = urlInput.value.trim();
         const key = keyInput.value.trim();
-        if (!url || !key) {
-          showToast('សូមបញ្ចូល Supabase Project URL និង Anon Key');
+        if (!url) {
+          showToast('សូមបញ្ចូល Supabase Project URL');
           return;
         }
-        window.appSupabase.setCredentials(url, key);
+        await window.appSupabase.setCredentials(url, key);
+        keyInput.value = '';
+        keyInput.placeholder = '•••••••••••••••••••• (Secured on Server)';
         const ok = await updateConnectionState();
         if (ok) {
-          showToast('⚡ បានភ្ជាប់ទៅ Supabase Cloud ដោយជោគជ័យ!');
+          showToast('⚡ បានភ្ជាប់ទៅ Supabase Cloud ដោយជោគជ័យ (Secured on Server)!');
         } else {
-          showToast('⚠️ ការតភ្ជាប់មិនជោគជ័យ សូមពិនិត្យមើល URL និង Key');
+          showToast('⚠️ ការតភ្ជាប់មិនជោគជ័យ សូមពិនិត្យមើល URL');
         }
       });
 
@@ -517,10 +509,6 @@ values
       document.getElementById('btn-test-conn').addEventListener('click', async () => {
         const url = urlInput.value.trim();
         const key = keyInput.value.trim();
-        if (!url || !key) {
-          showToast('សូមបញ្ចូល Supabase Project URL និង Anon Key ដើម្បីតេស្ត');
-          return;
-        }
         showToast('⏳ កំពុងសាកល្បងភ្ជាប់...');
         const res = await window.appSupabase.testConnection(url, key);
         if (res.success) {
@@ -536,7 +524,8 @@ values
         if (confirm('តើអ្នកពិតជាចង់ផ្តាច់ការភ្ជាប់ Supabase Cloud មែនទេ?')) {
           window.appSupabase.clearCredentials();
           keyInput.value = '';
-          updateConnectionState();
+          statusPill.className = 'status-pill status-disconnected';
+          statusPill.innerHTML = '⚪ មិនទាន់ភ្ជាប់ (Offline / Local)';
           showToast('❌ បានផ្តាច់ការភ្ជាប់ Supabase Cloud');
         }
       });
@@ -553,37 +542,15 @@ values
 
       // Push Local Database to Supabase Cloud
       document.getElementById('btn-sync-all').addEventListener('click', async () => {
-        if (!window.appSupabase.isConfigured || !window.appSupabase.client) {
-          showToast('⚠️ សូមភ្ជាប់ Supabase Cloud ជាមុនសិន!');
-          return;
-        }
         showToast('⏳ កំពុងបញ្ជូនទិន្នន័យពី Local Database ឡើងទៅ Cloud...');
         try {
-          const res = await fetch(`${API_BASE}/api/rsvps`);
-          const rsvps = res.ok ? await res.json() : [];
-          for (const r of rsvps) {
-            await window.appSupabase.client.from('rsvps').insert([{
-              invitation_id: window.appSupabase.invitationId,
-              guest_name: r.name,
-              guest_phone: r.phone || '',
-              attendance_status: r.attendance || 'attending',
-              guest_count: parseInt(r.count || 1),
-              wish_message: r.wishes || ''
-            }]);
+          const syncRes = await window.appSupabase.syncAllToCloud();
+          if (syncRes && syncRes.success) {
+            showToast('✅ ' + (syncRes.message || 'បានបញ្ជូនទិន្នន័យទាំងអស់ឡើង Cloud ដោយជោគជ័យ!'));
+            loadCloudData();
+          } else {
+            showToast('⚠️ Sync បរាជ័យ សូមពិនិត្យមើលការភ្ជាប់');
           }
-
-          const wishRes = await fetch(`${API_BASE}/api/wishes`);
-          const wishes = wishRes.ok ? await wishRes.json() : [];
-          for (const w of wishes) {
-            await window.appSupabase.client.from('wishes').insert([{
-              name: w.name,
-              date_display: w.date_display || w.date || 'ថ្មីៗនេះ',
-              message: w.message
-            }]);
-          }
-
-          showToast('✅ បានបញ្ជូនទិន្នន័យទាំងអស់ឡើង Cloud ដោយជោគជ័យ!');
-          loadCloudData();
         } catch (err) {
           showToast('❌ បរាជ័យក្នុងការ Sync: ' + err.message);
         }
@@ -591,19 +558,17 @@ values
 
       // Pull Cloud Data into Local Database File
       document.getElementById('btn-pull-cloud').addEventListener('click', async () => {
-        if (!window.appSupabase.isConfigured || !window.appSupabase.client) {
-          showToast('⚠️ សូមភ្ជាប់ Supabase Cloud ជាមុនសិន!');
-          return;
-        }
         showToast('⏳ កំពុងទាញយកទិន្នន័យពី Cloud...');
         try {
           const cloudRsvps = await window.appSupabase.fetchRsvps();
-          for (const r of cloudRsvps) {
-            await fetch(`${API_BASE}/api/rsvp`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(r)
-            });
+          if (Array.isArray(cloudRsvps)) {
+            for (const r of cloudRsvps) {
+              await fetch(`${API_BASE}/api/rsvp`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(r)
+              });
+            }
           }
           showToast('✅ បានទាញយកទិន្នន័យ Cloud មករក្សាទុកក្នុង Local Database File រួចរាល់!');
           loadCloudData();
@@ -637,19 +602,13 @@ values
 
       // Load Cloud Data into UI
       async function loadCloudData() {
-        if (!window.appSupabase.client) return;
-
         // 1. RSVPs
         try {
-          const { data: rsvps, error: rError } = await window.appSupabase.client
-            .from('rsvps')
-            .select('*')
-            .order('created_at', { ascending: false });
-
+          const rsvps = await window.appSupabase.fetchRsvps();
           const rTbody = document.getElementById('cloud-rsvps-tbody');
           const rCount = document.getElementById('count-cloud-rsvps');
 
-          if (!rError && Array.isArray(rsvps)) {
+          if (Array.isArray(rsvps)) {
             rCount.textContent = rsvps.length;
             if (rsvps.length === 0) {
               rTbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">មិនទាន់មានទិន្នន័យ RSVP ក្នុង Supabase Cloud នៅឡើយ</td></tr>';
@@ -660,7 +619,7 @@ values
                 const rAtt = r.attendance_status || r.attendance;
                 const rCount = (r.guest_count !== undefined && r.guest_count !== null) ? r.guest_count : (r.count || 0);
                 const rWish = (r.wish_message !== undefined && r.wish_message !== null) ? r.wish_message : (r.wishes || '');
-                const rWhen = r.created_at || r.submitted_at;
+                const rWhen = r.created_at || r.submittedAt;
                 return `
                 <tr>
                   <td style="color: var(--text-muted); font-size: 0.75rem;">${escapeHtml(rWhen ? new Date(rWhen).toLocaleString('km-KH') : '-')}</td>
@@ -684,15 +643,11 @@ values
 
         // 2. Wishes
         try {
-          const { data: wishes, error: wError } = await window.appSupabase.client
-            .from('wishes')
-            .select('*')
-            .order('created_at', { ascending: false });
-
+          const wishes = await window.appSupabase.fetchWishes();
           const wTbody = document.getElementById('cloud-wishes-tbody');
           const wCount = document.getElementById('count-cloud-wishes');
 
-          if (!wError && Array.isArray(wishes)) {
+          if (Array.isArray(wishes)) {
             wCount.textContent = wishes.length;
             if (wishes.length === 0) {
               wTbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-muted); padding: 20px;">មិនទាន់មានពាក្យជូនពរក្នុង Cloud នៅឡើយ</td></tr>';
@@ -700,7 +655,7 @@ values
               wTbody.innerHTML = wishes.map(w => `
                 <tr>
                   <td style="font-weight: 700; color: #85e8ba;">${escapeHtml(w.name || '')}</td>
-                  <td style="color: var(--text-muted);">${escapeHtml(w.date_display || 'ថ្មីៗនេះ')}</td>
+                  <td style="color: var(--text-muted);">${escapeHtml(w.date || w.date_display || 'ថ្មីៗនេះ')}</td>
                   <td>${escapeHtml(w.message || '')}</td>
                 </tr>
               `).join('');
@@ -712,21 +667,15 @@ values
 
         // 3. Config
         try {
-          const { data: cfg, error: cError } = await window.appSupabase.client
-            .from('invitation_config')
-            .select('*')
-            .eq('id', 'wedding_main')
-            .single();
-
+          const cfg = await window.appSupabase.fetchConfig();
           const pre = document.getElementById('cloud-config-pre');
-          if (!cError && cfg && cfg.config_json) {
-            pre.textContent = JSON.stringify(cfg.config_json, null, 2);
+          if (cfg && typeof cfg === 'object') {
+            pre.textContent = JSON.stringify(cfg, null, 2);
           } else {
             pre.textContent = 'ពុំទាន់មាន Config ក្នុង Cloud (អាចចុចបញ្ជូនទិន្នន័យ Local ឡើង Cloud បាន)';
           }
         } catch (e) {}
       }
-
       // Fallback local preview if offline
       async function loadLocalDataPreview() {
         try {

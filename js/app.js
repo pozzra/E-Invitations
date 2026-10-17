@@ -124,6 +124,348 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
+  // Client Language & Theme Switching System
+  // ==========================================================================
+  const CLIENT_I18N = {
+    kh: {
+      langSwitchLabel: 'EN',
+      envelopeBadge: 'E-INVITATION • លិខិតអញ្ជើញ',
+      envelopeTitle: 'សិរីសួស្តី អាពាហ៍ពិពាហ៍',
+      envelopeGuestLabel: 'សូមគោរពអញ្ជើញ៖',
+      envelopeGuestDefault: 'ភ្ញៀវកិត្តិយសដ៏ខ្ពង់ខ្ពស់',
+      envelopeHint: '✨ ចុចត្រាមាសដើម្បីបើកសំបុត្រ ✨',
+      sacredVerse: '☸ ជយោ ហោតុ សព្វទា ☸',
+      heroBadge: 'សិរីសួស្តី អាពាហ៍ពិពាហ៍',
+      heroTitle: 'លិខិតអញ្ជើញ',
+      greetingText: 'យើងខ្ញុំសូមគោរពអញ្ជើញ',
+      guestHeroDefault: 'ឯកឧត្តម លោកជំទាវ លោក លោកស្រី ភ្ញៀវកិត្តិយស',
+      invitationSubtext: 'ចូលរួមជាអធិបតី និងជាភ្ញៀវកិត្តិយស ក្នុងពិធីមង្គលការកូនប្រុស-កូនស្រីរបស់យើងខ្ញុំ',
+      countdownTitle: 'រាប់ថយក្រោយដល់ថ្ងៃសិរីមង្គល',
+      countdownSubtitle: 'Countdown to Auspicious Day',
+      cdDays: 'ថ្ងៃ (Days)',
+      cdHours: 'ម៉ោង (Hours)',
+      cdMins: 'នាទី (Mins)',
+      cdSecs: 'វិនាទី (Secs)',
+      addToCalendarBtn: 'កត់ត្រាក្នុងប្រតិទិន (Add to Calendar)',
+      parentsTitle: 'មាតាបិតាទាំងសងខាង',
+      parentsSubtitle: 'The Honorable Parents',
+      parentsGroomRole: 'មាតាបិតាខាងកូនប្រុស',
+      parentsBrideRole: 'មាតាបិតាខាងកូនស្រី',
+      badgeGroomRole: 'កូនប្រុសនាម (Groom)',
+      badgeBrideRole: 'កូនស្រីនាម (Bride)',
+      videoTitle: 'វីដេអូអនុស្សាវរីយ៍ & សាច់រឿងស្នេហា',
+      videoSubtitle: 'Cinematic Wedding Video & Love Story',
+      videoDesc: 'សូមទស្សនាវីដេអូអនុស្សាវរីយ៍ដ៏មានអត្ថន័យ និងសាច់រឿងនៃក្តីស្រឡាញ់របស់គូស្វាមីភរិយាថ្មី',
+      videoPlayBtn: 'ចុចដើម្បីទស្សនាវីដេអូ (Play Video)',
+      scheduleTitle: 'កាលវិភាគកម្មវិធីសិរីមង្គល',
+      scheduleSubtitle: 'Wedding Ceremony Schedule',
+      venueTitle: 'ទីតាំងប្រារព្ធពិធី',
+      venueSubtitle: 'Ceremony & Banquet Venue',
+      mapsBtn: 'បើកមើលផែនទី (Google Maps)',
+      giftTitle: 'ចំណងដៃអាពាហ៍ពិពាហ៍ឌីជីថល',
+      giftSubtitle: 'Wedding Gift & Blessings',
+      giftDesc: 'ដើម្បីជាការងាយស្រួលសម្រាប់ភ្ញៀវកិត្តិយសដែលនៅឆ្ងាយ ឬចង់ផ្ញើចំណងដៃជូនពរតាមរយៈធនាគារ (ABA / Bakong KHQR)',
+      giftQrBtn: 'ស្កេន QR Code ចងដៃ (Digital Blessing)',
+      rsvpTitle: 'ការបញ្ជាក់ការចូលរួម (RSVP)',
+      rsvpSubtitle: 'Please Confirm Your Attendance',
+      rsvpNameLabel: 'ឈ្មោះភ្ញៀវកិត្តិយស (Full Name) *',
+      rsvpNamePlaceholder: 'សូមបញ្ចូលឈ្មោះរបស់លោកអ្នក',
+      rsvpPhoneLabel: 'លេខទូរស័ព្ទ ឬ Telegram (Contact Number)',
+      rsvpPhonePlaceholder: '012 345 678',
+      rsvpStatusLabel: 'ការចូលរួម (Attendance Status) *',
+      rsvpAttending: '🎉 ខ្ញុំនឹងចូលរួម (Attending)',
+      rsvpDeclining: '🙏 មិនអាចចូលរួម (Regret)',
+      rsvpCountLabel: 'ចំនួនភ្ញៀវចូលរួម (Number of Guests)',
+      rsvpWishesLabel: 'សារជូនពរដល់គូស្វាមីភរិយា (Wedding Wishes)',
+      rsvpWishesPlaceholder: 'សូមជូនពរឱ្យមានសុភមង្គល និងស្រឡាញ់គ្នារហូតដល់ចាស់កោងខ្នង...',
+      rsvpSubmitBtn: 'ផ្ញើការបញ្ជាក់ (Submit RSVP)',
+      wishesTitle: 'សៀវភៅជូនពរឌីជីថល',
+      wishesSubtitle: 'Guestbook & Warm Wishes',
+      thankYou: 'សូមថ្លែងអំណរគុណយ៉ាងជ្រាលជ្រៅចំពោះវត្តមានដ៏ឧត្តុង្គឧត្តមរបស់លោកអ្នក',
+      footerCredit: 'Designed with Khmer Traditional Heritage & Modern Elegance',
+      toastLangSwitched: '🇰🇭 បានប្តូរទៅភាសាខ្មែរ',
+      toastThemeSwitched: '🌓 បានប្តូរ Theme'
+    },
+    en: {
+      langSwitchLabel: 'KH',
+      envelopeBadge: 'E-INVITATION • WEDDING INVITATION',
+      envelopeTitle: 'Holy Matrimony Invitation',
+      envelopeGuestLabel: 'Cordially Inviting:',
+      envelopeGuestDefault: 'Honorable Guest',
+      envelopeHint: '✨ Tap the golden seal to open ✨',
+      sacredVerse: '☸ Blessing of Auspicious Union & Joy ☸',
+      heroBadge: 'Holy Matrimony & Reception',
+      heroTitle: 'Wedding Invitation',
+      greetingText: 'We Cordially Invite',
+      guestHeroDefault: 'Distinguished Guests, Family & Friends',
+      invitationSubtext: 'To celebrate the holy matrimony and wedding banquet of our beloved son & daughter',
+      countdownTitle: 'Countdown to Auspicious Day',
+      countdownSubtitle: 'Celebrating Love & Togetherness',
+      cdDays: 'Days',
+      cdHours: 'Hours',
+      cdMins: 'Minutes',
+      cdSecs: 'Seconds',
+      addToCalendarBtn: 'Add to Calendar 📅',
+      parentsTitle: 'The Honorable Parents',
+      parentsSubtitle: 'Parents of the Groom & Bride',
+      parentsGroomRole: "Groom's Parents",
+      parentsBrideRole: "Bride's Parents",
+      badgeGroomRole: 'The Groom',
+      badgeBrideRole: 'The Bride',
+      videoTitle: 'Wedding Highlights & Love Story',
+      videoSubtitle: 'Cinematic Wedding Video & Memories',
+      videoDesc: 'Enjoy our memorable video journey and celebration of everlasting love',
+      videoPlayBtn: 'Play Wedding Video ▶',
+      scheduleTitle: 'Wedding Ceremony Schedule',
+      scheduleSubtitle: 'Traditional Ceremonies & Evening Banquet',
+      venueTitle: 'Ceremony & Banquet Venue',
+      venueSubtitle: 'Location & Directions',
+      mapsBtn: 'Open in Google Maps 🗺️',
+      giftTitle: 'Digital Wedding Gift & Blessings',
+      giftSubtitle: 'Wedding Gift & Blessings',
+      giftDesc: 'For distinguished guests who wish to send wedding blessings via banking (ABA / Bakong KHQR)',
+      giftQrBtn: 'Scan QR Code for Blessing (KHQR)',
+      rsvpTitle: 'RSVP • Attendance Confirmation',
+      rsvpSubtitle: 'Please Confirm Your Attendance',
+      rsvpNameLabel: 'Your Full Name *',
+      rsvpNamePlaceholder: 'Please enter your full name',
+      rsvpPhoneLabel: 'Phone Number or Telegram',
+      rsvpPhonePlaceholder: '012 345 678',
+      rsvpStatusLabel: 'Attendance Status *',
+      rsvpAttending: '🎉 Attending with Joy',
+      rsvpDeclining: '🙏 Regretfully Cannot Attend',
+      rsvpCountLabel: 'Number of Guests',
+      rsvpWishesLabel: 'Your Warm Wishes & Blessing',
+      rsvpWishesPlaceholder: 'Wishing you a lifetime of endless love, joy, and happiness...',
+      rsvpSubmitBtn: 'Submit RSVP Confirmation',
+      wishesTitle: 'Digital Guestbook & Wishes',
+      wishesSubtitle: 'Leave Your Warm Wishes',
+      thankYou: 'Thank you sincerely for honoring our celebration with your warm presence and blessings.',
+      footerCredit: 'Designed with Khmer Traditional Heritage & Modern Elegance',
+      toastLangSwitched: '🇬🇧 Switched to English',
+      toastThemeSwitched: '🌓 Display theme updated'
+    }
+  };
+
+  let activeClientLang = 'kh';
+  let activeClientTheme = 'dark';
+  let lastLoadedConfig = null;
+
+  function applyClientLanguage(lang, save, notify) {
+    activeClientLang = (lang === 'en' || lang === 'kh') ? lang : 'kh';
+    const dict = CLIENT_I18N[activeClientLang] || CLIENT_I18N.kh;
+    const root = document.documentElement;
+
+    root.setAttribute('lang', activeClientLang === 'en' ? 'en' : 'km');
+    root.setAttribute('data-lang', activeClientLang);
+
+    // Indicator on floating action button
+    const ind = document.getElementById('lang-switch-text');
+    if (ind) ind.textContent = dict.langSwitchLabel;
+
+    // Envelope
+    const envBadge = document.getElementById('display-envelope-badge');
+    const envTitle = document.getElementById('display-envelope-title');
+    const envGuestLabel = document.getElementById('display-envelope-guest-label');
+    const envHint = document.getElementById('display-envelope-hint');
+    if (envBadge && (!lastLoadedConfig || !lastLoadedConfig.envelopeBadge || lastLoadedConfig.envelopeBadge === defaultConfig.envelopeBadge)) {
+      envBadge.textContent = dict.envelopeBadge;
+    }
+    if (envTitle && (!lastLoadedConfig || !lastLoadedConfig.invitationTitle || lastLoadedConfig.invitationTitle === defaultConfig.invitationTitle)) {
+      envTitle.textContent = dict.envelopeTitle;
+    }
+    if (envGuestLabel) envGuestLabel.textContent = dict.envelopeGuestLabel;
+    if (envHint && (!lastLoadedConfig || !lastLoadedConfig.envelopeHint || lastLoadedConfig.envelopeHint === defaultConfig.envelopeHint)) {
+      envHint.textContent = dict.envelopeHint;
+    }
+
+    // Hero
+    const verse = document.getElementById('display-sacred-verse');
+    const heroBadge = document.getElementById('display-hero-badge');
+    const heroTitle = document.getElementById('display-hero-title');
+    const greetingText = document.getElementById('display-greeting-text');
+    const subtext = document.getElementById('display-invitation-subtext');
+    if (verse && (!lastLoadedConfig || !lastLoadedConfig.blessingVerse || lastLoadedConfig.blessingVerse === defaultConfig.blessingVerse)) {
+      verse.textContent = dict.sacredVerse;
+    }
+    if (heroBadge && (!lastLoadedConfig || !lastLoadedConfig.invitationTitle || lastLoadedConfig.invitationTitle === defaultConfig.invitationTitle)) {
+      heroBadge.textContent = dict.heroBadge;
+    }
+    if (heroTitle && (!lastLoadedConfig || !lastLoadedConfig.invitationHeader || lastLoadedConfig.invitationHeader === defaultConfig.invitationHeader)) {
+      heroTitle.textContent = dict.heroTitle;
+    }
+    if (greetingText && (!lastLoadedConfig || !lastLoadedConfig.invitationGreeting || lastLoadedConfig.invitationGreeting === defaultConfig.invitationGreeting)) {
+      greetingText.textContent = dict.greetingText;
+    }
+    if (subtext && (!lastLoadedConfig || !lastLoadedConfig.invitationSubtext || lastLoadedConfig.invitationSubtext === defaultConfig.invitationSubtext)) {
+      subtext.textContent = dict.invitationSubtext;
+    }
+
+    // Default guest name on hero/envelope if not customized
+    const envGuestName = document.getElementById('envelope-guest-name');
+    const heroGuestName = document.getElementById('hero-guest-name');
+    if (envGuestName && (envGuestName.textContent === 'ភ្ញៀវកិត្តិយសដ៏ខ្ពង់ខ្ពស់' || envGuestName.textContent === 'Honorable Guest')) {
+      envGuestName.textContent = dict.envelopeGuestDefault;
+    }
+    if (heroGuestName && (heroGuestName.textContent === 'ឯកឧត្តម លោកជំទាវ លោក លោកស្រី ភ្ញៀវកិត្តិយស' || heroGuestName.textContent === 'Distinguished Guests, Family & Friends')) {
+      heroGuestName.textContent = dict.guestHeroDefault;
+    }
+
+    // Countdown units
+    const cdDaysEl = document.querySelector('#cd-days + .countdown-label');
+    const cdHoursEl = document.querySelector('#cd-hours + .countdown-label');
+    const cdMinsEl = document.querySelector('#cd-mins + .countdown-label');
+    const cdSecsEl = document.querySelector('#cd-secs + .countdown-label');
+    if (cdDaysEl) cdDaysEl.textContent = dict.cdDays;
+    if (cdHoursEl) cdHoursEl.textContent = dict.cdHours;
+    if (cdMinsEl) cdMinsEl.textContent = dict.cdMins;
+    if (cdSecsEl) cdSecsEl.textContent = dict.cdSecs;
+
+    // Section headings & buttons via data-cfg-text
+    const textElems = {
+      countdownTitle: dict.countdownTitle,
+      countdownSubtitle: dict.countdownSubtitle,
+      addToCalendarBtn: dict.addToCalendarBtn,
+      parentsTitle: dict.parentsTitle,
+      parentsSubtitle: dict.parentsSubtitle,
+      scheduleTitle: dict.scheduleTitle,
+      scheduleSubtitle: dict.scheduleSubtitle,
+      venueTitle: dict.venueTitle,
+      venueSubtitle: dict.venueSubtitle,
+      mapsBtn: dict.mapsBtn,
+      giftTitle: dict.giftTitle,
+      giftSubtitle: dict.giftSubtitle,
+      giftQrBtn: dict.giftQrBtn,
+      rsvpTitle: dict.rsvpTitle,
+      rsvpSubtitle: dict.rsvpSubtitle,
+      rsvpSubmitBtn: dict.rsvpSubmitBtn,
+      wishesTitle: dict.wishesTitle,
+      wishesSubtitle: dict.wishesSubtitle
+    };
+    Object.keys(textElems).forEach(k => {
+      const el = document.querySelector(`[data-cfg-text="${k}"]`);
+      if (el) {
+        const customT = (lastLoadedConfig && lastLoadedConfig.texts && lastLoadedConfig.texts[k]) || '';
+        const defT = (defaultConfig.texts && defaultConfig.texts[k]) || '';
+        if (!customT || customT === defT || activeClientLang === 'en') {
+          el.textContent = textElems[k];
+        }
+      }
+    });
+
+    // Parents roles
+    const groomRoleEl = document.querySelector('#section-parents .parents-col:first-child .parents-role');
+    const brideRoleEl = document.querySelector('#section-parents .parents-col:last-child .parents-role');
+    const badgeGroomRole = document.querySelector('#section-parents .couple-badge-card:first-child .role-tag');
+    const badgeBrideRole = document.querySelector('#section-parents .couple-badge-card:last-child .role-tag');
+    if (groomRoleEl) groomRoleEl.textContent = dict.parentsGroomRole;
+    if (brideRoleEl) brideRoleEl.textContent = dict.parentsBrideRole;
+    if (badgeGroomRole) badgeGroomRole.textContent = dict.badgeGroomRole;
+    if (badgeBrideRole) badgeBrideRole.textContent = dict.badgeBrideRole;
+
+    // Video album
+    const vTitle = document.getElementById('video-album-title');
+    const vSub = document.getElementById('video-album-subtitle');
+    const vDesc = document.getElementById('video-album-desc');
+    const vPlayText = document.querySelector('.video-overlay-text');
+    if (vTitle && (!lastLoadedConfig || !lastLoadedConfig.videoAlbum?.title || lastLoadedConfig.videoAlbum.title === defaultConfig.videoAlbum.title)) {
+      vTitle.textContent = dict.videoTitle;
+    }
+    if (vSub && (!lastLoadedConfig || !lastLoadedConfig.videoAlbum?.subtitle || lastLoadedConfig.videoAlbum.subtitle === defaultConfig.videoAlbum.subtitle)) {
+      vSub.textContent = dict.videoSubtitle;
+    }
+    if (vDesc && (!lastLoadedConfig || !lastLoadedConfig.videoAlbum?.desc || lastLoadedConfig.videoAlbum.desc === defaultConfig.videoAlbum.desc)) {
+      vDesc.textContent = dict.videoDesc;
+    }
+    if (vPlayText) vPlayText.textContent = dict.videoPlayBtn;
+
+    // Gift desc
+    const giftP = document.querySelector('#section-gift p');
+    if (giftP) giftP.textContent = dict.giftDesc;
+
+    // RSVP Form Elements
+    const nameLabel = document.querySelector('label[for="guest-name-input"]');
+    const nameInput = document.getElementById('guest-name-input');
+    const phoneLabel = document.querySelector('label[for="guest-phone-input"]');
+    const phoneInput = document.getElementById('guest-phone-input');
+    const statusLabel = document.querySelector('#section-rsvp .form-group:nth-child(3) .form-label');
+    const attendSpan = document.querySelector('#label-attending span');
+    const declineSpan = document.querySelector('#label-declining span');
+    const countLabel = document.querySelector('label[for="guest-count-select"]');
+    const wishesLabel = document.querySelector('label[for="guest-wishes-input"]');
+    const wishesInput = document.getElementById('guest-wishes-input');
+
+    if (nameLabel) nameLabel.textContent = dict.rsvpNameLabel;
+    if (nameInput) nameInput.placeholder = dict.rsvpNamePlaceholder;
+    if (phoneLabel) phoneLabel.textContent = dict.rsvpPhoneLabel;
+    if (phoneInput) phoneInput.placeholder = dict.rsvpPhonePlaceholder;
+    if (statusLabel) statusLabel.textContent = dict.rsvpStatusLabel;
+    if (attendSpan) attendSpan.textContent = dict.rsvpAttending;
+    if (declineSpan) declineSpan.textContent = dict.rsvpDeclining;
+    if (countLabel) countLabel.textContent = dict.rsvpCountLabel;
+    if (wishesLabel) wishesLabel.textContent = dict.rsvpWishesLabel;
+    if (wishesInput) wishesInput.placeholder = dict.rsvpWishesPlaceholder;
+
+    // Thank you text
+    const ty = document.getElementById('display-footer-thankyou');
+    const fc = document.getElementById('display-footer-credit');
+    if (ty && (!lastLoadedConfig || !lastLoadedConfig.thankYouText || lastLoadedConfig.thankYouText === defaultConfig.thankYouText)) {
+      ty.textContent = dict.thankYou;
+    }
+    if (fc && (!lastLoadedConfig || !lastLoadedConfig.footerCredit || lastLoadedConfig.footerCredit === defaultConfig.footerCredit)) {
+      fc.textContent = dict.footerCredit;
+    }
+
+    if (save) {
+      try { localStorage.setItem('client-lang', activeClientLang); } catch (_) {}
+    }
+    if (notify) {
+      showToast(dict.toastLangSwitched);
+    }
+  }
+
+  function applyClientTheme(mode, save, notify) {
+    activeClientTheme = mode || 'dark';
+    const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+    const resolved = (mode === 'dark' || mode === 'light') ? mode : (prefersLight ? 'light' : 'dark');
+
+    const root = document.documentElement;
+    root.setAttribute('data-theme', resolved);
+    root.setAttribute('data-bg', resolved);
+
+    const themeIcon = document.getElementById('client-theme-icon');
+    if (themeIcon) {
+      themeIcon.textContent = resolved === 'light' ? '☀️' : '🌙';
+    }
+
+    if (save) {
+      try { localStorage.setItem('client-theme', mode); } catch (_) {}
+    }
+    if (notify) {
+      const dict = CLIENT_I18N[activeClientLang] || CLIENT_I18N.kh;
+      showToast(dict.toastThemeSwitched);
+    }
+  }
+
+  // Floating Action Listeners for Language and Theme
+  const btnToggleLang = document.getElementById('btn-toggle-lang');
+  if (btnToggleLang) {
+    btnToggleLang.addEventListener('click', () => {
+      const nextLang = activeClientLang === 'en' ? 'kh' : 'en';
+      applyClientLanguage(nextLang, true, true);
+    });
+  }
+
+  const btnToggleTheme = document.getElementById('btn-toggle-theme');
+  if (btnToggleTheme) {
+    btnToggleTheme.addEventListener('click', () => {
+      const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+      const nextTheme = cur === 'light' ? 'dark' : 'light';
+      applyClientTheme(nextTheme, true, true);
+    });
+  }
+
+  // ==========================================================================
   // Dynamic Configuration Loader (Admin Customizable)
   // ==========================================================================
   const defaultConfig = {
@@ -267,14 +609,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (link.getAttribute('href') !== url) link.setAttribute('href', url);
   }
   function applyAppearance(config) {
+    lastLoadedConfig = config;
     const theme = config.theme || {};
     const fonts = config.fonts || {};
     const root = document.documentElement;
 
-    // 1) Theme mode (auto follows the OS preference)
-    const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
-    const mode = (theme.mode === 'dark' || theme.mode === 'light') ? theme.mode : (prefersLight ? 'light' : 'dark');
-    root.setAttribute('data-theme', mode);
+    // 1) Theme mode (user manual choice in localStorage overrides; else follows config / OS)
+    const storedTheme = localStorage.getItem('client-theme');
+    const themeMode = storedTheme || theme.mode || 'auto';
+    applyClientTheme(themeMode, false, false);
 
     // 2) Accent (gold) color
     if (theme.accent) {
@@ -292,7 +635,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3) Background color (base gradient + glass surfaces)
     if (theme.bg) {
       const b = theme.bg;
-      const toLight = mode === 'light';
+      const toLight = document.documentElement.getAttribute('data-theme') === 'light';
       _setVar('--bg-deep-navy', b);
       _setVar('--bg-burgundy', _mix(b, toLight ? '#000000' : '#ffffff', 0.05));
       _setVar('--bg-grad-1', b);
@@ -304,22 +647,22 @@ document.addEventListener('DOMContentLoaded', () => {
       ['--bg-deep-navy', '--bg-burgundy', '--bg-grad-1', '--bg-grad-2', '--bg-grad-3', '--bg-overlay', '--glass-bg'].forEach(v => _setVar(v, ''));
     }
 
-    // 3b) Text colour follows the Theme Mode (device preference when 'auto'):
-    //     light mode → pure black text, dark mode → pure white text.
-    //     Uses only plain black & white for maximum legibility.
-    root.setAttribute('data-bg', mode === 'light' ? 'light' : 'dark');
-
-    // 4) Language (sets <html lang> + data-lang; affects font priority)
-    let langTag = 'km', langCode = 'kh';
-    if (config.language === 'en') { langTag = 'en'; langCode = 'en'; }
-    else if (config.language === 'kh') { langTag = 'km'; langCode = 'kh'; }
-    else {
-      const sys = (navigator.language || 'km').toLowerCase();
-      langTag = sys;
-      langCode = sys.indexOf('km') === 0 ? 'kh' : 'en';
+    // 4) Language (user manual choice or ?lang= overrides; else follows config / OS)
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlLang = urlParams.get('lang');
+    const storedLang = localStorage.getItem('client-lang');
+    let resolvedLang = storedLang;
+    if (!resolvedLang && (urlLang === 'en' || urlLang === 'kh')) {
+      resolvedLang = urlLang;
     }
-    root.setAttribute('lang', langTag);
-    root.setAttribute('data-lang', langCode);
+    if (!resolvedLang) {
+      if (config.language === 'en' || config.language === 'kh') resolvedLang = config.language;
+      else {
+        const sys = (navigator.language || 'km').toLowerCase();
+        resolvedLang = sys.indexOf('km') === 0 ? 'kh' : 'en';
+      }
+    }
+    applyClientLanguage(resolvedLang, false, false);
 
     // 5) Fonts
     const fams = [fonts.khmer, fonts.khmerHeading, fonts.english].filter(Boolean);

@@ -86,41 +86,142 @@ body::before {
 /* Light Mode — overridable from the admin Configurations page (data-theme="light") */
 html[data-theme="light"] {
   --primary-gold: #b8860b;
-  --primary-gold-light: #d4a83a;
+  --primary-gold-light: #7a5908;
   --primary-gold-dark: #8a6508;
   --text-gold: #8a6508;
-  --text-cream: #2a2118;
-  --text-muted: #6b5f4d;
+  --text-cream: #22180e;
+  --text-muted: #5e503f;
   --text-highlight: #7a5c00;
-  --bg-deep-navy: #fbf6ec;
-  --bg-burgundy: #f3e9d6;
-  --bg-overlay: rgba(251, 246, 236, 0.92);
-  --glass-bg: rgba(255, 252, 245, 0.78);
+  --bg-deep-navy: #f8f5ee;
+  --bg-burgundy: #f0e7d5;
+  --bg-overlay: rgba(248, 245, 238, 0.95);
+  --glass-bg: rgba(255, 253, 248, 0.94);
   --glass-border: rgba(184, 134, 11, 0.35);
   --glass-card: rgba(0, 0, 0, 0.03);
-  --bg-grad-1: #fdfaf3;
-  --bg-grad-2: #f7efdd;
-  --bg-grad-3: #f0e3c8;
-  --bg-scrim-soft: rgba(251, 246, 236, 0.1);
-  --bg-scrim: rgba(251, 246, 236, 0.85);
-  --panel-grad: linear-gradient(145deg, rgba(255, 252, 245, 0.92) 0%, rgba(245, 238, 224, 0.95) 100%);
-  --shadow-lux: 0 16px 40px rgba(120, 90, 20, 0.18), 0 0 30px rgba(184, 134, 11, 0.12);
+  --bg-grad-1: #faf7f0;
+  --bg-grad-2: #f3ece0;
+  --bg-grad-3: #eae0cd;
+  --bg-scrim-soft: rgba(248, 245, 238, 0.2);
+  --bg-scrim: rgba(248, 245, 238, 0.88);
+  --panel-grad: linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(246, 240, 228, 0.95) 100%);
+  --shadow-lux: 0 16px 40px rgba(120, 90, 20, 0.14), 0 0 25px rgba(184, 134, 11, 0.1);
 }
 
-/* Text colour follows the Theme Mode (device preference when 'auto'):
-   light mode → pure black text, dark mode → pure white text. */
+/* Text colour follows Theme Mode */
 html[data-bg="dark"] {
   --text-cream: #ffffff;
-  --text-muted: #ffffff;
-  --text-gold: #ffffff;
-  --text-highlight: #ffffff;
+  --text-muted: #dcd4c3;
+  --text-gold: #f4d48a;
+  --text-highlight: #ffeaa7;
 }
 
 html[data-bg="light"] {
-  --text-cream: #000000;
-  --text-muted: #000000;
-  --text-gold: #000000;
-  --text-highlight: #000000;
+  --text-cream: #1e150b;
+  --text-muted: #5e503f;
+  --text-gold: #8a6508;
+  --text-highlight: #6e4e04;
+}
+
+/* Light Mode Overrides for UI Elements */
+html[data-theme="light"] body {
+  background-color: #f7f4ec;
+  color: #1e150b;
+}
+
+html[data-theme="light"] .form-input,
+html[data-theme="light"] .form-textarea,
+html[data-theme="light"] .form-select {
+  background: #ffffff !important;
+  border-color: rgba(184, 134, 11, 0.45) !important;
+  color: #1a1206 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+html[data-theme="light"] .form-input::placeholder,
+html[data-theme="light"] .form-textarea::placeholder {
+  color: #8c7f6e !important;
+}
+
+html[data-theme="light"] .form-input:focus,
+html[data-theme="light"] .form-textarea:focus,
+html[data-theme="light"] .form-select:focus {
+  border-color: #b8860b !important;
+  box-shadow: 0 0 12px rgba(184, 134, 11, 0.35) !important;
+  background: #ffffff !important;
+}
+
+html[data-theme="light"] .form-label {
+  color: #523b06 !important;
+}
+
+html[data-theme="light"] .card-glass {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(184, 134, 11, 0.32);
+  box-shadow: 0 12px 35px rgba(120, 90, 20, 0.1);
+}
+
+html[data-theme="light"] .btn-gold-secondary {
+  background: rgba(184, 134, 11, 0.12);
+  color: #7a5908;
+  border-color: #b8860b;
+}
+
+html[data-theme="light"] .btn-gold-secondary:hover {
+  background: rgba(184, 134, 11, 0.22);
+  color: #523b06;
+}
+
+html[data-theme="light"] .action-btn {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: #b8860b;
+  color: #7a5908;
+  box-shadow: 0 4px 15px rgba(120, 90, 20, 0.15), 0 0 10px rgba(184, 134, 11, 0.2);
+}
+
+html[data-theme="light"] .action-btn:hover {
+  background: var(--gold-gradient);
+  color: #1a0505;
+}
+
+html[data-theme="light"] .countdown-box {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(184, 134, 11, 0.3);
+  box-shadow: 0 4px 15px rgba(120, 90, 20, 0.08);
+}
+
+html[data-theme="light"] .countdown-num {
+  color: #8a6508;
+}
+
+html[data-theme="light"] .countdown-label {
+  color: #5e503f;
+}
+
+html[data-theme="light"] .radio-tile-label {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(184, 134, 11, 0.3);
+  color: #3b2e1e;
+}
+
+html[data-theme="light"] .radio-tile-label.active {
+  background: rgba(184, 134, 11, 0.18);
+  border-color: var(--primary-gold);
+  color: #7a5908;
+}
+
+html[data-theme="light"] .guest-personal-card {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(184, 134, 11, 0.35);
+}
+
+html[data-theme="light"] .couple-badge-card {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(184, 134, 11, 0.3);
+}
+
+html[data-theme="light"] .role-tag {
+  background: rgba(184, 134, 11, 0.15);
+  color: #7a5908;
 }
 
 #particle-canvas, #confetti-canvas {
@@ -1227,19 +1328,52 @@ html[data-bg="light"] {
   transform: translateX(-50%) translateY(0);
 }
 
-/* Footer & Watermark */
+/* Footer & Watermark — mirrors the Khmer ornamental frame of the hero */
 .footer-section {
+  position: relative;
   text-align: center;
-  padding: 30px 20px 20px 20px;
+  margin-top: 36px;
+  padding: 96px 24px 56px 24px;
+  min-height: 260px;
   font-size: 0.8rem;
-  color: var(--text-muted);
-  border-top: 1px solid rgba(229, 185, 85, 0.15);
+  color: #f4d48a;
+  background: url('../assets/images/invitation_bg.jpg') no-repeat bottom center / cover;
+  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+}
+
+/* Soft scrim so content blends in from the page above */
+.footer-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, var(--bg-deep-navy) 0%, rgba(10, 10, 13, 0.35) 28%, rgba(10, 10, 13, 0.12) 60%, transparent 100%);
+  pointer-events: none;
+}
+
+/* Khmer kbach divider echoing the hero ornaments */
+.footer-section::after {
+  content: '';
+  position: absolute;
+  top: 22px;
+  left: 8%;
+  width: 84%;
+  height: 22px;
+  opacity: 0.85;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 20' fill='%23e5b955'%3E%3Cpath d='M100 0 L108 8 L100 16 L92 8 Z M70 4 C85 4 85 14 100 14 C115 14 115 4 130 4 M40 8 C55 8 55 16 70 16 M130 16 C145 16 145 8 160 8' stroke='%23e5b955' stroke-width='1.5' fill='none'/%3E%3C/svg%3E") no-repeat center/contain;
+  pointer-events: none;
+}
+
+.footer-section > * {
+  position: relative;
+  z-index: 2;
 }
 
 .footer-lotus {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   color: var(--primary-gold);
   margin-bottom: 8px;
+  text-shadow: 0 0 18px rgba(229, 185, 85, 0.65);
 }
 
 /* ==========================================================================
