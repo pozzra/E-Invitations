@@ -121,11 +121,37 @@ def sb_fetch_config():
 
 
 def sb_save_config(config):
-    return _sb_request(
+    result = _sb_request(
         'POST', 'invitation_config', '',
         [{'id': 'wedding_main', 'config_json': config, 'updated_at': _now_iso()}],
         prefer='resolution=merge-duplicates,return=minimal',
     )
+    sb_save_music(config)
+    return result
+
+
+def sb_save_music(config):
+    """Mirror the background-music playlist onto the invitations row.
+
+    Keeps public.invitations.music_playlist / music_url in sync with the
+    invitation config so the schema stays authoritative. Silently no-ops if
+    the playlist is absent or the column has not been created yet.
+    """
+    if not isinstance(config, dict):
+        return None
+    playlist = config.get('bgMusicPlaylist')
+    music_url = config.get('bgMusicUrl')
+    if playlist is None and not music_url:
+        return None
+
+    row = {'updated_at': _now_iso()}
+    if isinstance(playlist, list):
+        row['music_playlist'] = playlist
+    if music_url:
+        row['music_url'] = music_url
+
+    query = f'?id=eq.{urllib.parse.quote(INVITATION_ID)}'
+    return _sb_request('PATCH', 'invitations', query, row, prefer='return=minimal')
 
 
 def sb_fetch_rsvps():

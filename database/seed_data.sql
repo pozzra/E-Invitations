@@ -17,6 +17,7 @@ create table if not exists public.invitations (
   venue_address text,
   map_url text,
   music_url text,
+  music_playlist jsonb default '[]'::jsonb,
   cover_url text,
   story_text text,
   theme_config jsonb,
@@ -26,6 +27,9 @@ create table if not exists public.invitations (
   created_at timestamp with time zone default timezone('utc'::text, now()),
   updated_at timestamp with time zone default timezone('utc'::text, now())
 );
+
+-- Ensure the music playlist column exists on already-created tables
+alter table public.invitations add column if not exists music_playlist jsonb default '[]'::jsonb;
 
 -- 2. Create RSVPs table (linked to an invitation)
 create table if not exists public.rsvps (
