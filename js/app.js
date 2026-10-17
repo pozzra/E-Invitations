@@ -48,12 +48,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnMusic) btnMusic.classList.add('spinning');
   }
 
-  // Mobile browsers (iOS Safari / Android Chrome) refuse to play audio until the
-  // first user gesture. The moment the user taps, scrolls or presses a key, we
-  // unlock and start the music automatically — even after a page reload.
+  // Music plays ONLY after the envelope is opened (see openEnvelope). Before
+  // that, no gesture — tap, scroll or key — may start playback, so a first-time
+  // (or reloading) visitor who hasn't opened the invitation never gets auto music.
   let musicUnlocked = false;
   function unlockMusicOnGesture() {
-    if (musicUnlocked) return;
+    if (!hasOpened || musicUnlocked) return;
     musicUnlocked = true;
     startMusicIfAllowed();
   }
@@ -63,16 +63,10 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('keydown', unlockMusicOnGesture);
   window.addEventListener('scroll', unlockMusicOnGesture, { passive: true });
 
-  // Best-effort autoplay on load. If the invitation was opened before (i.e. the
-  // visitor is reloading), start right away; otherwise wait for the envelope
-  // gesture / first interaction so a first-time visitor isn't startled.
-  let wasOpenedBefore = false;
-  try { wasOpenedBefore = localStorage.getItem('khmer_env_opened') === '1'; } catch (e) { }
-  if (wasOpenedBefore) setTimeout(startMusicIfAllowed, 400);
-
   function openEnvelope() {
     if (hasOpened) return;
     hasOpened = true;
+    musicUnlocked = true;
     try { localStorage.setItem('khmer_env_opened', '1'); } catch (e) { }
 
     // Trigger the golden chime AND start the music SYNCHRONOUSLY inside this
@@ -86,9 +80,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // Trigger 3D animation stages
+    // Trigger envelope-open animation: golden seal breaks, flap folds up and
+    // the letter slides out, then the screen dissolves to the invitation.
     if (sealWrapper) sealWrapper.classList.add('break-seal');
-    if (envelopeCard) envelopeCard.classList.add('is-unfolding');
+    if (envelopeCard) envelopeCard.classList.add('is-opening');
 
     // Confetti celebration cannon + particle burst
     createParticleBurst();
@@ -97,13 +92,13 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       envelopeScreen.classList.add('opened');
       if (invitationBody) invitationBody.classList.add('entry-card-float');
-    }, 450);
+    }, 700);
 
     setTimeout(() => {
       envelopeScreen.style.display = 'none';
       // Trigger initial scroll reveal check
       triggerScrollReveal();
-    }, 1100);
+    }, 1500);
   }
 
   if (envelopeTrigger) {
