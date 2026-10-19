@@ -4047,6 +4047,56 @@ values
       }
 
       // 4. RSVP Manager (Synced with Supabase Cloud & LocalStorage)
+      // RSVP tombstones: remember deleted rows (name + submittedAt) so a cloud
+      // row that RLS refused to delete cannot reappear in the list. The
+      // "cleared_at" timestamp hides everything that existed before Clear All
+      // while still allowing new RSVPs to show up afterwards.
+      function getDeletedRsvps() {
+        try {
+          const s = localStorage.getItem('khmer_wedding_rsvps_deleted');
+          const arr = s ? JSON.parse(s) : [];
+          return Array.isArray(arr) ? arr : [];
+        } catch { return []; }
+      }
+      function setDeletedRsvps(arr) {
+        try {
+          localStorage.setItem('khmer_wedding_rsvps_deleted', JSON.stringify(arr || []));
+        } catch { }
+      }
+      function isRsvpDeleted(r, list) {
+        return (list || []).some(t => t && t.name === (r.name || '') &&
+          (!t.submittedAt || t.submittedAt === (r.submittedAt || '')));
+      }
+      function markRsvpDeleted(r) {
+        const list = getDeletedRsvps();
+        const name = r.name || '';
+        const submittedAt = r.submittedAt || '';
+        if (!list.some(t => t && t.name === name && (t.submittedAt || '') === submittedAt)) {
+          list.push({ name, submittedAt });
+          setDeletedRsvps(list);
+        }
+      }
+      function getRsvpsClearedAt() {
+        return parseInt(localStorage.getItem('khmer_wedding_rsvps_cleared_at') || '0', 10) || 0;
+      }
+      function setRsvpsClearedAt(ts) {
+        try {
+          localStorage.setItem('khmer_wedding_rsvps_cleared_at', String(ts || 0));
+        } catch { }
+      }
+      function filterVisibleRsvps(rsvps) {
+        const tombstones = getDeletedRsvps();
+        const clearedAt = getRsvpsClearedAt();
+        return (rsvps || []).filter(r => {
+          if (isRsvpDeleted(r, tombstones)) return false;
+          if (clearedAt) {
+            const t = r.submittedAt ? new Date(r.submittedAt).getTime() : 0;
+            if (!t || t <= clearedAt) return false;
+          }
+          return true;
+        });
+      }
+
       async function loadRsvpList() {
         const tbody = document.getElementById('rsvp-table-body');
         const countDisplay = document.getElementById('rsvp-total-guests');
@@ -4064,6 +4114,9 @@ values
           }
           rsvps.sort((a, b) => new Date(b.submittedAt || 0) - new Date(a.submittedAt || 0));
         }
+
+        // Hide rows the admin deleted (cloud DELETE can be blocked by RLS).
+        rsvps = filterVisibleRsvps(rsvps);
 
         let totalHeadcount = 0;
         rsvps.forEach(r => {
@@ -4126,6 +4179,8 @@ values
               if (window.appSupabase) {
                 await window.appSupabase.deleteRsvp(nameToDel, timeToDel);
               }
+              // Tombstone so a blocked/stale cloud row cannot reappear.
+              markRsvpDeleted({ name: nameToDel, submittedAt: timeToDel });
               loadRsvpList();
               showToast(`🗑️ បានលុបការចុះឈ្មោះរបស់ "${nameToDel}"`);
             }
@@ -4247,6 +4302,10 @@ values
           if (window.appSupabase) {
             await window.appSupabase.clearAllRsvps();
           }
+          // Tombstone everything that exists right now (cloud DELETE can be
+          // blocked by RLS). RSVPs submitted afterwards still appear.
+          setDeletedRsvps([]);
+          setRsvpsClearedAt(Date.now());
           loadRsvpList();
           showToast('🗑️ បានសម្អាតទិន្នន័យ RSVP ទាំងអស់');
         }
