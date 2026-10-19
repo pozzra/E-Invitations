@@ -686,6 +686,10 @@
                   (Upload New Image):</label>
                 <input type="file" id="cfg-photo-file" accept="image/*" class="form-input" style="padding: 8px;">
               </div>
+              <div id="cfg-couple-preview-wrap" style="margin-top: 10px; display: none;">
+                <img id="cfg-couple-preview" alt="Couple photo preview"
+                  style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 1px solid rgba(229,185,85,0.35); display: block;">
+              </div>
             </div>
           </div>
         </div>
@@ -793,7 +797,7 @@
 
                 <div class="video-player-wrapper" style="position: relative;">
                   <video id="admin-video-preview" class="wedding-video-element" controls playsinline
-                    poster="assets/images/couple.jpg">
+                    poster="../assets/images/couple.jpg">
                     <source id="admin-video-source" src="" type="video/mp4">
                   </video>
                   <div id="admin-video-overlay" class="video-play-overlay">
@@ -1988,11 +1992,13 @@ values
   <script src="../js/siteicon.js?v=20261019icon"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // 🌐 Smart API Base URL: redirect to Python server on port 8080 when
-      //    opened via VS Code Live Server (port 5500) or any non-8080 port.
-      const API_BASE = (window.location.port === '8080' || window.location.protocol === 'file:')
-        ? '' // Same-origin: relative paths work fine
-        : 'http://localhost:8080'; // Live Server / other dev ports → point to Python API
+      // 🌐 Smart API Base URL: production (Render / Vercel / custom domain)
+      //    must call its own origin. Only local dev servers on non-8080 ports
+      //    fall back to the local Python server on port 8080.
+      const IS_LOCAL_DEV = /^(localhost|127\.0\.0\.1|\[::1\])$/i.test(window.location.hostname);
+      const API_BASE = window.location.protocol === 'file:'
+        ? 'http://localhost:8080'
+        : (IS_LOCAL_DEV && window.location.port !== '8080' ? 'http://localhost:8080' : '');
 
       // 🛟 Safety net: surface any uncaught script error instead of failing silently
       window.addEventListener('error', (ev) => {
@@ -2736,6 +2742,21 @@ values
         return /^(https?:|data:|blob:|\/)/i.test(u) ? u : '../' + String(u).replace(/^\.?\//, '');
       }
 
+      // Show a live preview of the couple photo under the path/upload field.
+      function updateCouplePhotoPreview(url) {
+        const wrap = document.getElementById('cfg-couple-preview-wrap');
+        const img = document.getElementById('cfg-couple-preview');
+        if (!wrap || !img) return;
+        const src = adminAssetUrl(String(url || '').trim());
+        if (!src) {
+          wrap.style.display = 'none';
+          img.removeAttribute('src');
+          return;
+        }
+        img.src = src;
+        wrap.style.display = 'block';
+      }
+
       function normalizePosters(cfg) {
         let list = Array.isArray(cfg.videoPosters) ? cfg.videoPosters.slice() : [];
         if (!list.length && cfg.videoPoster) list = [cfg.videoPoster];
@@ -2951,6 +2972,7 @@ values
         document.getElementById('cfg-bride-father').value = cfg.brideFather || '';
         document.getElementById('cfg-bride-mother').value = cfg.brideMother || '';
         document.getElementById('cfg-couple-photo').value = cfg.couplePhoto || '';
+        updateCouplePhotoPreview(cfg.couplePhoto || '');
 
         document.getElementById('cfg-solar-date').value = cfg.solarDate || '';
         document.getElementById('cfg-lunar-date').value = cfg.lunarDate || '';
@@ -3136,13 +3158,35 @@ values
         }
       }
 
-      // Handle Couple Image File Upload Preview
+      // Keep the video showcase poster in sync with a newly uploaded couple
+      // photo when the poster is still the default (or empty).
+      function syncVideoPosterWithCouplePhoto(url) {
+        if (!url) return;
+        const posterInput = document.getElementById('cfg-video-poster');
+        const current = String((posterInput && posterInput.value) || currentPosters[0] || '').trim();
+        const isDefaultPoster = !current || /(^|\/)couple\.jpg(\?.*)?$/i.test(current);
+        if (!isDefaultPoster) return;
+        if (currentPosters.length) currentPosters[0] = url;
+        else currentPosters = [url];
+        if (posterInput) posterInput.value = currentPosters[0] || '';
+        renderPosterAdminList();
+        updateAdminVideoPreview(document.getElementById('cfg-video-url')?.value || '', currentPosters[0] || '');
+      }
+
+      // Handle Couple Image File Upload + live preview + video poster sync
+      const couplePhotoInput = document.getElementById('cfg-couple-photo');
+      if (couplePhotoInput) {
+        couplePhotoInput.addEventListener('input', () => updateCouplePhotoPreview(couplePhotoInput.value));
+      }
       const photoFileInput = document.getElementById('cfg-photo-file');
       if (photoFileInput) {
         photoFileInput.addEventListener('change', async (e) => {
           const file = e.target.files[0];
           if (file) {
-            document.getElementById('cfg-couple-photo').value = await uploadImageFileToServer(file);
+            const uploadedUrl = await uploadImageFileToServer(file);
+            document.getElementById('cfg-couple-photo').value = uploadedUrl;
+            updateCouplePhotoPreview(uploadedUrl);
+            syncVideoPosterWithCouplePhoto(uploadedUrl);
             showToast('📸 បានផ្ទុករូបភាពថ្មីរួចរាល់!');
           }
         });
@@ -3493,7 +3537,7 @@ values
         const overlay = document.getElementById('admin-video-overlay');
         if (!preview || !source) return;
 
-        if (poster) preview.poster = poster;
+        if (poster) preview.poster = adminAssetUrl(poster);
         if (url && url.trim()) {
           source.src = url.trim();
           preview.load();
@@ -3605,6 +3649,44 @@ values
           }
         });
       }
+      // Convert an uploaded icon to a small data URL (resized on the client).
+      // Storing the icon inside the config means it can never 404 on another
+      // deployment (Render / Vercel / custom domain): no server file needed.
+      function iconFileToDataUrl(file, maxSize = 256) {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onerror = () => resolve('');
+          reader.onload = () => {
+            const raw = String(reader.result || '');
+            if (!raw) return resolve('');
+            // Keep ICO and SVG files as-is; rasterize/resize everything else.
+            if (/x-icon|icon|svg/i.test(file.type) || /\.ico$/i.test(file.name)) return resolve(raw);
+            const img = new Image();
+            img.onerror = () => resolve(raw);
+            img.onload = () => {
+              try {
+                const w0 = img.naturalWidth || maxSize;
+                const h0 = img.naturalHeight || maxSize;
+                const scale = Math.min(1, maxSize / Math.max(w0, h0));
+                const w = Math.max(1, Math.round(w0 * scale));
+                const h = Math.max(1, Math.round(h0 * scale));
+                const canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, w, h);
+                const keepAlpha = /png|webp|gif/i.test(file.type) || /^image\/(png|webp|gif)/i.test(raw);
+                resolve(canvas.toDataURL(keepAlpha ? 'image/png' : 'image/jpeg', 0.9));
+              } catch (err) {
+                resolve(raw);
+              }
+            };
+            img.src = raw;
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
       if (iconFileInput) {
         iconFileInput.addEventListener('change', async (e) => {
           const file = e.target.files[0];
@@ -3614,27 +3696,20 @@ values
             iconFileInput.value = '';
             return;
           }
-          const reader = new FileReader();
-          reader.onload = async (re) => {
-            const base64Data = re.target.result;
-            try {
-              const res = await fetch(`${API_BASE}/api/upload-image`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ filename: file.name, base64Data: base64Data })
-              });
-              if (!res.ok) throw new Error('upload failed');
-              const data = await res.json();
-              addIconUrl(data.url);
-              showToast('🖼️ បានផ្ទុករូបតំណាងឡើងជោគជ័យ!');
-            } catch (err) {
-              console.warn('Icon upload failed, using inline preview:', err);
-              addIconUrl(base64Data);
-              showToast('⚠️ រក្សាទុកជា Preview ក្នុងឧបករណ៍ (មិនបានផ្ទុកទៅ Server)');
-            }
+          if (file.size > 5 * 1024 * 1024) {
+            showToast('⚠️ រូបតំណាងធំពេក (កំណត់ត្រឹម 5MB)');
             iconFileInput.value = '';
-          };
-          reader.readAsDataURL(file);
+            return;
+          }
+          const dataUrl = await iconFileToDataUrl(file);
+          if (!dataUrl) {
+            showToast('⚠️ មិនអាចអានរូបភាពនេះបានទេ');
+            iconFileInput.value = '';
+            return;
+          }
+          addIconUrl(dataUrl);
+          showToast('🖼️ បានផ្ទុករូបតំណាងឡើងជោគជ័យ!');
+          iconFileInput.value = '';
         });
       }
       const btnClearIcon = document.getElementById('btn-clear-icon');
