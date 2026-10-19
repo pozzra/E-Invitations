@@ -1569,14 +1569,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const remoteWishes = await window.appSupabase.fetchWishes();
         if (Array.isArray(remoteWishes)) {
           remoteLoaded = true;
-          if (localStorage.getItem('khmer_wedding_wishes_cleared') === '1') {
-            wishes = [];
-          } else {
-            const tombstones = getDeletedWishes();
-            wishes = remoteWishes
-              .filter(w => w && w.name !== 'sadasd' && w.message !== 'ggode')
-              .filter(w => !isWishDeleted(w, tombstones));
-          }
+          // The server already applies deletes/clear markers, so its list wins.
+          // (A stale local "cleared" flag must not hide valid new wishes.)
+          const tombstones = getDeletedWishes();
+          wishes = remoteWishes
+            .filter(w => w && w.name !== 'sadasd' && w.message !== 'ggode')
+            .filter(w => !isWishDeleted(w, tombstones));
           // Cache the authoritative list (including an empty one) so the wall
           // stays correct offline / on the next page load.
           localStorage.setItem('khmer_wedding_wishes', JSON.stringify(wishes));

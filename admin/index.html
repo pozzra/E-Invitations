@@ -4446,14 +4446,11 @@ values
           const remoteWishes = await window.appSupabase.fetchWishes();
           if (Array.isArray(remoteWishes)) {
             // The server/cloud list is authoritative — including an empty list
-            // (the admin deleted/cleared everything). Never keep stale local
-            // rows alive just because they still exist in this browser.
-            if (localStorage.getItem('khmer_wedding_wishes_cleared') === '1') {
-              wishes = [];
-            } else {
-              const tombstones = getDeletedWishes();
-              wishes = remoteWishes.filter(w => w && !isWishDeleted(w, tombstones));
-            }
+            // (the admin deleted/cleared everything). It already applies the
+            // durable delete/clear markers, so a stale local "cleared" flag
+            // must not hide valid wishes submitted after the clear.
+            const tombstones = getDeletedWishes();
+            wishes = remoteWishes.filter(w => w && !isWishDeleted(w, tombstones));
             localStorage.setItem('khmer_wedding_wishes', JSON.stringify(wishes));
           }
         }

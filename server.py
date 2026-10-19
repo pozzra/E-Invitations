@@ -576,13 +576,17 @@ def sb_push_wish(w):
     # times.
     if sb_wish_exists(w.get('name'), w.get('message')):
         return {'duplicate': True}
+    row = {
+        'name': w.get('name'),
+        'date_display': w.get('date_display') or w.get('date') or 'ថ្មីៗនេះ',
+        'message': w.get('message'),
+    }
+    # Preserve the original timestamp when editing a wish (delete + insert).
+    if w.get('created_at'):
+        row['created_at'] = w['created_at']
     return _sb_request(
         'POST', 'wishes', '',
-        [{
-            'name': w.get('name'),
-            'date_display': w.get('date_display') or w.get('date') or 'ថ្មីៗនេះ',
-            'message': w.get('message'),
-        }],
+        [row],
         prefer='return=minimal',
     )
 
