@@ -40,7 +40,11 @@ HOST = os.environ.get('HOST', '0.0.0.0')
 
 def load_db():
     if not os.path.exists(DB_FILE):
-        return {"invitation_config": {}, "wishes": [], "rsvps": [], "deleted_wishes": [], "wishes_cleared_at": None}
+        return {
+            "invitation_config": {}, "wishes": [], "rsvps": [],
+            "deleted_wishes": [], "wishes_cleared_at": None,
+            "deleted_rsvps": [], "rsvps_cleared_at": None,
+        }
     try:
         with open(DB_FILE, 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -52,10 +56,18 @@ def load_db():
                 data["deleted_wishes"] = []
             if "wishes_cleared_at" not in data:
                 data["wishes_cleared_at"] = None
+            if "deleted_rsvps" not in data:
+                data["deleted_rsvps"] = []
+            if "rsvps_cleared_at" not in data:
+                data["rsvps_cleared_at"] = None
             return data
     except Exception as e:
         print(f"Error reading {DB_FILE}: {e}")
-        return {"invitation_config": {}, "wishes": [], "rsvps": [], "deleted_wishes": [], "wishes_cleared_at": None}
+        return {
+            "invitation_config": {}, "wishes": [], "rsvps": [],
+            "deleted_wishes": [], "wishes_cleared_at": None,
+            "deleted_rsvps": [], "rsvps_cleared_at": None,
+        }
 
 def save_db(data):
     os.makedirs(os.path.dirname(DB_FILE), exist_ok=True)
@@ -123,6 +135,87 @@ def _filter_hidden_wishes(db, wishes):
                 except Exception:
                     pass
         result.append(w)
+    return result
+
+
+# ==========================================================================
+# RSVP visibility (server-side tombstones)
+# --------------------------------------------------------------------------
+# The admin deletes RSVPs from its browser, but Supabase RLS blocks the cloud
+# DELETE. Store the deleted rows here as well so a reload (or another device)
+# cannot show them again, and so Clear All hides pre-existing rows while new
+# guest submissions still appear.
+# ==========================================================================
+def _rsvp_name(r):
+    return r.get('name') or r.get('guest_name') or ''
+
+
+def _rsvp_submitted(r):
+    return r.get('submittedAt') or r.get('submitted_at') or r.get('created_at') or ''
+
+
+def _remember_deleted_rsvp(db, name, submitted_at):
+    name = name or ''
+    submitted_at = submitted_at or ''
+    tombstones = db.get('deleted_rsvps') or []
+    if not any((t.get('name') or '') == name and
+               (t.get('submittedAt') or t.get('submitted_at') or '') == submitted_at
+               for t in tombstones):
+        tombstones.append({'name': name, 'submittedAt': submitted_at})
+        db['deleted_rsvps'] = tombstones
+
+
+def _forget_deleted_rsvp(db, name, submitted_at):
+    name = name or ''
+    submitted_at = submitted_at or ''
+    db['deleted_rsvps'] = [
+        t for t in (db.get('deleted_rsvps') or [])
+        if not ((t.get('name') or '') == name and
+                (t.get('submittedAt') or t.get('submitted_at') or '') == submitted_at)
+    ]
+
+
+def _filter_hidden_rsvps(db, rsvps):
+    exact = set()
+    any_name = set()
+    for t in (db.get('deleted_rsvps') or []):
+        t_name = t.get('name') or ''
+        t_time = t.get('submittedAt') or t.get('submitted_at') or ''
+        if t_time:
+            exact.add((t_name, t_time))
+        else:
+            # A row deleted without a timestamp hides every entry of that name.
+            any_name.add(t_name)
+
+    clear_dt = None
+    cleared_at = db.get('rsvps_cleared_at')
+    if cleared_at:
+        try:
+            clear_dt = datetime.fromisoformat(str(cleared_at).replace('Z', '+00:00'))
+            if clear_dt.tzinfo is None:
+                clear_dt = clear_dt.replace(tzinfo=timezone.utc)
+        except Exception:
+            clear_dt = None
+
+    result = []
+    for r in rsvps:
+        name = _rsvp_name(r)
+        submitted = _rsvp_submitted(r)
+        if (name, submitted) in exact or name in any_name:
+            continue
+        if clear_dt:
+            if not submitted:
+                continue
+            try:
+                created_dt = datetime.fromisoformat(str(submitted).replace('Z', '+00:00'))
+                if created_dt.tzinfo is None:
+                    created_dt = created_dt.replace(tzinfo=timezone.utc)
+                # 10s grace to tolerate clock skew for brand-new submissions.
+                if (clear_dt - created_dt).total_seconds() > 10:
+                    continue
+            except Exception:
+                continue
+        result.append(r)
     return result
 
 
@@ -500,10 +593,11 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
 
         if path == '/api/rsvps':
             # Prefer Supabase (Cloud, shared with all clients), fall back to local JSON
+            db = load_db()
             rsvps = sb_fetch_rsvps()
             if rsvps is None:
-                db = load_db()
                 rsvps = db.get("rsvps", [])
+            rsvps = _filter_hidden_rsvps(db, rsvps)
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.end_headers()
@@ -696,6 +790,9 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             db = load_db()
             if "rsvps" not in db:
                 db["rsvps"] = []
+
+            # A guest (re)submitting the same row makes it visible again.
+            _forget_deleted_rsvp(db, payload.get('name'), payload.get('submittedAt'))
 
             # Add or update RSVP
             db["rsvps"].insert(0, payload)
@@ -1038,6 +1135,9 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             submitted_at = payload.get('submittedAt')
             db = load_db()
             db["rsvps"] = [r for r in db.get("rsvps", []) if not (r.get("name") == name and (not submitted_at or r.get("submittedAt") == submitted_at))]
+            # Persist the tombstone so the row also disappears from the public /
+            # reloaded admin even when the cloud DELETE is blocked by RLS.
+            _remember_deleted_rsvp(db, name, submitted_at)
             save_db(db)
             sb_delete_rsvp(name, submitted_at)
 
@@ -1050,6 +1150,8 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
         elif path == '/api/rsvps/clear':
             db = load_db()
             db["rsvps"] = []
+            db["deleted_rsvps"] = []
+            db["rsvps_cleared_at"] = datetime.now(timezone.utc).isoformat()
             save_db(db)
             sb_clear_rsvps()
 

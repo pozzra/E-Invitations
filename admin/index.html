@@ -4317,6 +4317,22 @@ values
         }
       });
 
+      // Auto-refresh while the RSVP tab is open: new guest confirmations (or
+      // deletions made on another device) appear without a manual reload.
+      let rsvpAutoRefreshBusy = false;
+      setInterval(async () => {
+        const pane = document.getElementById('tab-rsvp');
+        if (document.hidden || !pane || !pane.classList.contains('active')) return;
+        if (rsvpAutoRefreshBusy) return;
+        rsvpAutoRefreshBusy = true;
+        try {
+          await loadRsvpList();
+        } catch (e) { }
+        finally {
+          rsvpAutoRefreshBusy = false;
+        }
+      }, 12000);
+
       // ==========================================================================
       // 5. Guestbook & Warm Wishes Manager (សៀវភៅជូនពរឌីជីថល)
       // ==========================================================================
