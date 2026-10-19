@@ -1156,10 +1156,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // 2. Load Wishes from Supabase (authoritative)
       const wishes = await window.appSupabase.fetchWishes();
-      if (wishes && wishes.length > 0) {
+      if (Array.isArray(wishes)) {
         localStorage.setItem('khmer_wedding_wishes', JSON.stringify(wishes));
         renderWishes();
-        console.log('[Data] Wishes loaded from Supabase ✅');
+        console.log('[Data] Wishes loaded from Supabase ✅', wishes.length);
       }
 
       // 3. Load RSVPs from Supabase (authoritative) - for admin reference
@@ -1267,15 +1267,18 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } catch (e) { /* offline; retry next tick */ }
 
-    // 2. Wishes / guestbook → re-render wall
+    // 2. Wishes / guestbook → re-render wall (including when the admin has
+    //    deleted/cleared everything, so the client empties too).
     try {
       const wishes = await window.appSupabase.fetchWishes();
-      if (wishes && wishes.length > 0) {
+      if (Array.isArray(wishes)) {
         const sig = signatureOf(wishes);
         if (lastWishesSig && sig !== lastWishesSig) {
           localStorage.setItem('khmer_wedding_wishes', JSON.stringify(wishes));
           renderWishes();
-          showToast('💬 ពាក្យជូនពរថ្មីត្រូវបានបន្ថែម!');
+          if (wishes.length > 0) {
+            showToast('💬 ពាក្យជូនពរថ្មីត្រូវបានបន្ថែម!');
+          }
           console.log('[AutoSync] Wishes changed → live update ✅');
         }
         lastWishesSig = sig;
@@ -1555,13 +1558,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const wallEl = document.getElementById('wishes-wall');
     if (!wallEl) return;
 
-    // Priority: Supabase (authoritative) > LocalStorage > Defaults
+    // Priority: Supabase (authoritative) > LocalStorage > Defaults.
+    // IMPORTANT: when the server returns an empty list (admin deleted / cleared),
+    // that empty list is authoritative — do not fall back to stale cached wishes.
     let wishes = [];
+    let remoteLoaded = false;
 
     if (window.appSupabase && window.appSupabase.isConfigured) {
       try {
         const remoteWishes = await window.appSupabase.fetchWishes();
-        if (remoteWishes && remoteWishes.length > 0) {
+        if (Array.isArray(remoteWishes)) {
+          remoteLoaded = true;
           if (localStorage.getItem('khmer_wedding_wishes_cleared') === '1') {
             wishes = [];
           } else {
@@ -1569,16 +1576,18 @@ document.addEventListener('DOMContentLoaded', () => {
             wishes = remoteWishes
               .filter(w => w && w.name !== 'sadasd' && w.message !== 'ggode')
               .filter(w => !isWishDeleted(w, tombstones));
-            localStorage.setItem('khmer_wedding_wishes', JSON.stringify(wishes));
           }
+          // Cache the authoritative list (including an empty one) so the wall
+          // stays correct offline / on the next page load.
+          localStorage.setItem('khmer_wedding_wishes', JSON.stringify(wishes));
         }
       } catch (err) {
         console.warn('Remote wishes fetch failed, using local:', err);
       }
     }
 
-    // Fallback to localStorage if Supabase not available or empty
-    if (wishes.length === 0) {
+    // Fallback to localStorage only when the remote source was unavailable.
+    if (!remoteLoaded) {
       wishes = getStoredWishes();
     }
 
@@ -1604,6 +1613,10 @@ document.addEventListener('DOMContentLoaded', () => {
         <p class="wish-message">${escapeHtml(item.message || '')}</p>
       </div>
     `).join('');
+
+    // Keep the poller's comparison signature in sync with what is displayed,
+    // so a later deletion/clear is detected immediately on the next poll.
+    lastWishesSig = signatureOf(wishes);
   }
 
   renderWishes();

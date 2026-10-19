@@ -11,6 +11,8 @@ import json
 import os
 import re
 import sys
+import threading
+import time
 import urllib.request
 import urllib.error
 import urllib.parse
@@ -358,6 +360,136 @@ def sb_save_config(config):
     return result
 
 
+# ==========================================================================
+# Durable admin markers (survive Render restarts/redeploys)
+# --------------------------------------------------------------------------
+# The local database file is ephemeral on Render, and Supabase RLS blocks the
+# browser anon key from deleting rows. Store deleted/cleared state inside the
+# writable invitation_config.config_json instead, so deletions stay effective
+# after any restart. Keys are internal and ignored by the public renderer.
+# ==========================================================================
+_ADMIN_MARKER_KEYS = (
+    '_adminDeletedWishes',
+    '_adminWishesClearedAt',
+    '_adminDeletedRsvps',
+    '_adminRsvpsClearedAt',
+)
+_marker_cache = {'at': 0.0, 'data': None}
+_MARKER_CACHE_TTL = 10.0
+_marker_lock = threading.Lock()
+
+
+def _durable_admin_markers(force=False):
+    """Return the durable deletion markers stored in Supabase (cached briefly)."""
+    now = time.time()
+    cached = _marker_cache['data']
+    if not force and cached is not None and (now - _marker_cache['at']) < _MARKER_CACHE_TTL:
+        return cached
+    cfg = sb_fetch_config()
+    if cfg is None:
+        # Keep the previous cache on a transient network failure.
+        return cached or {}
+    data = {k: cfg.get(k) for k in _ADMIN_MARKER_KEYS}
+    _marker_cache['data'] = data
+    _marker_cache['at'] = now
+    return data
+
+
+def _mutate_durable_config(mutator):
+    """Read-modify-write config_json so markers are never lost by a race."""
+    with _marker_lock:
+        cfg = sb_fetch_config()
+        if cfg is None:
+            return False
+        mutator(cfg)
+        ok = sb_save_config(cfg) is not None
+        if ok:
+            _marker_cache['data'] = None
+            _marker_cache['at'] = 0.0
+        return ok
+
+
+def _remember_durable_wish(name, message):
+    name = name or ''
+    message = message or ''
+
+    def apply(cfg):
+        deleted = cfg.get('_adminDeletedWishes') or []
+        if not any((d.get('name') or '') == name and (d.get('message') or '') == message
+                   for d in deleted):
+            deleted.append({'name': name, 'message': message})
+        cfg['_adminDeletedWishes'] = deleted
+
+    return _mutate_durable_config(apply)
+
+
+def _remember_durable_rsvp(name, submitted_at):
+    name = name or ''
+    submitted_at = submitted_at or ''
+
+    def apply(cfg):
+        deleted = cfg.get('_adminDeletedRsvps') or []
+        if not any((d.get('name') or '') == name and
+                   ((d.get('submittedAt') or d.get('submitted_at') or '') == submitted_at)
+                   for d in deleted):
+            deleted.append({'name': name, 'submittedAt': submitted_at})
+        cfg['_adminDeletedRsvps'] = deleted
+
+    return _mutate_durable_config(apply)
+
+
+def _clear_durable_wishes(cleared_at):
+    def apply(cfg):
+        cfg['_adminWishesClearedAt'] = cleared_at
+        cfg['_adminDeletedWishes'] = []
+
+    return _mutate_durable_config(apply)
+
+
+def _clear_durable_rsvps(cleared_at):
+    def apply(cfg):
+        cfg['_adminRsvpsClearedAt'] = cleared_at
+        cfg['_adminDeletedRsvps'] = []
+
+    return _mutate_durable_config(apply)
+
+
+def _later_iso(first, second):
+    def parse(value):
+        if not value:
+            return None
+        try:
+            dt = datetime.fromisoformat(str(value).replace('Z', '+00:00'))
+            return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+        except Exception:
+            return None
+
+    a, b = parse(first), parse(second)
+    if a and b:
+        return first if a >= b else second
+    return first or second
+
+
+def _wish_db_view(db):
+    markers = _durable_admin_markers()
+    view = dict(db)
+    view['deleted_wishes'] = list(db.get('deleted_wishes') or []) + \
+        list(markers.get('_adminDeletedWishes') or [])
+    view['wishes_cleared_at'] = _later_iso(
+        db.get('wishes_cleared_at'), markers.get('_adminWishesClearedAt'))
+    return view
+
+
+def _rsvp_db_view(db):
+    markers = _durable_admin_markers()
+    view = dict(db)
+    view['deleted_rsvps'] = list(db.get('deleted_rsvps') or []) + \
+        list(markers.get('_adminDeletedRsvps') or [])
+    view['rsvps_cleared_at'] = _later_iso(
+        db.get('rsvps_cleared_at'), markers.get('_adminRsvpsClearedAt'))
+    return view
+
+
 def sb_save_music(config):
     """Mirror the background-music playlist onto the invitations row.
 
@@ -597,7 +729,7 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             rsvps = sb_fetch_rsvps()
             if rsvps is None:
                 rsvps = db.get("rsvps", [])
-            rsvps = _filter_hidden_rsvps(db, rsvps)
+            rsvps = _filter_hidden_rsvps(_rsvp_db_view(db), rsvps)
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.end_headers()
@@ -609,7 +741,7 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             wishes = sb_fetch_wishes()
             if wishes is None:
                 wishes = db.get("wishes", [])
-            wishes = _filter_hidden_wishes(db, wishes)
+            wishes = _filter_hidden_wishes(_wish_db_view(db), wishes)
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.end_headers()
@@ -848,6 +980,16 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
 
         elif path == '/api/config':
             db = load_db()
+            # Preserve internal admin deletion markers when the admin saves the
+            # config form (the form payload does not contain these private keys).
+            cloud_cfg = sb_fetch_config() or {}
+            local_cfg = db.get("invitation_config", {}) or {}
+            for key in _ADMIN_MARKER_KEYS:
+                if key not in payload:
+                    if key in cloud_cfg:
+                        payload[key] = cloud_cfg[key]
+                    elif key in local_cfg:
+                        payload[key] = local_cfg[key]
             db["invitation_config"] = payload
             save_db(db)
             # Push config to Supabase so all connected clients re-render live
@@ -1138,6 +1280,7 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             # Persist the tombstone so the row also disappears from the public /
             # reloaded admin even when the cloud DELETE is blocked by RLS.
             _remember_deleted_rsvp(db, name, submitted_at)
+            _remember_durable_rsvp(name, submitted_at)
             save_db(db)
             sb_delete_rsvp(name, submitted_at)
 
@@ -1151,8 +1294,10 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             db = load_db()
             db["rsvps"] = []
             db["deleted_rsvps"] = []
-            db["rsvps_cleared_at"] = datetime.now(timezone.utc).isoformat()
+            cleared_at = datetime.now(timezone.utc).isoformat()
+            db["rsvps_cleared_at"] = cleared_at
             save_db(db)
+            _clear_durable_rsvps(cleared_at)
             sb_clear_rsvps()
 
             self.send_response(200)
@@ -1169,6 +1314,7 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             # Persist the tombstone so the wish also disappears from the public
             # wall even when the cloud DELETE is blocked by RLS.
             _remember_deleted_wish(db, name, msg)
+            _remember_durable_wish(name, msg)
             save_db(db)
             sb_delete_wish(name, msg)
 
@@ -1182,8 +1328,10 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             db = load_db()
             db["wishes"] = []
             db["deleted_wishes"] = []
-            db["wishes_cleared_at"] = datetime.now(timezone.utc).isoformat()
+            cleared_at = datetime.now(timezone.utc).isoformat()
+            db["wishes_cleared_at"] = cleared_at
             save_db(db)
+            _clear_durable_wishes(cleared_at)
             sb_clear_wishes()
 
             self.send_response(200)

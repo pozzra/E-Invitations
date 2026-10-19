@@ -1993,7 +1993,7 @@ values
 
   <!-- Supabase SDK & Admin Script Logic -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../js/supabase.js?v=20261019time"></script>
+  <script src="../js/supabase.js?v=20261019time2"></script>
   <script src="../js/wishtime.js?v=20261019time"></script>
   <script src="../js/siteicon.js?v=20261019icon"></script>
   <script>
@@ -4444,35 +4444,17 @@ values
         let wishes = getAdminWishes();
         if (window.appSupabase) {
           const remoteWishes = await window.appSupabase.fetchWishes();
-          if (remoteWishes && remoteWishes.length > 0) {
+          if (Array.isArray(remoteWishes)) {
+            // The server/cloud list is authoritative — including an empty list
+            // (the admin deleted/cleared everything). Never keep stale local
+            // rows alive just because they still exist in this browser.
             if (localStorage.getItem('khmer_wedding_wishes_cleared') === '1') {
-              // Admin explicitly cleared the guestbook — ignore stale remote rows.
               wishes = [];
             } else {
-              // Merge remote wishes but drop any the admin deleted locally
-              // (tombstones) or that are already present, so deletions stick.
               const tombstones = getDeletedWishes();
-              const merged = wishes.slice();
-              const seen = new Map();
-              merged.forEach((w, i) => seen.set((w.name || '') + '\u0000' + (w.message || ''), i));
-              remoteWishes.forEach(w => {
-                const key = (w.name || '') + '\u0000' + (w.message || '');
-                if (isWishDeleted(w, tombstones)) return;
-                const existing = seen.get(key);
-                if (existing !== undefined) {
-                  // Keep the cloud's real creation time for legacy local copies
-                  // so the list can show a live "x minutes ago" label.
-                  if (!merged[existing].created_at && w.created_at) {
-                    merged[existing] = Object.assign({}, merged[existing], { created_at: w.created_at });
-                  }
-                  return;
-                }
-                seen.set(key, merged.length);
-                merged.push(w);
-              });
-              wishes = merged;
-              localStorage.setItem('khmer_wedding_wishes', JSON.stringify(wishes));
+              wishes = remoteWishes.filter(w => w && !isWishDeleted(w, tombstones));
             }
+            localStorage.setItem('khmer_wedding_wishes', JSON.stringify(wishes));
           }
         }
 

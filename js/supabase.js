@@ -366,7 +366,9 @@ class SupabaseService {
       const res = await fetch('/api/wishes');
       if (res.ok) {
         const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
+          // Return an empty array too: it means "the cloud is reachable and
+          // there are no wishes", which must clear stale local caches.
           return dedupe(data.map(w => ({
             name: w.name,
             date: w.date_display || w.date || 'ថ្មីៗនេះ',
