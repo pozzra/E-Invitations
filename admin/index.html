@@ -1157,9 +1157,14 @@
                   required></textarea>
               </div>
 
-              <button type="submit" class="btn-gold-primary ripple-effect" style="margin-top: 10px;">
-                <span>➕ បន្ថែមពាក្យជូនពរ (Add Wish to Guestbook)</span>
-              </button>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;">
+                <button type="submit" id="btn-submit-wish" class="btn-gold-primary ripple-effect">
+                  <span>➕ បន្ថែមពាក្យជូនពរ (Add Wish to Guestbook)</span>
+                </button>
+                <button type="button" id="btn-cancel-edit-wish" class="btn-gold-secondary" style="display: none;">
+                  ✖ បោះបង់ការកែ (Cancel)
+                </button>
+              </div>
             </form>
           </div>
 
@@ -1988,7 +1993,8 @@ values
 
   <!-- Supabase SDK & Admin Script Logic -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../js/supabase.js?v=20261019wish"></script>
+  <script src="../js/supabase.js?v=20261019time"></script>
+  <script src="../js/wishtime.js?v=20261019time"></script>
   <script src="../js/siteicon.js?v=20261019icon"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -4009,7 +4015,7 @@ values
               <div class="db-data-card">
                 <div style="display:flex; justify-content:space-between; font-size:0.82rem; font-weight:700; color:var(--primary-gold-light);">
                   <span>👤 ${escapeHtml(w.name || 'ភ្ញៀវ')}</span>
-                  <span style="font-size:0.72rem; color:var(--text-muted);">${escapeHtml(w.date || w.date_display || '')}</span>
+                  <span style="font-size:0.72rem; color:var(--text-muted);">${escapeHtml(window.WishTime ? window.WishTime.format(w) : (w.date || w.date_display || ''))}</span>
                 </div>
                 <div style="font-size:0.78rem; color:var(--text-cream); margin-top:2px;">${escapeHtml(w.message || '')}</div>
               </div>
@@ -4375,6 +4381,45 @@ values
         }
       }
 
+      // ── Wish editing (admin) ──────────────────────────────────────────────
+      let editingWish = null;
+
+      function setWishFormMode(editing) {
+        const submit = document.getElementById('btn-submit-wish');
+        const cancel = document.getElementById('btn-cancel-edit-wish');
+        if (submit) {
+          submit.innerHTML = editing
+            ? '<span>💾 រក្សាទុកការកែប្រែ (Update Wish)</span>'
+            : '<span>➕ បន្ថែមពាក្យជូនពរ (Add Wish to Guestbook)</span>';
+        }
+        if (cancel) cancel.style.display = editing ? 'inline-flex' : 'none';
+      }
+
+      function startWishEdit(wish) {
+        editingWish = {
+          name: wish.name || '',
+          date: wish.date || 'ថ្មីៗនេះ',
+          message: wish.message || '',
+          created_at: wish.created_at || ''
+        };
+        document.getElementById('admin-wish-name').value = editingWish.name;
+        document.getElementById('admin-wish-date').value = editingWish.date;
+        document.getElementById('admin-wish-msg').value = editingWish.message;
+        setWishFormMode(true);
+        const form = document.getElementById('admin-add-wish-form');
+        if (form) form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        showToast('✏️ កែពាក្យជូនពរ — រួចចុច «រក្សាទុកការកែប្រែ»');
+      }
+
+      function resetWishEditForm() {
+        editingWish = null;
+        setWishFormMode(false);
+        const form = document.getElementById('admin-add-wish-form');
+        if (form) form.reset();
+        const dateEl = document.getElementById('admin-wish-date');
+        if (dateEl) dateEl.value = 'ថ្មីៗនេះ';
+      }
+
       async function loadWishesList() {
         const container = document.getElementById('admin-wishes-list');
         const countDisplay = document.getElementById('wishes-total-count');
@@ -4392,12 +4437,22 @@ values
               // (tombstones) or that are already present, so deletions stick.
               const tombstones = getDeletedWishes();
               const merged = wishes.slice();
-              const seen = merged.map(w => (w.name || '') + '\u0000' + (w.message || ''));
+              const seen = new Map();
+              merged.forEach((w, i) => seen.set((w.name || '') + '\u0000' + (w.message || ''), i));
               remoteWishes.forEach(w => {
                 const key = (w.name || '') + '\u0000' + (w.message || '');
-                if (isWishDeleted(w, tombstones) || seen.indexOf(key) !== -1) return;
+                if (isWishDeleted(w, tombstones)) return;
+                const existing = seen.get(key);
+                if (existing !== undefined) {
+                  // Keep the cloud's real creation time for legacy local copies
+                  // so the list can show a live "x minutes ago" label.
+                  if (!merged[existing].created_at && w.created_at) {
+                    merged[existing] = Object.assign({}, merged[existing], { created_at: w.created_at });
+                  }
+                  return;
+                }
+                seen.set(key, merged.length);
                 merged.push(w);
-                seen.push(key);
               });
               wishes = merged;
               localStorage.setItem('khmer_wedding_wishes', JSON.stringify(wishes));
@@ -4417,15 +4472,32 @@ values
             <div style="flex: 1;">
               <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap;">
                 <span style="font-family: var(--font-khmer-sub); font-size: 0.95rem; font-weight: 700; color: var(--primary-gold-light);">${escapeHtml(w.name || '')}</span>
-                <span style="font-size: 0.75rem; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: var(--radius-full);">${escapeHtml(w.date || 'ថ្មីៗ')}</span>
+                <span class="wish-time-chip" style="font-size: 0.75rem; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: var(--radius-full);">${escapeHtml(window.WishTime ? window.WishTime.format(w) : (w.date || 'ថ្មីៗ'))}</span>
               </div>
               <p style="font-size: 0.85rem; color: var(--text-cream); line-height: 1.5; margin: 0;">${escapeHtml(w.message || '')}</p>
             </div>
-            <button class="btn-del-wish" data-idx="${idx}" data-name="${escapeHtml(w.name || '')}" data-msg="${escapeHtml(w.message || '')}" style="background: none; border: 1px solid rgba(255,107,107,0.3); color: #ff6b6b; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.78rem; white-space: nowrap;">
-              🗑️ លុប
-            </button>
+            <div style="display: flex; flex-direction: column; gap: 6px; flex: 0 0 auto;">
+              <button class="btn-edit-wish" data-idx="${idx}" data-name="${escapeHtml(w.name || '')}" data-date="${escapeHtml(w.date || 'ថ្មីៗនេះ')}" data-msg="${escapeHtml(w.message || '')}" data-created="${escapeHtml(w.created_at || '')}" style="background: none; border: 1px solid rgba(229,185,85,0.4); color: var(--primary-gold-light); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.78rem; white-space: nowrap;">
+                ✏️ កែ
+              </button>
+              <button class="btn-del-wish" data-idx="${idx}" data-name="${escapeHtml(w.name || '')}" data-msg="${escapeHtml(w.message || '')}" style="background: none; border: 1px solid rgba(255,107,107,0.3); color: #ff6b6b; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.78rem; white-space: nowrap;">
+                🗑️ លុប
+              </button>
+            </div>
           </div>
         `).join('');
+
+        // Wish edit listeners
+        container.querySelectorAll('.btn-edit-wish').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            startWishEdit({
+              name: e.currentTarget.getAttribute('data-name'),
+              date: e.currentTarget.getAttribute('data-date'),
+              message: e.currentTarget.getAttribute('data-msg'),
+              created_at: e.currentTarget.getAttribute('data-created')
+            });
+          });
+        });
 
         // Single wish delete listeners
         container.querySelectorAll('.btn-del-wish').forEach(btn => {
@@ -4467,7 +4539,44 @@ values
             return;
           }
 
-          const newWish = { name, date, message };
+          // ── Update an existing wish ──────────────────────────────────────
+          if (editingWish) {
+            const previous = { name: editingWish.name || '', message: editingWish.message || '' };
+            const updatedWish = {
+              name,
+              date,
+              message,
+              created_at: editingWish.created_at || new Date().toISOString()
+            };
+            const identityChanged = name !== previous.name || message !== previous.message;
+
+            const currentWishes = getAdminWishes();
+            const idx = currentWishes.findIndex(w =>
+              (w.name || '') === previous.name && (w.message || '') === previous.message);
+            if (idx >= 0) currentWishes[idx] = updatedWish;
+            else currentWishes.unshift(updatedWish);
+            localStorage.setItem('khmer_wedding_wishes', JSON.stringify(currentWishes));
+            localStorage.removeItem('khmer_wedding_wishes_cleared');
+
+            if (identityChanged) {
+              // Cloud UPDATE is usually blocked by RLS, so hide the old row
+              // (tombstone) and insert the edited version instead.
+              markWishDeleted(previous);
+            }
+            if (window.appSupabase) {
+              if (identityChanged) {
+                await window.appSupabase.deleteWish(previous.name, previous.message);
+              }
+              await window.appSupabase.submitWish(updatedWish);
+            }
+
+            resetWishEditForm();
+            loadWishesList();
+            showToast(`✏️ បានកែប្រែពាក្យជូនពររបស់ "${name}"`);
+            return;
+          }
+
+          const newWish = { name, date, message, created_at: new Date().toISOString() };
           const currentWishes = getAdminWishes();
           currentWishes.unshift(newWish);
           localStorage.setItem('khmer_wedding_wishes', JSON.stringify(currentWishes));
@@ -4482,6 +4591,14 @@ values
           document.getElementById('admin-wish-date').value = 'ថ្មីៗនេះ';
           loadWishesList();
           showToast(`🎉 បានបន្ថែមពាក្យជូនពររបស់ "${name}" ទៅកាន់សៀវភៅឌីជីថល!`);
+        });
+      }
+
+      const btnCancelEditWish = document.getElementById('btn-cancel-edit-wish');
+      if (btnCancelEditWish) {
+        btnCancelEditWish.addEventListener('click', () => {
+          resetWishEditForm();
+          showToast('✖ បានបោះបង់ការកែពាក្យជូនពរ');
         });
       }
 

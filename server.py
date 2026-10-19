@@ -40,7 +40,7 @@ HOST = os.environ.get('HOST', '0.0.0.0')
 
 def load_db():
     if not os.path.exists(DB_FILE):
-        return {"invitation_config": {}, "wishes": [], "rsvps": []}
+        return {"invitation_config": {}, "wishes": [], "rsvps": [], "deleted_wishes": [], "wishes_cleared_at": None}
     try:
         with open(DB_FILE, 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -48,10 +48,14 @@ def load_db():
                 data["rsvps"] = []
             if "wishes" not in data:
                 data["wishes"] = []
+            if "deleted_wishes" not in data:
+                data["deleted_wishes"] = []
+            if "wishes_cleared_at" not in data:
+                data["wishes_cleared_at"] = None
             return data
     except Exception as e:
         print(f"Error reading {DB_FILE}: {e}")
-        return {"invitation_config": {}, "wishes": [], "rsvps": []}
+        return {"invitation_config": {}, "wishes": [], "rsvps": [], "deleted_wishes": [], "wishes_cleared_at": None}
 
 def save_db(data):
     os.makedirs(os.path.dirname(DB_FILE), exist_ok=True)
@@ -62,6 +66,65 @@ def save_db(data):
     except Exception as e:
         print(f"Error saving {DB_FILE}: {e}")
         return False
+
+
+# ==========================================================================
+# Guestbook wish visibility (server-side tombstones)
+# --------------------------------------------------------------------------
+# Admin delete/edit relies on client tombstones because the Supabase anon key
+# cannot DELETE/UPDATE rows (RLS). The public wish wall reads /api/wishes, so
+# the same tombstones are persisted here as well: a deleted (or edited-away)
+# wish is hidden for every visitor, not just the admin's browser.
+# ==========================================================================
+def _wish_key(w):
+    return ((w.get('name') or ''), (w.get('message') or ''))
+
+
+def _remember_deleted_wish(db, name, message):
+    key = (name or '', message or '')
+    list_ = db.get('deleted_wishes') or []
+    if not any(_wish_key(t) == key for t in list_):
+        list_.append({'name': key[0], 'message': key[1]})
+        db['deleted_wishes'] = list_
+
+
+def _forget_deleted_wish(db, name, message):
+    key = (name or '', message or '')
+    db['deleted_wishes'] = [t for t in (db.get('deleted_wishes') or []) if _wish_key(t) != key]
+
+
+def _filter_hidden_wishes(db, wishes):
+    tombstones = {_wish_key(t) for t in (db.get('deleted_wishes') or [])}
+    clear_dt = None
+    cleared_at = db.get('wishes_cleared_at')
+    if cleared_at:
+        try:
+            clear_dt = datetime.fromisoformat(str(cleared_at).replace('Z', '+00:00'))
+            if clear_dt.tzinfo is None:
+                clear_dt = clear_dt.replace(tzinfo=timezone.utc)
+        except Exception:
+            clear_dt = None
+
+    result = []
+    for w in wishes:
+        if _wish_key(w) in tombstones:
+            continue
+        if clear_dt:
+            created = w.get('created_at') or w.get('submittedAt')
+            if created:
+                try:
+                    created_dt = datetime.fromisoformat(str(created).replace('Z', '+00:00'))
+                    if created_dt.tzinfo is None:
+                        created_dt = created_dt.replace(tzinfo=timezone.utc)
+                    # 10s grace so clock skew between this server and Supabase
+                    # can never hide a wish submitted just after "Clear All".
+                    if (clear_dt - created_dt).total_seconds() > 10:
+                        continue
+                except Exception:
+                    pass
+        result.append(w)
+    return result
+
 
 # ==========================================================================
 # Supabase dynamic connection (auto)
@@ -264,6 +327,7 @@ def sb_fetch_wishes():
             'name': w.get('name'),
             'date_display': w.get('date_display') or 'ថ្មីៗនេះ',
             'message': w.get('message'),
+            'created_at': w.get('created_at'),
         }
         for w in rows
     ]
@@ -447,10 +511,11 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             return
 
         elif path == '/api/wishes':
+            db = load_db()
             wishes = sb_fetch_wishes()
             if wishes is None:
-                db = load_db()
                 wishes = db.get("wishes", [])
+            wishes = _filter_hidden_wishes(db, wishes)
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.end_headers()
@@ -642,9 +707,11 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
                 new_wish = {
                     "name": payload.get('name', 'ភ្ញៀវកិត្តិយស'),
                     "date_display": "ទើបតែផ្ញើ",
-                    "message": wishes_text
+                    "message": wishes_text,
+                    "created_at": datetime.now(timezone.utc).isoformat()
                 }
                 # Remove if same message already exists to avoid duplicates
+                _forget_deleted_wish(db, new_wish["name"], new_wish["message"])
                 db["wishes"] = [w for w in db["wishes"] if not (w.get("name") == new_wish["name"] and w.get("message") == new_wish["message"])]
                 db["wishes"].insert(0, new_wish)
 
@@ -665,6 +732,11 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             db = load_db()
             if "wishes" not in db:
                 db["wishes"] = []
+            # Stamp the real creation time so the wall can show "x minutes ago".
+            if not payload.get("created_at"):
+                payload["created_at"] = datetime.now(timezone.utc).isoformat()
+            # Re-adding a previously deleted/edited wish makes it visible again.
+            _forget_deleted_wish(db, payload.get("name"), payload.get("message"))
             # Drop an identical existing wish so the guestbook never shows it twice
             db["wishes"] = [w for w in db["wishes"] if not (w.get("name") == payload.get("name") and w.get("message") == payload.get("message"))]
             db["wishes"].insert(0, payload)
@@ -992,6 +1064,9 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             msg = payload.get('message')
             db = load_db()
             db["wishes"] = [w for w in db.get("wishes", []) if not (w.get("name") == name and w.get("message") == msg)]
+            # Persist the tombstone so the wish also disappears from the public
+            # wall even when the cloud DELETE is blocked by RLS.
+            _remember_deleted_wish(db, name, msg)
             save_db(db)
             sb_delete_wish(name, msg)
 
@@ -1004,6 +1079,8 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
         elif path == '/api/wishes/clear':
             db = load_db()
             db["wishes"] = []
+            db["deleted_wishes"] = []
+            db["wishes_cleared_at"] = datetime.now(timezone.utc).isoformat()
             save_db(db)
             sb_clear_wishes()
 

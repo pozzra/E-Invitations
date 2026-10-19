@@ -352,7 +352,8 @@ class SupabaseService {
           return dedupe(data.map(w => ({
             name: w.name,
             date: w.date_display || 'ថ្មីៗនេះ',
-            message: w.message
+            message: w.message,
+            created_at: w.created_at
           })));
         }
       } catch (err) {
@@ -369,7 +370,8 @@ class SupabaseService {
           return dedupe(data.map(w => ({
             name: w.name,
             date: w.date_display || w.date || 'ថ្មីៗនេះ',
-            message: w.message
+            message: w.message,
+            created_at: w.created_at
           })));
         }
       }

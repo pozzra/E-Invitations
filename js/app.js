@@ -1599,7 +1599,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="wish-item">
         <div class="wish-header">
           <span class="wish-author">${escapeHtml(item.name || '')}</span>
-          <span class="wish-date">${escapeHtml(item.date || item.date_display || 'ថ្មីៗ')}</span>
+          <span class="wish-date">${escapeHtml(window.WishTime ? window.WishTime.format(item) : (item.date || item.date_display || 'ថ្មីៗ'))}</span>
         </div>
         <p class="wish-message">${escapeHtml(item.message || '')}</p>
       </div>
@@ -1633,7 +1633,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const newWish = {
           name: name,
           date: 'ទើបតែផ្ញើ',
-          message: wishesText
+          message: wishesText,
+          created_at: new Date().toISOString()
         };
         currentWishes.unshift(newWish);
         localStorage.setItem('khmer_wedding_wishes', JSON.stringify(currentWishes));
@@ -2116,7 +2117,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="db-data-card">
             <div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight:700; color:var(--primary-gold-light);">
               <span>👤 ${escapeHtml(w.name || 'ភ្ញៀវ')}</span>
-              <span style="font-size:0.7rem; color:var(--text-muted);">${escapeHtml(w.date || w.date_display || '')}</span>
+              <span style="font-size:0.7rem; color:var(--text-muted);">${escapeHtml(window.WishTime ? window.WishTime.format(w) : (w.date || w.date_display || ''))}</span>
             </div>
             <div style="font-size:0.76rem; color:var(--text-cream); margin-top:3px;">${escapeHtml(w.message || '')}</div>
           </div>
