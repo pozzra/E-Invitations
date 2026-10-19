@@ -11,6 +11,8 @@
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Battambang:wght@300;400;700&family=Cinzel:wght@500;700;900&family=Hanuman:wght@300;400;700&family=Kantumruy+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Moul&family=Noto+Serif+Khmer:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="../css/style.css?v=20261017l">
+  <link rel="icon" id="app-favicon" href="../assets/images/golden_seal.jpg">
+  <link rel="apple-touch-icon" id="app-apple-icon" href="../assets/images/golden_seal.jpg">
   <style>
     body {
       background-color: var(--bg-deep-navy, #060913);
@@ -1658,6 +1660,11 @@
             <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 12px;">
               ចុចប៊ូតុង <strong>💾 រក្សាទុក (Save)</strong> ដើម្បីអនុវត្តចលនាទាំងនេះទៅលើគេហទំព័រភ្ញៀវទាំងអស់។
             </p>
+            <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 8px;">
+              🔗 ទំព័រដោយឡែក (Live preview)៖
+              <a href="../animationsettings/" target="_blank" rel="noopener" style="color: var(--primary-gold);">/animationsettings/
+                ↗</a>
+            </p>
           </div>
         </div>
 
@@ -1977,7 +1984,8 @@ values
 
   <!-- Supabase SDK & Admin Script Logic -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../js/supabase.js?v=20261017k"></script>
+  <script src="../js/supabase.js?v=20261019wish"></script>
+  <script src="../js/siteicon.js?v=20261019icon"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       // 🌐 Smart API Base URL: redirect to Python server on port 8080 when
@@ -2694,6 +2702,12 @@ values
             renderIconList();
           });
         });
+
+        // Live-preview the selected icon in this admin tab (updates on select/add/remove)
+        if (window.SiteIcon) {
+          const activeIcon = currentIcons[currentIconIndex];
+          window.SiteIcon.set(activeIcon && activeIcon.src ? activeIcon.src : '');
+        }
       }
 
       function addIconUrl(url, silent) {

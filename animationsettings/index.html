@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="km">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ការកំណត់ចលនា | Animation Settings — E-Invitation</title>
+  <meta name="description" content="កំណត់ចលនាប៊ូតឺរហ្វ្លាយ និងផ្កាក្រដាចសម្រាប់សំបុត្រអញ្ជើញរបស់អ្នក">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Battambang:wght@300;400;700&family=Cinzel:wght@500;700;900&family=Hanuman:wght@300;400;700&family=Kantumruy+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Moul&family=Noto+Serif+Khmer:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .anim-container {
+      max-width: 560px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 26px 18px 70px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .badge-anim {
+      background: rgba(229, 185, 85, 0.2);
+      border: 1px solid var(--primary-gold);
+      color: var(--primary-gold-light);
+      padding: 4px 16px;
+      border-radius: var(--radius-full);
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: inline-block;
+    }
+
+    .preview-note {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      background: rgba(229, 185, 85, 0.08);
+      border: 1px dashed rgba(229, 185, 85, 0.35);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    .anim-section {
+      border-top: 1px dashed rgba(229, 185, 85, 0.25);
+      padding-top: 16px;
+      margin-top: 18px;
+    }
+
+    .anim-section h4 {
+      font-size: 0.95rem;
+      color: var(--primary-gold);
+      margin-bottom: 12px;
+    }
+
+    .switch-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+      color: var(--text-cream);
+    }
+
+    .switch-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #e5b955;
+      flex: none;
+    }
+
+    .colour-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .colour-row input[type="color"] {
+      width: 52px;
+      height: 40px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      flex: none;
+    }
+
+    .colour-row input[type="color"]:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .colour-row .form-input:disabled {
+      opacity: 0.45;
+    }
+
+    .anim-hint {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+      line-height: 1.7;
+    }
+
+    .actions-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .actions-row button {
+      flex: 1;
+    }
+
+    .save-status {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-top: 12px;
+      text-align: center;
+      line-height: 1.7;
+    }
+
+    .footer-note {
+      text-align: center;
+      margin-top: 18px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .footer-note a {
+      color: var(--primary-gold);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="anim-container">
+
+    <!-- Top Nav / Back to Invitation -->
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 22px;">
+      <a href="../" class="btn-gold-secondary ripple-effect"
+        style="width: auto; padding: 6px 14px; font-size: 0.8rem; text-decoration: none; margin-top: 0;">
+        ← ទៅកាន់សំបុត្រ
+      </a>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <a href="../admin/" class="btn-gold-secondary ripple-effect"
+          style="width: auto; padding: 6px 14px; font-size: 0.8rem; text-decoration: none; margin-top: 0;">
+          ⚙️ Admin
+        </a>
+        <span class="badge-anim">ANIMATION</span>
+      </div>
+    </div>
+
+    <!-- Main Card -->
+    <div class="card-glass" style="border: 1.5px solid var(--primary-gold); padding: 28px 20px;">
+
+      <div class="section-kbach-header">
+        <div class="kbach-ornament"></div>
+        <h1 class="section-title" style="font-size: 1.3rem;">✨ ការកំណត់ចលនា</h1>
+        <p class="section-subtitle">Animation Settings</p>
+      </div>
+
+      <p class="preview-note">
+        <span style="font-size: 1rem;">👁️</span>
+        <span>
+          ចលនានៅពីក្រោយទំព័រនេះ គឺជា <strong>ការមើលជាមុនផ្ទាល់ (Live preview)</strong> — អ្វីដែលអ្នកឃើញ
+          គឺដូចគ្នានឹងសំបុត្រអញ្ជើញ។ ការផ្លាស់ប្ដូរនឹងអនុវត្តភ្លាមៗលើទំព័រនេះ ប៉ុន្តែត្រូវចុច
+          <strong>រក្សាទុក</strong> ដើម្បីរក្សាទុកជាផ្លូវការ។
+        </span>
+      </p>
+
+      <!-- 🦋 Butterflies -->
+      <div class="anim-section" style="border-top: none; padding-top: 0; margin-top: 0;">
+        <h4>🦋 ប៊ូតឺរហ្វ្លាយ (Butterflies)</h4>
+
+        <label class="switch-row">
+          <input type="checkbox" id="as-butterfly-show" checked>
+          <span>បង្ហាញប៊ូតឺរហ្វ្លាយ (Show butterflies)</span>
+        </label>
+        <label class="switch-row">
+          <input type="checkbox" id="as-butterfly-enabled">
+          <span>កំណត់ពណ៌ដោយខ្លួនឯង (Custom colour)</span>
+        </label>
+        <div class="colour-row">
+          <input type="color" id="as-butterfly-color" value="#e5b955">
+          <input type="text" id="as-butterfly-color-hex" class="form-input" placeholder="#e5b955" maxlength="7"
+            style="flex: 1;">
+        </div>
+        <p class="anim-hint">បើមិនធីក Custom colour ទេ ប៊ូតឺរហ្វ្លាយនឹងប្រើពណ៌មាសលំនាំដើម។</p>
+      </div>
+
+      <!-- 🌸 Falling flowers -->
+      <div class="anim-section">
+        <h4>🌸 ផ្កាក្រដាច (Falling flowers)</h4>
+
+        <label class="switch-row">
+          <input type="checkbox" id="as-flower-show" checked>
+          <span>បង្ហាញផ្កាក្រដាច (Show falling flowers)</span>
+        </label>
+        <label class="switch-row">
+          <input type="checkbox" id="as-flower-enabled">
+          <span>កំណត់ពណ៌ដោយខ្លួនឯង (Custom colour)</span>
+        </label>
+        <div class="colour-row">
+          <input type="color" id="as-flower-color" value="#e5b955">
+          <input type="text" id="as-flower-color-hex" class="form-input" placeholder="#e5b955" maxlength="7"
+            style="flex: 1;">
+        </div>
+
+        <label class="switch-row" style="margin-top: 12px;">
+          <input type="checkbox" id="as-flower-style-petal">
+          <span>ផ្កាមួយកែបទ្រង់ (Single petal style) — មិនធីក = Blossom ៥ កែបទ្រង់</span>
+        </label>
+        <p class="anim-hint">បើមិនធីក Custom colour ទេ ផ្កានឹងប្រើពណ៌ផ្កាលំនាំដើម (ផ្កាកុលាប និងពណ៌មាស)។</p>
+      </div>
+
+      <!-- Actions -->
+      <div class="actions-row">
+        <button type="button" class="btn-gold-primary ripple-effect" id="as-save"><span>💾 រក្សាទុក
+            (Save)</span></button>
+        <button type="button" class="btn-gold-secondary ripple-effect" id="as-reload"><span>↻
+            ផ្ទុកឡើងវិញ</span></button>
+      </div>
+      <p class="save-status" id="as-status">⏳ កំពុងផ្ទុកការកំណត់…</p>
+      <p class="anim-hint" style="text-align: center; margin-top: 10px;">
+        ការផ្លាស់ប្ដូរនឹងអនុវត្តលើគេហទំព័រភ្ញៀវទាំងអស់ បន្ទាប់ពីរក្សាទុក។
+      </p>
+    </div>
+
+    <div class="footer-note">ស្ថិតក្រោមការគ្រប់គ្រងរបស់ <a href="../">E-Invitation</a></div>
+  </div>
+
+  <div class="toast-notice" id="as-toast"></div>
+
+  <script src="../js/supabase.js?v=20261019wish"></script>
+  <script src="../js/animations.js?v=20261019a"></script>
+  <script>
+    (function () {
+      const $ = (id) => document.getElementById(id);
+      const HEX_RE = /^#[0-9a-fA-F]{6}$/;
+
+      let currentConfig = null;
+      let toastTimer = null;
+
+      /* ---------- helpers ---------- */
+
+      function toast(msg) {
+        const t = $('as-toast');
+        if (!t) return;
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
+      }
+
+      function setStatus(text) {
+        const el = $('as-status');
+        if (el) el.textContent = text;
+      }
+
+      function validHex(v) {
+        return HEX_RE.test(String(v || '').trim());
+      }
+
+      function customHex(hexInputId, pickerId) {
+        return validHex($(hexInputId).value) ? $(hexInputId).value.trim() : $(pickerId).value;
+      }
+
+      /* ---------- live preview ---------- */
+
+      // Start the animation engine on this page right away — the page itself is the preview.
+      if (window.InvitationAnimations) {
+        window.InvitationAnimations.init();
+      }
+
+      function syncDisabled() {
+        $('as-butterfly-color').disabled = !$('as-butterfly-enabled').checked;
+        $('as-butterfly-color-hex').disabled = !$('as-butterfly-enabled').checked;
+        $('as-flower-color').disabled = !$('as-flower-enabled').checked;
+        $('as-flower-color-hex').disabled = !$('as-flower-enabled').checked;
+      }
+
+      function applyPreview() {
+        const A = window.InvitationAnimations;
+        if (!A) return;
+
+        // Butterflies
+        A.setButterflyVisible($('as-butterfly-show').checked);
+        A.setButterflyColor($('as-butterfly-enabled').checked
+          ? customHex('as-butterfly-color-hex', 'as-butterfly-color')
+          : '');
+
+        // Falling flowers
+        A.setFlowerVisible($('as-flower-show').checked);
+        A.setFlowerColor($('as-flower-enabled').checked
+          ? customHex('as-flower-color-hex', 'as-flower-color')
+          : '');
+        A.setFlowerStyle($('as-flower-style-petal').checked ? 'petal' : 'blossom');
+      }
+
+      /* ---------- load / populate ---------- */
+
+      function populate(theme) {
+        theme = theme || {};
+
+        $('as-butterfly-show').checked = theme.butterflyShow !== false;
+        $('as-butterfly-enabled').checked = !!theme.butterflyColor;
+        if (theme.butterflyColor && validHex(theme.butterflyColor)) {
+          $('as-butterfly-color').value = theme.butterflyColor;
+          $('as-butterfly-color-hex').value = theme.butterflyColor;
+        } else {
+          $('as-butterfly-color-hex').value = '';
+        }
+
+        $('as-flower-show').checked = theme.flowerShow !== false;
+        $('as-flower-enabled').checked = !!theme.flowerColor;
+        if (theme.flowerColor && validHex(theme.flowerColor)) {
+          $('as-flower-color').value = theme.flowerColor;
+          $('as-flower-color-hex').value = theme.flowerColor;
+        } else {
+          $('as-flower-color-hex').value = '';
+        }
+
+        $('as-flower-style-petal').checked = theme.flowerStyle === 'petal';
+      }
+
+      function updateStatus() {
+        const cloud = !!(window.appSupabase && window.appSupabase.isConfigured);
+        const target = cloud ? '☁️ Supabase Cloud + Server' : '💾 Server / Local storage';
+        if (!currentConfig) {
+          setStatus('⚠️ មិនអាចទាញយកការកំណត់បច្ចុប្បន្នបានទេ — ការរក្សាទុកនឹងមិនត្រូវបានអនុញ្ញាតទេ។');
+        } else {
+          setStatus('រក្សាទុកទៅ៖ ' + target);
+        }
+      }
+
+      async function load(silent) {
+        if (!silent) setStatus('⏳ កំពុងផ្ទុកការកំណត់…');
+        let cfg = null;
+        if (window.appSupabase && typeof window.appSupabase.fetchConfig === 'function') {
+          try { cfg = await window.appSupabase.fetchConfig(); } catch (e) { }
+        }
+        if (!cfg) {
+          try { cfg = JSON.parse(localStorage.getItem('khmer_invitation_config') || 'null'); } catch (e) { }
+        }
+        currentConfig = (cfg && typeof cfg === 'object') ? cfg : null;
+        populate(currentConfig ? currentConfig.theme : null);
+        syncDisabled();
+        applyPreview();
+        updateStatus();
+      }
+
+      /* ---------- save ---------- */
+
+      async function save() {
+        if (!currentConfig) {
+          toast('⚠️ មិនអាចទាញយកការកំណត់បច្ចុប្បន្ន — សូមរង់ចាំ ឬចុច "ផ្ទុកឡើងវិញ"');
+          return;
+        }
+
+        // Merge into the FULL config so nothing else is ever overwritten.
+        let merged;
+        try { merged = JSON.parse(JSON.stringify(currentConfig)); }
+        catch (e) { merged = Object.assign({}, currentConfig); }
+        merged.theme = (merged.theme && typeof merged.theme === 'object') ? merged.theme : {};
+
+        merged.theme.butterflyShow = $('as-butterfly-show').checked;
+        merged.theme.butterflyColor = $('as-butterfly-enabled').checked
+          ? customHex('as-butterfly-color-hex', 'as-butterfly-color')
+          : '';
+        merged.theme.flowerShow = $('as-flower-show').checked;
+        merged.theme.flowerColor = $('as-flower-enabled').checked
+          ? customHex('as-flower-color-hex', 'as-flower-color')
+          : '';
+        merged.theme.flowerStyle = $('as-flower-style-petal').checked ? 'petal' : 'blossom';
+
+        const btn = $('as-save');
+        btn.disabled = true;
+        try {
+          if (window.appSupabase && typeof window.appSupabase.saveConfig === 'function') {
+            await window.appSupabase.saveConfig(merged);
+          } else {
+            try { localStorage.setItem('khmer_invitation_config', JSON.stringify(merged)); } catch (e) { }
+            await fetch('/api/config', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(merged)
+            });
+          }
+          currentConfig = merged;
+          toast('💾 បានរក្សាទុកដោយជោគជ័យ!');
+          updateStatus();
+        } catch (e) {
+          toast('⚠️ ការរក្សាទុកបរាជ័យ — សូមព្យាយាមម្ដងទៀត');
+        } finally {
+          btn.disabled = false;
+        }
+      }
+
+      /* ---------- wiring ---------- */
+
+      ['as-butterfly-show', 'as-butterfly-enabled', 'as-flower-show', 'as-flower-enabled', 'as-flower-style-petal']
+        .forEach((id) => {
+          const el = $(id);
+          if (el) el.addEventListener('change', () => { syncDisabled(); applyPreview(); });
+        });
+
+      // Two-way colour picker ↔ hex input
+      function wireColour(pickerId, hexId) {
+        const picker = $(pickerId);
+        const hex = $(hexId);
+        if (!picker || !hex) return;
+        picker.addEventListener('input', () => {
+          hex.value = picker.value;
+          applyPreview();
+        });
+        hex.addEventListener('input', () => {
+          if (validHex(hex.value)) {
+            picker.value = hex.value.trim();
+            applyPreview();
+          }
+        });
+      }
+      wireColour('as-butterfly-color', 'as-butterfly-color-hex');
+      wireColour('as-flower-color', 'as-flower-color-hex');
+
+      $('as-save').addEventListener('click', save);
+      $('as-reload').addEventListener('click', () => {
+        load().then(() => toast('↻ បានផ្ទុកការកំណត់ឡើងវិញ'));
+      });
+
+      load();
+    })();
+  </script>
+</body>
+
+</html>

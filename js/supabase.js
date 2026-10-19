@@ -135,19 +135,23 @@ class SupabaseService {
     localStorage.setItem(localKey, JSON.stringify(rsvpData));
 
     // 2. Persist to Server Database API (/api/rsvp)
+    let serverOk = false;
     try {
-      await fetch('/api/rsvp', {
+      const res = await fetch('/api/rsvp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(rsvpData)
       });
+      serverOk = res.ok;
       console.log('RSVP successfully saved to server database file!');
     } catch (e) {
       console.warn('Backend API save failed:', e);
     }
 
-    // 3. Persist to Supabase Cloud if configured
-    if (this.isConfigured && this.client) {
+    // 3. Persist to Supabase Cloud if configured — only when the server API is
+    //    unavailable. The server pushes RSVPs to Supabase itself, so doing both
+    //    would store the same RSVP twice.
+    if (!serverOk && this.isConfigured && this.client) {
       try {
         const { data, error } = await this.client.from('rsvps').insert([{
           invitation_id: this.invitationId,
@@ -263,15 +267,21 @@ class SupabaseService {
   // Wishes / Guestbook Operations
   // ==========================================================================
   async submitWish(wish) {
+    // 1. Persist via the server API — the server also pushes the wish to
+    //    Supabase and skips identical wishes, so this is the single writer.
+    let serverOk = false;
     try {
-      await fetch('/api/wish', {
+      const res = await fetch('/api/wish', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(wish)
       });
-    } catch (e) {}
+      serverOk = res.ok;
+    } catch (e) { }
 
-    if (this.isConfigured && this.client) {
+    // 2. Direct Supabase fallback only when the server is unavailable —
+    //    otherwise the same wish would be stored twice (server push + insert).
+    if (!serverOk && this.isConfigured && this.client) {
       try {
         await this.client.from('wishes').insert([{
           name: wish.name,
@@ -318,6 +328,19 @@ class SupabaseService {
   }
 
   async fetchWishes() {
+    // A wish is identified by name + message (that's what delete/sync use as
+    // the key). Keep only the newest match so older duplicate rows from past
+    // double-saves never show the same wish 2-3 times on the wall.
+    const dedupe = (list) => {
+      const seen = new Set();
+      return list.filter(w => {
+        const key = (w.name || '') + '\u0000' + (w.message || '');
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    };
+
     if (this.isConfigured && this.client) {
       try {
         const { data, error } = await this.client
@@ -326,11 +349,11 @@ class SupabaseService {
           .order('created_at', { ascending: false });
 
         if (!error && Array.isArray(data) && data.length > 0) {
-          return data.map(w => ({
+          return dedupe(data.map(w => ({
             name: w.name,
             date: w.date_display || 'ថ្មីៗនេះ',
             message: w.message
-          }));
+          })));
         }
       } catch (err) {
         console.warn('Failed to fetch wishes from Supabase:', err);
@@ -343,11 +366,11 @@ class SupabaseService {
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data) && data.length > 0) {
-          return data.map(w => ({
+          return dedupe(data.map(w => ({
             name: w.name,
             date: w.date_display || w.date || 'ថ្មីៗនេះ',
             message: w.message
-          }));
+          })));
         }
       }
     } catch (e) {}

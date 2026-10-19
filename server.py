@@ -269,7 +269,24 @@ def sb_fetch_wishes():
     ]
 
 
+def sb_wish_exists(name, message):
+    query = (
+        '?select=name,message&limit=1'
+        f'&name=eq.{urllib.parse.quote(str(name if name is not None else ""))}'
+        f'&message=eq.{urllib.parse.quote(str(message if message is not None else ""))}'
+    )
+    rows = _sb_request('GET', 'wishes', query)
+    return isinstance(rows, list) and len(rows) > 0
+
+
 def sb_push_wish(w):
+    # Idempotent: skip when the exact same wish (name + message) already exists
+    # in Supabase. The RSVP endpoint and the wish endpoint both push, and the
+    # cloud re-sync pushes every local wish again — without this check a single
+    # guest submission ends up stored 2-3 times and shows on the wall multiple
+    # times.
+    if sb_wish_exists(w.get('name'), w.get('message')):
+        return {'duplicate': True}
     return _sb_request(
         'POST', 'wishes', '',
         [{
@@ -586,6 +603,16 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
                     self.wfile.write(f.read())
                 return
 
+        elif path in ('/animationsettings', '/animationsettings/'):
+            file_path = os.path.join(BASE_DIR, 'animationsettings', 'index.html')
+            if os.path.exists(file_path):
+                self.send_response(200)
+                self.send_header('Content-Type', 'text/html; charset=utf-8')
+                self.end_headers()
+                with open(file_path, 'rb') as f:
+                    self.wfile.write(f.read())
+                return
+
         # Fallback to standard static file server
         return super().do_GET()
 
@@ -638,6 +665,8 @@ class EInvitationHandler(http.server.SimpleHTTPRequestHandler):
             db = load_db()
             if "wishes" not in db:
                 db["wishes"] = []
+            # Drop an identical existing wish so the guestbook never shows it twice
+            db["wishes"] = [w for w in db["wishes"] if not (w.get("name") == payload.get("name") and w.get("message") == payload.get("message"))]
             db["wishes"].insert(0, payload)
             save_db(db)
             sb_push_wish(payload)
