@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="km" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>គណនីរបស់ខ្ញុំ | My Account — E-Invitation</title>
+  <meta name="description" content="គ្រប់គ្រងគណនី និងលិខិតអញ្ជើញផ្ទាល់ខ្លួនរបស់អ្នក។">
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Kantumruy+Pro:wght@400;500;700&family=Moul&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --primary-gold: #e5b955;
+      --primary-gold-light: #fff2b2;
+      --primary-gold-dark: #a17822;
+      --bg-deep-navy: #0a0a0d;
+      --bg-burgundy: #1a1206;
+      --text-muted: #c7beab;
+      --font-khmer-heading: 'Moul', 'Noto Serif Khmer', serif;
+      --font-khmer-sub: 'Battambang', 'Hanuman', sans-serif;
+      --font-khmer-body: 'Kantumruy Pro', 'Hanuman', sans-serif;
+      --radius-sm: 8px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 20% 15%, rgba(229, 185, 85, 0.12), transparent 45%),
+        linear-gradient(160deg, #0a0a0d 0%, #131118 45%, #1c1509 100%);
+      color: #f5efe0;
+      font-family: var(--font-khmer-body);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .ua-wrap {
+      width: 100%;
+      max-width: 560px;
+    }
+
+    .ua-card {
+      background: rgba(20, 17, 12, 0.88);
+      border: 1px solid rgba(229, 185, 85, 0.32);
+      border-radius: var(--radius-lg);
+      padding: 28px 24px;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(10px);
+    }
+
+    .ua-brand {
+      font-size: 0.72rem;
+      letter-spacing: 2px;
+      color: var(--primary-gold);
+      text-align: center;
+      margin-bottom: 6px;
+    }
+
+    .ua-title {
+      font-family: var(--font-khmer-heading);
+      font-size: 1.25rem;
+      text-align: center;
+      color: var(--primary-gold-light);
+      margin-bottom: 4px;
+    }
+
+    .ua-sub {
+      font-family: var(--font-khmer-sub);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-family: var(--font-khmer-sub);
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(229, 185, 85, 0.3);
+      background: rgba(10, 9, 12, 0.7);
+      color: #f5efe0;
+      font-size: 0.95rem;
+      font-family: var(--font-khmer-body);
+      outline: none;
+    }
+
+    .form-input:focus {
+      border-color: var(--primary-gold);
+      box-shadow: 0 0 0 3px rgba(229, 185, 85, 0.15);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-khmer-sub);
+      font-size: 0.92rem;
+      text-decoration: none;
+      transition: transform .15s ease, opacity .15s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary-gold), var(--primary-gold-dark));
+      color: #1a1206;
+      font-weight: 700;
+    }
+
+    .btn-secondary {
+      background: rgba(229, 185, 85, 0.1);
+      border: 1px solid rgba(229, 185, 85, 0.4);
+      color: var(--primary-gold-light);
+    }
+
+    .btn-ghost {
+      background: none;
+      border: none;
+      color: var(--primary-gold-light);
+      text-decoration: underline;
+      font-size: 0.82rem;
+      margin-top: 12px;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 16px 0;
+      color: var(--text-muted);
+      font-size: 0.72rem;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: rgba(229, 185, 85, 0.25);
+    }
+
+    .ua-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 0;
+      border-bottom: 1px dashed rgba(229, 185, 85, 0.18);
+    }
+
+    .ua-row:last-child {
+      border-bottom: none;
+    }
+
+    .ua-row .label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-family: var(--font-khmer-sub);
+    }
+
+    .ua-row .value {
+      font-size: 0.9rem;
+      color: #fff;
+      word-break: break-all;
+      text-align: right;
+    }
+
+    .ua-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .ua-actions .btn {
+      width: 100%;
+    }
+
+    .ua-link-box {
+      margin-top: 8px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      background: rgba(10, 9, 12, 0.7);
+      border: 1px solid rgba(229, 185, 85, 0.25);
+      font-family: monospace;
+      font-size: 0.78rem;
+      color: var(--primary-gold-light);
+      word-break: break-all;
+    }
+
+    .ua-notice {
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      background: rgba(229, 185, 85, 0.08);
+      border: 1px solid rgba(229, 185, 85, 0.3);
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-family: var(--font-khmer-sub);
+      line-height: 1.6;
+    }
+
+    .ua-notice.done {
+      background: rgba(62, 207, 142, 0.08);
+      border-color: rgba(62, 207, 142, 0.35);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .spinner {
+      text-align: center;
+      padding: 40px 0;
+      color: var(--text-muted);
+      font-family: var(--font-khmer-sub);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(20, 17, 12, 0.96);
+      border: 1px solid rgba(229, 185, 85, 0.4);
+      color: var(--primary-gold-light);
+      padding: 12px 18px;
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-family: var(--font-khmer-sub);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease;
+      z-index: 9999;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+
+    .ua-footer {
+      text-align: center;
+      margin-top: 18px;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .ua-footer a {
+      color: var(--primary-gold);
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="ua-wrap">
+    <!-- Loading -->
+    <div id="ua-loading" class="ua-card spinner">⏳ កំពុងផ្ទុក... / Loading...</div>
+
+    <!-- Login / Signup -->
+    <div id="ua-auth" class="ua-card hidden">
+      <div class="ua-brand">E-INVITATION SYSTEM</div>
+      <h1 class="ua-title" id="ua-auth-title">ចូលគណនី (Sign in)</h1>
+      <p class="ua-sub" id="ua-auth-sub">គណនីមួយ = ទំព័រអញ្ជើញមួយ (One account = one invitation)</p>
+
+      <form id="ua-form">
+        <button type="button" id="ua-google" class="btn btn-secondary">🔵 បន្តជាមួយ Google</button>
+        <div class="divider">ឬ / OR</div>
+
+        <div class="form-group hidden" id="ua-username-group">
+          <label class="form-label" for="ua-username">ឈ្មោះអ្នកប្រើប្រាស់ (Username)</label>
+          <input type="text" id="ua-username" class="form-input" placeholder="username" autocomplete="username">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="ua-email">អ៊ីមែល (Email)</label>
+          <input type="email" id="ua-email" class="form-input" placeholder="you@example.com" required autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="ua-password">ពាក្យសម្ងាត់ (Password)</label>
+          <input type="password" id="ua-password" class="form-input" placeholder="••••••••" required
+            autocomplete="current-password">
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="ua-submit"><span id="ua-submit-text">ចូលគណនី (Sign in)</span></button>
+        <button type="button" class="btn btn-ghost" id="ua-toggle">មិនទាន់មានគណនី? ចុះឈ្មោះ (Sign up)</button>
+      </form>
+    </div>
+
+    <!-- Account Detail -->
+    <div id="ua-detail" class="ua-card hidden">
+      <div class="ua-brand">E-INVITATION SYSTEM</div>
+      <h1 class="ua-title">គណនីរបស់ខ្ញុំ (My Account)</h1>
+      <p class="ua-sub" id="ua-greeting"></p>
+
+      <div class="ua-row">
+        <span class="label">អ៊ីមែល (Email)</span>
+        <span class="value" id="ua-d-email">—</span>
+      </div>
+      <div class="ua-row">
+        <span class="label">Username</span>
+        <span class="value" id="ua-d-username">—</span>
+      </div>
+      <div class="ua-row" style="display:block;">
+        <span class="label">តំណភ្ជាប់សាធារណៈ (Public link)</span>
+        <div class="ua-link-box" id="ua-d-link">—</div>
+      </div>
+
+      <div class="ua-actions">
+        <a class="btn btn-primary" id="ua-open" href="#" target="_blank" rel="noopener">👁️ មើលសំបុត្រ</a>
+        <button class="btn btn-secondary" id="ua-copy">📋 ចម្លង Link</button>
+        <a class="btn btn-secondary" id="ua-edit" href="/admin">✏️ កែសម្រួល</a>
+        <button class="btn btn-secondary" id="ua-logout">🚪 ចាកចេញ</button>
+      </div>
+
+      <div class="ua-notice" id="ua-status-note"></div>
+
+      <div class="ua-footer">ស្ថិតក្រោមការគ្រប់គ្រងរបស់ <a href="/">E-Invitation</a></div>
+    </div>
+  </div>
+
+  <div class="toast" id="ua-toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase.js?v=20261018account"></script>
+  <script>
+    (function () {
+      const $ = (id) => document.getElementById(id);
+      const loading = $('ua-loading');
+      const authCard = $('ua-auth');
+      const detailCard = $('ua-detail');
+
+      let authMode = 'signin';
+      let wiredEvents = false;
+
+      // Wait for Supabase library to be ready (with timeout)
+      function waitForSupabase(timeoutMs) {
+        return new Promise((resolve) => {
+          if (window.supabase && typeof window.supabase.createClient === 'function') {
+            resolve(true);
+            return;
+          }
+          let elapsed = 0;
+          const interval = setInterval(() => {
+            elapsed += 50;
+            if (window.supabase && typeof window.supabase.createClient === 'function') {
+              clearInterval(interval);
+              resolve(true);
+            } else if (elapsed >= timeoutMs) {
+              clearInterval(interval);
+              resolve(false);
+            }
+          }, 50);
+        });
+      }
+
+      function toast(msg) {
+        const t = $('ua-toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(toast._t);
+        toast._t = setTimeout(() => t.classList.remove('show'), 2600);
+      }
+
+      function show(el) {
+        [loading, authCard, detailCard].forEach((c) => c && c.classList.add('hidden'));
+        if (el) el.classList.remove('hidden');
+      }
+
+      function setAuthMode(mode) {
+        authMode = mode === 'signup' ? 'signup' : 'signin';
+        const isSignup = authMode === 'signup';
+        $('ua-username-group').classList.toggle('hidden', !isSignup);
+        $('ua-submit-text').textContent = isSignup ? 'ចុះឈ្មោះ (Sign up)' : 'ចូលគណនី (Sign in)';
+        $('ua-auth-title').textContent = isSignup ? 'បង្កើតគណនី (Create account)' : 'ចូលគណនី (Sign in)';
+        $('ua-toggle').textContent = isSignup
+          ? 'មានគណនីរួចហើយ? ចូល (Sign in)'
+          : 'មិនទាន់មានគណនី? ចុះឈ្មោះ (Sign up)';
+      }
+
+      // Public base path of the site (strip the /useraccount segment)
+      function siteBase() {
+        const path = window.location.pathname.replace(/\/useraccount(?:\/index\.html)?\/?$/, '/');
+        return window.location.origin + (path.endsWith('/') ? path : path + '/');
+      }
+
+      function publicUrl(slug) {
+        return siteBase() + '?u=' + encodeURIComponent(slug);
+      }
+
+      // Does this config actually contain user content (vs. the empty/example default)?
+      function isConfigured(config) {
+        if (!config || typeof config !== 'object') return false;
+        const keys = ['groomName', 'brideName', 'coupleNamesKhmer', 'coupleNamesEn', 'invitationTitle'];
+        return keys.some((k) => {
+          const v = config[k];
+          return typeof v === 'string' && v.trim() && !/ជា វិបុល|SUN DEVI|CHEA VIBOL/i.test(v);
+        });
+      }
+
+      async function showDetail(user) {
+        show(detailCard);
+        const email = user && user.email ? user.email : '—';
+        $('ua-d-email').textContent = email;
+        $('ua-greeting').textContent = email && email !== '—'
+          ? 'សូមស្វាគមន៍មកកាន់គណនីរបស់អ្នក'
+          : '';
+
+        let slug = '';
+        try {
+          await window.appSupabase.initClient();
+          const space = await window.appSupabase.ensureUserSpace(user);
+          slug = (space && space.invitation && space.invitation.slug)
+            || (space && space.profile && space.profile.username)
+            || (window.appSupabase && window.appSupabase.slug) || '';
+        } catch (e) {
+          console.warn('[Account] ensureUserSpace failed:', e);
+        }
+
+        $('ua-d-username').textContent = slug ? '@' + slug : '—';
+        const link = slug ? publicUrl(slug) : '';
+        $('ua-d-link').textContent = link || '—';
+        $('ua-open').href = link || '#';
+        $('ua-open').style.pointerEvents = link ? '' : 'none';
+        $('ua-open').style.opacity = link ? '' : '0.6';
+
+        // Reflect the real invitation state
+        let config = null;
+        try { config = await window.appSupabase.fetchUserConfig(); } catch (e) {}
+        const note = $('ua-status-note');
+        if (isConfigured(config)) {
+          note.className = 'ua-notice done';
+          note.innerHTML = '✅ លិខិតអញ្ជើញរបស់អ្នកត្រូវបានបង្កើតរួចរាល់។ ចម្លងតំណភ្ជាប់ខាងលើ ហើយផ្ញើទៅភ្ញៀវរបស់អ្នក។';
+        } else {
+          note.className = 'ua-notice';
+          note.innerHTML = '✨ លិខិតអញ្ជើញរបស់អ្នកមិនទាន់មានព័ត៌មានទេ។ ចុច <strong>«កែសម្រួល»</strong> ដើម្បីបំពេញព័ត៌មានគូស្វាមីភរិយា កាលបរិច្ឆេទ និងទីតាំង។ បន្ទាប់មកតំណភ្ជាប់នឹងបង្ហាញលិខិតផ្ទាល់ខ្លួនរបស់អ្នក។';
+        }
+      }
+
+      function showAuth() {
+        show(authCard);
+        setAuthMode(authMode);
+      }
+
+      async function check() {
+        if (!window.appSupabase || !window.appSupabase.initClient) {
+          loading.innerHTML = '⚠️ Supabase module not loaded. <button class="btn btn-ghost" onclick="location.reload()">Retry</button>';
+          return;
+        }
+
+        // Wait for Supabase library to load (max 10 seconds)
+        loading.innerHTML = '⏳ កំពុងផ្ទុក Supabase... / Loading Supabase...';
+        const supabaseReady = await waitForSupabase(10000);
+        
+        if (!supabaseReady) {
+          loading.innerHTML = '⚠️ Supabase library failed to load. <br>Please check your internet connection or try again later. <button class="btn btn-ghost" onclick="location.reload()">Retry</button>';
+          return;
+        }
+
+        await window.appSupabase.initClient();
+        if (!window.appSupabase.client) {
+          // No client (missing anon key) — fall back to /admin login
+          loading.innerHTML = '⚠️ សូមចូលតាម <a href="/admin" style="color:#e5b955;">/admin</a> (Supabase not configured)';
+          return;
+        }
+        if (!wiredEvents) {
+          wiredEvents = true;
+          window.appSupabase.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' && session && session.user) {
+              showDetail(session.user);
+            } else if (event === 'SIGNED_OUT') {
+              showAuth();
+            }
+          });
+        }
+        const user = await window.appSupabase.getUser();
+        if (user) await showDetail(user);
+        else showAuth();
+      }
+
+      // Wire events
+      $('ua-toggle').addEventListener('click', () => setAuthMode(authMode === 'signin' ? 'signup' : 'signin'));
+
+      $('ua-google').addEventListener('click', async () => {
+        if (!window.appSupabase) return;
+        const { error } = await window.appSupabase.signInWithGoogle('/useraccount');
+        if (error) toast('❌ ' + error.message);
+      });
+
+      $('ua-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = $('ua-email').value.trim();
+        const pass = $('ua-password').value.trim();
+        const uname = $('ua-username').value.trim();
+        if (!email || !pass) { toast('❌ សូមបញ្ចូល Email និងពាក្យសម្ងាត់'); return; }
+
+        const btn = $('ua-submit');
+        btn.disabled = true;
+        try {
+          if (authMode === 'signup') {
+            const { data, error } = await window.appSupabase.signUp(email, pass, uname);
+            if (error) { toast('❌ ' + error.message); return; }
+            if (data && data.session && data.session.user) {
+              toast('✅ ចុះឈ្មោះបានជោគជ័យ!');
+              await showDetail(data.session.user);
+            } else {
+              toast('📧 សូមផ្ទៀងផ្ទាត់ Email ដើម្បីបញ្ចប់ការចុះឈ្មោះ');
+              setAuthMode('signin');
+            }
+          } else {
+            const { data, error } = await window.appSupabase.signInWithPassword(email, pass);
+            if (error) { toast('❌ ' + error.message); return; }
+            toast('✅ ចូលគណនីបានជោគជ័យ!');
+            if (data && data.user) await showDetail(data.user);
+          }
+        } finally {
+          btn.disabled = false;
+        }
+      });
+
+      $('ua-copy').addEventListener('click', async () => {
+        const link = $('ua-d-link').textContent.trim();
+        if (!link || link === '—') return;
+        try {
+          await navigator.clipboard.writeText(link);
+          toast('📋 ចម្លងតំណភ្ជាប់រួចរាល់!');
+        } catch (_) {
+          toast('⚠️ មិនអាចចម្លងបានទេ');
+        }
+      });
+
+      $('ua-logout').addEventListener('click', async () => {
+        if (window.appSupabase) await window.appSupabase.signOut();
+        try { localStorage.removeItem('khmer_invitation_config'); } catch (_) {}
+        toast('👋 បានចាកចេញ');
+        showAuth();
+      });
+
+      check();
+    })();
+  </script>
+</body>
+
+</html>

@@ -514,7 +514,12 @@ document.addEventListener('DOMContentLoaded', () => {
     theme: {
       mode: 'auto',
       accent: '',
-      bg: ''
+      bg: '',
+      butterflyColor: '',
+      butterflyShow: true,
+      flowerColor: '',
+      flowerShow: true,
+      flowerStyle: 'blossom'
     },
     language: 'auto',
     fonts: {
@@ -738,6 +743,11 @@ document.addEventListener('DOMContentLoaded', () => {
     setButterflyColor(theme.butterflyColor);
     // Show/hide the butterfly decoration (default = shown)
     setButterflyVisible(theme.butterflyShow !== false);
+
+    // Falling flower decoration: colour / visibility / shape (admin-configurable)
+    setFlowerColor(theme.flowerColor);
+    setFlowerVisible(theme.flowerShow !== false);
+    setFlowerStyle(theme.flowerStyle || 'blossom');
   }
 
   function getInvitationConfig() {
@@ -2149,6 +2159,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 11. Subtle Ambient Gold Particle & Sparkle Canvas
   initParticleCanvas();
   initButterflyCanvas();
+  initFlowerCanvas();
 
   // 12. Initialize Professional Join & Scroll Animations
   initScrollReveal();
@@ -2721,6 +2732,190 @@ function initButterflyCanvas() {
       butterflies.forEach(b => {
         b.update();
         b.draw(ctx);
+      });
+    }
+
+    requestAnimationFrame(render);
+  }
+
+  render();
+}
+
+// ==========================================================================
+// Elegant Falling Flower / Blossom Animation System
+// ==========================================================================
+let flowerCustomColor = '';
+let flowerInstances = [];
+let flowerVisible = true;
+let flowerCanvasEl = null;
+let flowerStyle = 'blossom';
+
+// Default soft wedding blossom palette; overridden by a single custom colour.
+function flowerPalette() {
+  if (flowerCustomColor) {
+    const c = flowerCustomColor;
+    return [
+      { petal: c, inner: _bfyMix(c, '#ffffff', 0.55), core: _bfyMix(c, '#000000', 0.3) },
+      { petal: _bfyMix(c, '#ffffff', 0.35), inner: _bfyMix(c, '#ffffff', 0.75), core: c }
+    ];
+  }
+  return [
+    { petal: '#f6c6d0', inner: '#fff0f4', core: '#e5b955' }, // Blush Rose
+    { petal: '#f4a3b8', inner: '#ffe0e8', core: '#d4af37' }, // Rose Pink
+    { petal: '#ffe1a8', inner: '#fff6de', core: '#e5b955' }, // Champagne Gold
+    { petal: '#f9d5e5', inner: '#ffffff', core: '#e0a9c0' }  // Soft Peony
+  ];
+}
+
+// Called after config loads to recolour live flowers ('' → default palette).
+function setFlowerColor(hex) {
+  const value = hex ? String(hex).trim() : '';
+  flowerCustomColor = /^#?[0-9a-fA-F]{3,8}$/.test(value) ? value : '';
+  flowerInstances.forEach(f => { if (f && typeof f.assignColor === 'function') f.assignColor(); });
+}
+
+// Show/hide the falling flower decoration (admin toggle; default = shown).
+function setFlowerVisible(show) {
+  flowerVisible = show !== false;
+  if (flowerCanvasEl) flowerCanvasEl.style.display = flowerVisible ? '' : 'none';
+}
+
+// Flower shape style: 'blossom' (5 petals, default) | 'petal' (single petal).
+function setFlowerStyle(style) {
+  flowerStyle = (style === 'petal') ? 'petal' : 'blossom';
+}
+
+class Flower {
+  constructor(canvas, ctx) {
+    this.canvas = canvas;
+    this.ctx = ctx;
+    this.assignColor();
+    this.reset();
+  }
+
+  assignColor() {
+    const pal = flowerPalette();
+    const pick = pal[Math.floor(Math.random() * pal.length)];
+    this.petalColor = pick.petal;
+    this.innerColor = pick.inner;
+    this.coreColor = pick.core;
+  }
+
+  reset() {
+    const w = this.canvas.width;
+    const h = this.canvas.height;
+    this.x = Math.random() * w;
+    this.y = Math.random() * -h * 0.5;
+    this.size = 12 + Math.random() * 18;
+    this.speedY = 0.6 + Math.random() * 1.2;
+    this.speedX = (Math.random() - 0.5) * 0.8;
+    this.rotation = Math.random() * Math.PI * 2;
+    this.rotSpeed = (Math.random() - 0.5) * 0.02;
+    this.swing = Math.random() * Math.PI * 2;
+    this.swingSpeed = 0.005 + Math.random() * 0.01;
+    this.opacity = 0.6 + Math.random() * 0.35;
+  }
+
+  update() {
+    if (!flowerVisible) return;
+    const w = this.canvas.width;
+    const h = this.canvas.height;
+    this.y += this.speedY;
+    this.x += this.speedX + Math.sin(this.swing) * 0.3;
+    this.rotation += this.rotSpeed;
+    this.swing += this.swingSpeed;
+    if (this.y > h + this.size) this.reset();
+    if (this.x < -this.size) this.x = w + this.size;
+    if (this.x > w + this.size) this.x = -this.size;
+  }
+
+  draw() {
+    if (!flowerVisible) return;
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.rotation);
+    ctx.globalAlpha = this.opacity;
+
+    if (flowerStyle === 'petal') {
+      // Single petal shape
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.bezierCurveTo(-this.size * 0.45, -this.size * 0.7, this.size * 0.45, -this.size * 0.7, 0, 0);
+      ctx.fillStyle = this.petalColor;
+      ctx.fill();
+      // Inner highlight
+      ctx.globalAlpha = this.opacity * 0.6;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.bezierCurveTo(-this.size * 0.2, -this.size * 0.38, this.size * 0.2, -this.size * 0.38, 0, 0);
+      ctx.fillStyle = this.innerColor;
+      ctx.fill();
+    } else {
+      // 5-petal blossom
+      for (let i = 0; i < 5; i++) {
+        const angle = (i * Math.PI * 2) / 5;
+        ctx.save();
+        ctx.rotate(angle);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.bezierCurveTo(-this.size * 0.38, -this.size * 0.75, this.size * 0.38, -this.size * 0.75, 0, 0);
+        ctx.fillStyle = this.petalColor;
+        ctx.fill();
+        ctx.restore();
+      }
+      // Inner glow
+      ctx.globalAlpha = this.opacity * 0.5;
+      ctx.beginPath();
+      ctx.arc(0, 0, this.size * 0.28, 0, Math.PI * 2);
+      ctx.fillStyle = this.innerColor;
+      ctx.fill();
+      // Golden core
+      ctx.globalAlpha = this.opacity;
+      ctx.beginPath();
+      ctx.arc(0, 0, this.size * 0.12, 0, Math.PI * 2);
+      ctx.fillStyle = this.coreColor;
+      ctx.fill();
+    }
+
+    ctx.restore();
+  }
+}
+
+function initFlowerCanvas() {
+  const canvas = document.createElement('canvas');
+  canvas.id = 'flower-canvas';
+  canvas.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0;';
+  document.body.appendChild(canvas);
+  flowerCanvasEl = canvas;
+
+  const ctx = canvas.getContext('2d');
+  let width = canvas.width = window.innerWidth;
+  let height = canvas.height = window.innerHeight;
+
+  window.addEventListener('resize', () => {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  });
+
+  // Initialize flowers (some already on screen so they appear immediately)
+  const flowerCount = Math.min(40, Math.max(15, Math.floor(width / 30)));
+  flowerInstances = [];
+  for (let i = 0; i < flowerCount; i++) {
+    const f = new Flower(canvas, ctx);
+    f.y = Math.random() * height;
+    flowerInstances.push(f);
+  }
+
+  canvas.style.display = flowerVisible ? '' : 'none';
+
+  function render() {
+    ctx.clearRect(0, 0, width, height);
+
+    if (flowerVisible) {
+      flowerInstances.forEach(f => {
+        f.update();
+        f.draw();
       });
     }
 

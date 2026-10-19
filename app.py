@@ -35,6 +35,7 @@ from server import (
     sb_clear_rsvps,
     sb_clear_wishes,
     render_index_html,
+    is_reserved_slug,
 )
 
 app = Flask(__name__, static_folder=None)
@@ -128,6 +129,38 @@ def api_test_db():
 @app.route('/api/export', methods=['GET'])
 def api_export():
     return Response(export_database(), mimetype='application/json; charset=utf-8')
+
+
+@app.route('/api/slug/check', methods=['GET'])
+def api_slug_check():
+    """Server-side slug validation: checks if slug is available and not reserved."""
+    from server import _sb_request
+    import urllib.parse
+    
+    slug = (request.args.get('slug') or '').strip().lower()
+    if not slug:
+        return json_response({"valid": False, "error": "Slug is required"}, status=400)
+    
+    reserved = is_reserved_slug(slug)
+    if reserved:
+        return json_response({"valid": False, "available": False, "reserved": True, "slug": slug})
+    
+    # Check if slug already exists in Supabase
+    rows = _sb_request(
+        'GET', 'invitations',
+        f'?slug=eq.{urllib.parse.quote(slug)}&select=id',
+    )
+    taken = isinstance(rows, list) and len(rows) > 0
+    return json_response({"valid": True, "available": not taken, "reserved": False, "slug": slug})
+
+
+@app.route('/api/supabase/public-config', methods=['GET'])
+def api_supabase_public_config():
+    """Exposes only the URL + client-safe anon key so the browser can run
+    Supabase Auth (Google / email). Never returns a service key."""
+    import server
+    res = {"url": server.SUPABASE_URL, "anonKey": server._public_anon_key()}
+    return json_response(res)
 
 
 # ==========================================================================
@@ -467,11 +500,16 @@ def serve_static(path):
     if path == '':
         return _serve_root_index()
 
+    # First try with trailing slash
     if path.endswith('/'):
         candidate = os.path.join(BASE_DIR, path, 'index.html')
         if os.path.exists(candidate):
-            return send_from_directory(BASE_DIR, os.path.join(path, 'index.html'))
-        return _serve_root_index()
+            return send_from_directory(os.path.join(BASE_DIR, path), 'index.html')
+    else:
+        # Try without trailing slash - check for index.html in subdirectory
+        candidate = os.path.join(BASE_DIR, path, 'index.html')
+        if os.path.exists(candidate):
+            return send_from_directory(os.path.join(BASE_DIR, path), 'index.html')
 
     candidate = os.path.join(BASE_DIR, path)
     if os.path.exists(candidate) and os.path.isfile(candidate):
@@ -479,7 +517,7 @@ def serve_static(path):
 
     pretty = os.path.join(BASE_DIR, path, 'index.html')
     if os.path.exists(pretty):
-        return send_from_directory(BASE_DIR, os.path.join(path, 'index.html'))
+        return send_from_directory(os.path.join(BASE_DIR, path), 'index.html')
 
     return _serve_root_index()
 

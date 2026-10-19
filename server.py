@@ -77,6 +77,38 @@ SUPABASE_KEY = os.environ.get(
 )
 SUPABASE_ENABLED = bool(SUPABASE_URL and SUPABASE_KEY)
 
+# Reserved slugs that can never be claimed by user accounts (collision prevention)
+RESERVED_SLUGS = frozenset({
+    'amra-wedding',  # seeded demo
+    'demo',          # fallback demo
+    'example',       # example template
+    'test',          # testing
+    'admin',         # admin route
+    'api',           # api route
+    'assets',        # static assets
+    'useraccount',   # auth route
+    'databasecloud', # cloud db route
+    'generate',      # generator route
+    'invitation',    # generic
+    'wedding',       # generic
+    'invite',        # generic
+    'e-invitation',  # generic
+})
+
+def is_reserved_slug(slug: str) -> bool:
+    """Check if a slug is reserved and cannot be used by user accounts."""
+    if not slug:
+        return True
+    slug_lower = slug.lower().strip()
+    if slug_lower in RESERVED_SLUGS:
+        return True
+    # Also block slugs that start with reserved prefixes
+    for reserved in RESERVED_SLUGS:
+        if slug_lower.startswith(reserved + '_') or slug_lower.startswith(reserved + '-'):
+            return True
+    return False
+
+
 # The active invitation record id in Supabase (multi-tenant schema). RSVPs link
 # to this via rsvps.invitation_id. Override with env INVITATION_ID if needed.
 INVITATION_ID = os.environ.get('INVITATION_ID', '8957c601-8044-4935-aa3d-1f369b0befa1')
@@ -115,6 +147,31 @@ def _sb_request(method, table, query='', data=None, prefer=None, timeout=8):
 
 def _now_iso():
     return datetime.now(timezone.utc).isoformat()
+
+
+def _public_anon_key():
+    """Return a client-safe anon/publishable key, or '' when the configured key
+    is privileged (service_role / secret) and must never reach a browser.
+
+    Supabase Auth (Google + email) requires the browser to talk to Supabase
+    directly, so the public anon key must be exposed. We only expose keys whose
+    role is 'anon' / publishable.
+    """
+    if not SUPABASE_KEY:
+        return ''
+    key = SUPABASE_KEY.strip()
+    if key.startswith('sb_publishable_'):
+        return key
+    if key.startswith('sb_secret_') or key.startswith('sb_service'):
+        return ''
+    try:
+        import base64
+        payload = key.split('.')[1]
+        payload += '=' * (-len(payload) % 4)
+        data = json.loads(base64.urlsafe_b64decode(payload).decode('utf-8'))
+        return key if data.get('role') == 'anon' else ''
+    except Exception:
+        return ''
 
 
 def sb_test_connection():

@@ -127,10 +127,22 @@
     }
 
     .admin-wrapper {
-      max-width: 760px;
+      max-width: 1280px;
       margin: 0 auto;
       padding: 24px 16px 80px 16px;
       min-height: 100vh;
+    }
+
+    /* Two-column layout: sidebar menu (left) + content (right) */
+    .admin-layout {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    .admin-content {
+      flex: 1;
+      min-width: 0;
     }
 
     /* Auth Modal / Screen */
@@ -177,33 +189,190 @@
       flex-wrap: wrap;
     }
 
-    /* Tab Navigation */
+    /* 📱 Hamburger button — only shown on small screens */
+    .btn-admin-menu {
+      display: none;
+    }
+
+    /* Dark backdrop behind the mobile drawer menu */
+    .sidebar-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 9998;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.28s ease;
+    }
+
+    .sidebar-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Tab Navigation — Left Sidebar Menu */
     .nav-tabs-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 240px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 16px;
+      max-height: calc(100vh - 32px);
+      overflow-y: auto;
+      padding: 12px;
+      background: rgba(22, 14, 28, 0.7);
+      border: 1px solid rgba(229, 185, 85, 0.3);
+      border-radius: var(--radius-md);
+      backdrop-filter: blur(10px);
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary-gold) transparent;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       gap: 8px;
-      margin-bottom: 20px;
+      padding: 0 4px 10px 4px;
+      border-bottom: 1px dashed rgba(229, 185, 85, 0.25);
+      margin-bottom: 4px;
+    }
+
+    .sidebar-title {
+      font-family: var(--font-khmer-sub);
+      font-size: 0.78rem;
+      letter-spacing: 1px;
+      color: var(--primary-gold);
+      text-align: left;
+      flex: 1;
+    }
+
+    /* ✕ Close button — only shown inside the mobile drawer menu */
+    .sidebar-close-btn {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      border-radius: 50%;
+      border: 1px solid rgba(229, 185, 85, 0.4);
+      background: rgba(229, 185, 85, 0.08);
+      color: var(--primary-gold-light);
+      font-size: 0.95rem;
+      line-height: 1;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .sidebar-close-btn:hover {
+      background: rgba(229, 185, 85, 0.25);
+      color: #fff;
+    }
+
+    html[data-theme="light"] .sidebar-close-btn {
+      border-color: rgba(184, 134, 11, 0.45);
+      background: rgba(184, 134, 11, 0.08);
+      color: #7a5908;
+    }
+
+    .nav-tabs-grid::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .nav-tabs-grid::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .nav-tabs-grid::-webkit-scrollbar-thumb {
+      background: var(--primary-gold);
+      border-radius: 3px;
+    }
+
+    /* ==========================================================================
+       Small screens (phones): hamburger button opens the menu as a
+       slide-in drawer from the left
+       ========================================================================== */
+    @media (max-width: 860px) {
+      .admin-layout {
+        flex-direction: column;
+      }
+
+      .btn-admin-menu {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .nav-tabs-grid {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: min(300px, 86vw);
+        max-height: none;
+        z-index: 9999;
+        border-radius: 0 var(--radius-md) var(--radius-md) 0;
+        padding: 18px 12px;
+        transform: translateX(-105%);
+        transition: transform 0.28s ease;
+        overflow-y: auto;
+        overflow-x: hidden;
+        background: rgba(22, 14, 28, 0.97);
+        box-shadow: 8px 0 30px rgba(0, 0, 0, 0.5);
+      }
+
+      .nav-tabs-grid.open {
+        transform: translateX(0);
+      }
+
+      .sidebar-title {
+        display: block;
+      }
+
+      .sidebar-close-btn {
+        display: inline-flex;
+      }
+
+      .tab-btn-lux {
+        width: 100%;
+        white-space: normal;
+      }
+    }
+
+    html[data-theme="light"] .nav-tabs-grid {
+      background: rgba(255, 255, 255, 0.94) !important;
+      border: 1px solid rgba(184, 134, 11, 0.35) !important;
+      box-shadow: 0 4px 20px rgba(120, 90, 20, 0.08) !important;
     }
 
     .tab-btn-lux {
-      padding: 10px 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 10px 12px;
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid rgba(229, 185, 85, 0.25);
+      border-left: 3px solid transparent;
       border-radius: var(--radius-sm);
       color: var(--text-muted);
       font-family: var(--font-khmer-sub);
       font-size: 0.82rem;
       cursor: pointer;
-      text-align: center;
+      text-align: left;
+      line-height: 1.35;
       transition: all 0.2s ease;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
+      white-space: normal;
     }
 
     .tab-btn-lux:hover {
       background: rgba(229, 185, 85, 0.15);
       color: var(--primary-gold-light);
+      transform: translateX(3px);
     }
 
     .tab-btn-lux.active {
@@ -317,12 +486,16 @@
   <!-- Floating Particle Canvas -->
   <canvas id="particle-canvas"></canvas>
 
+  <!-- Flower Blossom Animation Canvas -->
+  <canvas id="flower-canvas"
+    style="position: fixed; inset: 0; pointer-events: none; z-index: 0; display: none;"></canvas>
+
   <!-- ==========================================================================
        Login Screen (Username: admin / Password: admin889900)
        ========================================================================== -->
   <div class="login-overlay" id="login-overlay">
     <div class="login-card">
-      <div style="display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 12px;">
+      <!-- <div style="display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 12px;">
         <button type="button" id="btn-login-theme" class="btn-gold-secondary ripple-effect"
           style="width: auto; padding: 4px 10px; font-size: 0.78rem; margin-top: 0;" title="ប្តូរពន្លឺ / Toggle Theme">
           <span id="login-theme-icon">🌙</span> <span id="login-theme-text">Dark</span>
@@ -331,7 +504,7 @@
           style="width: auto; padding: 4px 10px; font-size: 0.78rem; margin-top: 0;" title="ប្តូរភាសា / Switch Language">
           <span id="login-lang-indicator">🇬🇧 EN</span>
         </button>
-      </div>
+      </div> -->
 
       <div class="section-kbach-header">
         <div class="kbach-ornament"></div>
@@ -343,7 +516,8 @@
 
       <form id="login-form" style="margin-top: 20px;">
         <div class="form-group">
-          <label class="form-label" id="label-login-username" for="login-username">ឈ្មោះអ្នកប្រើប្រាស់ (Username)</label>
+          <label class="form-label" id="label-login-username" for="login-username">ឈ្មោះអ្នកប្រើប្រាស់
+            (Username)</label>
           <input type="text" id="login-username" class="form-input" placeholder="admin" required
             autocomplete="username">
         </div>
@@ -359,7 +533,7 @@
         </button>
       </form>
       <div id="login-hint-text" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 16px;">
-        ព័ត៌មានលំនាំដើម៖ User: <code>admin</code> | Pass: <code>adm**********</code>
+        ព័ត៌មានលំនាំដើម៖ User: <code>admin</code> | Pass: <code>admin889900</code>
       </div>
     </div>
   </div>
@@ -373,17 +547,23 @@
     <div class="admin-topbar">
       <div>
         <div style="display: flex; align-items: center; gap: 8px;">
+          <button id="btn-admin-menu" class="btn-gold-secondary ripple-effect btn-admin-menu"
+            style="width: auto; padding: 6px 12px; font-size: 0.85rem; margin-top: 0;" title="បើកម៉ឺនុយ / Open menu"
+            aria-label="បើកម៉ឺនុយ / Open menu" aria-expanded="false">
+            ☰ <span id="text-admin-menu">ម៉ឺនុយ</span>
+          </button>
           <span style="font-size: 1.2rem;">👑</span>
-          <h2 id="admin-main-title" style="font-family: var(--font-khmer-sub); font-size: 1.15rem; color: var(--primary-gold-light);">
+          <h2 id="admin-main-title"
+            style="font-family: var(--font-khmer-sub); font-size: 1.15rem; color: var(--primary-gold-light);">
             ផ្ទាំងគ្រប់គ្រង E-Invitation</h2>
         </div>
-        <span id="admin-sub-title" style="font-size: 0.75rem; color: var(--text-muted);">Admin Panel Control Center</span>
+        <span id="admin-sub-title" style="font-size: 0.75rem; color: var(--text-muted);">Admin Panel Control
+          Center</span>
       </div>
 
       <div class="admin-top-actions">
-        <button id="btn-admin-theme" class="btn-gold-secondary ripple-effect"
-          style="width: auto; padding: 8px 12px; font-size: 0.82rem; margin-top: 0;"
-          title="Toggle Dark / Light Mode">
+        <!-- <button id="btn-admin-theme" class="btn-gold-secondary ripple-effect"
+          style="width: auto; padding: 8px 12px; font-size: 0.82rem; margin-top: 0;" title="Toggle Dark / Light Mode">
           <span id="admin-theme-icon">🌙</span> <span id="admin-theme-text">ងងឹត</span>
         </button>
 
@@ -391,7 +571,7 @@
           style="width: auto; padding: 8px 12px; font-size: 0.82rem; margin-top: 0;"
           title="Switch Language / ប្តូរភាសា">
           <span id="admin-lang-indicator">🇬🇧 English</span>
-        </button>
+        </button> -->
 
         <a href="../" target="_blank" class="btn-gold-secondary ripple-effect" id="btn-admin-preview"
           style="width: auto; padding: 8px 14px; font-size: 0.82rem; margin-top: 0; text-decoration: none;">
@@ -402,1147 +582,1263 @@
           style="width: auto; padding: 8px 18px; font-size: 0.82rem; margin-top: 0;">
           💾 <span id="text-admin-save">រក្សាទុក (Save)</span>
         </button>
-        <button id="btn-logout" class="btn-gold-secondary"
+        <!-- <button id="btn-logout" class="btn-gold-secondary"
           style="width: auto; padding: 8px 12px; font-size: 0.82rem; margin-top: 0; border-color: #ff6b6b; color: #ff6b6b;">
           🚪 <span id="text-admin-logout">ចាកចេញ</span>
-        </button>
+        </button> -->
       </div>
     </div>
 
-    <!-- Tab Bar -->
-    <div class="nav-tabs-grid">
-      <button class="tab-btn-lux active" data-tab="tab-couple">💑 គូស្វាមី & មាតាបិតា</button>
-      <button class="tab-btn-lux" data-tab="tab-video">🎬 វីដេអូ & អាល់ប៊ុម</button>
-      <button class="tab-btn-lux" data-tab="tab-dates">🗓️ កាលបរិច្ឆេទ & ម៉ោង</button>
-      <button class="tab-btn-lux" data-tab="tab-schedule">📜 កាលវិភាគកម្មវិធី</button>
-      <button class="tab-btn-lux" data-tab="tab-venue">📍 ទីតាំង & ផែនទី</button>
-      <button class="tab-btn-lux" data-tab="tab-gift">💳 ធនាគារ & KHQR</button>
-      <button class="tab-btn-lux" data-tab="tab-rsvp">💌 បញ្ជាក់វត្តមាន RSVP</button>
-      <button class="tab-btn-lux" data-tab="tab-wishes">📖 សៀវភៅជូនពរឌីជីថល</button>
-      <button class="tab-btn-lux" data-tab="tab-general">⚙️ អត្ថបទរួម & តន្ត្រី</button>
-      <button class="tab-btn-lux" data-tab="tab-database" style="display: none;">🗄️ តេស្ត Database</button>
-      <button class="tab-btn-lux" data-tab="tab-viplinks">👑 បង្កើត VIP Links</button>
-      <button class="tab-btn-lux" data-tab="tab-config">🎨 Configurations</button>
-    </div>
+    <!-- Two-column layout: left sidebar menu + right content area -->
+    <div class="admin-layout">
 
-    <!-- ==========================================================================
+      <!-- Left Sidebar: Tab List -->
+      <aside class="nav-tabs-grid" id="admin-sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-title" id="sidebar-title-text">📋 ម៉ឺនុយគ្រប់គ្រង</div>
+          <button type="button" class="sidebar-close-btn" id="btn-sidebar-close" title="បិទម៉ឺនុយ / Close menu"
+            aria-label="បិទម៉ឺនុយ / Close menu">✕</button>
+        </div>
+        <button class="tab-btn-lux active" data-tab="tab-couple">💑 គូស្វាមី & មាតាបិតា</button>
+        <button class="tab-btn-lux" data-tab="tab-video">🎬 វីដេអូ & អាល់ប៊ុម</button>
+        <button class="tab-btn-lux" data-tab="tab-dates">🗓️ កាលបរិច្ឆេទ & ម៉ោង</button>
+        <button class="tab-btn-lux" data-tab="tab-schedule">📜 កាលវិភាគកម្មវិធី</button>
+        <button class="tab-btn-lux" data-tab="tab-venue">📍 ទីតាំង & ផែនទី</button>
+        <button class="tab-btn-lux" data-tab="tab-gift">💳 ធនាគារ & KHQR</button>
+        <button class="tab-btn-lux" data-tab="tab-rsvp">💌 បញ្ជាក់វត្តមាន RSVP</button>
+        <button class="tab-btn-lux" data-tab="tab-wishes">📖 សៀវភៅជូនពរឌីជីថល</button>
+        <button class="tab-btn-lux" data-tab="tab-general">⚙️ អត្ថបទរួម & តន្ត្រី</button>
+        <button class="tab-btn-lux" data-tab="tab-database" style="display: none;">🗄️ តេស្ត Database</button>
+        <button class="tab-btn-lux" data-tab="tab-viplinks">👑 បង្កើត VIP Links</button>
+        <button class="tab-btn-lux" data-tab="tab-design">✨ Design Settings</button>
+        <button class="tab-btn-lux" data-tab="tab-animation">✨ Animation Settings</button>
+        <button class="tab-btn-lux" data-tab="tab-logout" style="color: #ff6b6b;">🚪 Logout</button>
+
+
+      </aside>
+
+      <!-- Backdrop shown behind the mobile drawer menu -->
+      <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+      <!-- Right Content Area -->
+      <main class="admin-content">
+
+        <!-- ==========================================================================
          TAB 1: Couple & Parents
          ========================================================================== -->
-    <div class="admin-tab-pane active" id="tab-couple">
-      <div class="card-glass">
-        <h3 class="section-title" style="font-size: 1.15rem; margin-bottom: 16px;">💑 ព័ត៌មានគូស្វាមីភរិយា & មាតាបិតា
-        </h3>
+        <div class="admin-tab-pane active" id="tab-couple">
+          <div class="card-glass">
+            <h3 class="section-title" style="font-size: 1.15rem; margin-bottom: 16px;">💑 ព័ត៌មានគូស្វាមីភរិយា &
+              មាតាបិតា
+            </h3>
 
-        <div class="form-grid-2">
-          <div class="form-group">
-            <label class="form-label">ឈ្មោះកូនប្រុស (Groom Name)</label>
-            <input type="text" id="cfg-groom-name" class="form-input">
-          </div>
-          <div class="form-group">
-            <label class="form-label">ឈ្មោះកូនស្រី (Bride Name)</label>
-            <input type="text" id="cfg-bride-name" class="form-input">
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">ឈ្មោះកូនប្រុស (Groom Name)</label>
+                <input type="text" id="cfg-groom-name" class="form-input">
+              </div>
+              <div class="form-group">
+                <label class="form-label">ឈ្មោះកូនស្រី (Bride Name)</label>
+                <input type="text" id="cfg-bride-name" class="form-input">
+              </div>
+            </div>
+
+            <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 16px 0; padding-top: 16px;">
+              <h4 style="font-size: 0.9rem; color: var(--primary-gold); margin-bottom: 12px;">មាតាបិតាខាងកូនប្រុស
+                (Groom's
+                Parents)</h4>
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">ឈ្មោះឪពុក (Father's Name)</label>
+                  <input type="text" id="cfg-groom-father" class="form-input">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">ឈ្មោះម្តាយ (Mother's Name)</label>
+                  <input type="text" id="cfg-groom-mother" class="form-input">
+                </div>
+              </div>
+            </div>
+
+            <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 16px 0; padding-top: 16px;">
+              <h4 style="font-size: 0.9rem; color: var(--primary-gold); margin-bottom: 12px;">មាតាបិតាខាងកូនស្រី
+                (Bride's
+                Parents)</h4>
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">ឈ្មោះឪពុក (Father's Name)</label>
+                  <input type="text" id="cfg-bride-father" class="form-input">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">ឈ្មោះម្តាយ (Mother's Name)</label>
+                  <input type="text" id="cfg-bride-mother" class="form-input">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 10px;">
+              <label class="form-label">រូបថតគូស្វាមីភរិយា (Couple Photo Path or URL)</label>
+              <input type="text" id="cfg-couple-photo" class="form-input" placeholder="assets/images/couple.jpg">
+              <div style="margin-top: 8px;">
+                <label class="form-label"
+                  style="font-size: 0.8rem; color: var(--text-muted);">ឬជ្រើសរើសរូបភាពពីកុំព្យូទ័រ
+                  (Upload New Image):</label>
+                <input type="file" id="cfg-photo-file" accept="image/*" class="form-input" style="padding: 8px;">
+              </div>
+            </div>
           </div>
         </div>
 
-        <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 16px 0; padding-top: 16px;">
-          <h4 style="font-size: 0.9rem; color: var(--primary-gold); margin-bottom: 12px;">មាតាបិតាខាងកូនប្រុស (Groom's
-            Parents)</h4>
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label">ឈ្មោះឪពុក (Father's Name)</label>
-              <input type="text" id="cfg-groom-father" class="form-input">
-            </div>
-            <div class="form-group">
-              <label class="form-label">ឈ្មោះម្តាយ (Mother's Name)</label>
-              <input type="text" id="cfg-groom-mother" class="form-input">
-            </div>
-          </div>
-        </div>
-
-        <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 16px 0; padding-top: 16px;">
-          <h4 style="font-size: 0.9rem; color: var(--primary-gold); margin-bottom: 12px;">មាតាបិតាខាងកូនស្រី (Bride's
-            Parents)</h4>
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label">ឈ្មោះឪពុក (Father's Name)</label>
-              <input type="text" id="cfg-bride-father" class="form-input">
-            </div>
-            <div class="form-group">
-              <label class="form-label">ឈ្មោះម្តាយ (Mother's Name)</label>
-              <input type="text" id="cfg-bride-mother" class="form-input">
-            </div>
-          </div>
-        </div>
-
-        <div class="form-group" style="margin-top: 10px;">
-          <label class="form-label">រូបថតគូស្វាមីភរិយា (Couple Photo Path or URL)</label>
-          <input type="text" id="cfg-couple-photo" class="form-input" placeholder="assets/images/couple.jpg">
-          <div style="margin-top: 8px;">
-            <label class="form-label" style="font-size: 0.8rem; color: var(--text-muted);">ឬជ្រើសរើសរូបភាពពីកុំព្យូទ័រ
-              (Upload New Image):</label>
-            <input type="file" id="cfg-photo-file" accept="image/*" class="form-input" style="padding: 8px;">
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ========================================================================
+        <!-- ========================================================================
          TAB: Video & Album (Upload, Link & Animated Preview)
          ========================================================================== -->
-    <div class="admin-tab-pane" id="tab-video">
-      <div class="card-glass">
-        <div class="section-kbach-header">
-          <div class="kbach-ornament"></div>
-          <h3 class="section-title" style="font-size: 1.15rem;">🎬 វីដេអូអនុស្សាវរីយ៍ & អាល់ប៊ុមស្នេហា</h3>
-          <p class="section-subtitle">Wedding Video Album & Highlights</p>
-        </div>
-
-        <p style="font-size: 0.85rem; color: var(--text-cream); margin-bottom: 16px;">
-          លោកអ្នកអាចផ្ទុកវីដេអូ (MP4/WebM) ពីកុំព្យូទ័រ ឬដាក់តំណភ្ជាប់វីដេអូ (Video URL) ដើម្បីបង្ហាញជូនភ្ញៀវទស្សនា។
-        </p>
-
-        <div class="form-grid-2">
-          <div class="form-group">
-            <label class="form-label">ចំណងជើងវីដេអូ (Video Title)</label>
-            <input type="text" id="cfg-video-title" class="form-input" placeholder="វីដេអូអនុស្សាវរីយ៍ & សាច់រឿងស្នេហា">
-          </div>
-          <div class="form-group">
-            <label class="form-label">ចំណងជើងរង (Video Subtitle)</label>
-            <input type="text" id="cfg-video-subtitle" class="form-input"
-              placeholder="Cinematic Wedding Video & Love Story">
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">ការពិពណ៌នាវីដេអូ (Video Description)</label>
-          <textarea id="cfg-video-desc" class="form-textarea" rows="2"
-            placeholder="សូមទស្សនាវីដេអូអនុស្សាវរីយ៍ដ៏មានអត្ថន័យ និងសាច់រឿងនៃក្តីស្រឡាញ់..."></textarea>
-        </div>
-
-        <div class="form-group"
-          style="background: rgba(229,185,85,0.05); border: 1.5px dashed var(--primary-gold); border-radius: var(--radius-sm); padding: 16px;">
-          <label class="form-label" style="color: var(--primary-gold-light); font-weight: 700;">
-            📤 ផ្ទុកវីដេអូឡើងពីកុំព្យូទ័រ (Upload Video File):
-          </label>
-          <input type="file" id="cfg-video-file" accept="video/mp4,video/webm,video/quicktime,video/ogg"
-            class="form-input" style="padding: 10px;">
-          <div id="video-upload-status" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 6px;">
-            គាំទ្រ MP4, WebM, MOV (អាចផ្ទុកឡើង និងរក្សាទុកក្នុង <code>assets/videos/</code>)
-          </div>
-          <div id="video-progress-bar-container"
-            style="display: none; width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-top: 8px; overflow: hidden;">
-            <div id="video-progress-bar"
-              style="width: 0%; height: 100%; background: var(--gold-gradient); transition: width 0.3s ease;"></div>
-          </div>
-        </div>
-
-        <div class="form-grid-2" style="margin-top: 12px;">
-          <div class="form-group">
-            <label class="form-label">ឬបញ្ចូល Video URL ផ្ទាល់ (Direct MP4 URL)</label>
-            <input type="text" id="cfg-video-url" class="form-input" placeholder="assets/videos/... ឬ https://...">
-          </div>
-          <div class="form-group">
-            <label class="form-label" style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
-              <span>🖼️ រូបភាពគម្របវីដេអូ (Poster / Thumbnail Gallery)</span>
-              <span id="video-poster-count" class="poster-count-pill">0 / 10</span>
-            </label>
-            <input type="hidden" id="cfg-video-poster" value="">
-            <div style="display: flex; gap: 8px;">
-              <input type="text" id="cfg-video-poster-input" class="form-input"
-                placeholder="assets/images/couple.jpg ឬ https://...">
-              <button type="button" id="btn-add-poster-url" class="btn-primary-lux"
-                style="white-space: nowrap; padding: 10px 16px;">+ បន្ថែម</button>
+        <div class="admin-tab-pane" id="tab-video">
+          <div class="card-glass">
+            <div class="section-kbach-header">
+              <div class="kbach-ornament"></div>
+              <h3 class="section-title" style="font-size: 1.15rem;">🎬 វីដេអូអនុស្សាវរីយ៍ & អាល់ប៊ុមស្នេហា</h3>
+              <p class="section-subtitle">Wedding Video Album & Highlights</p>
             </div>
-            <div style="display: flex; gap: 8px; margin-top: 8px; align-items: center;">
-              <input type="file" id="cfg-video-poster-file" accept="image/*" class="form-input" style="padding: 8px;">
-              <span style="font-size: 0.72rem; color: var(--text-muted); white-space: nowrap;">ផ្ទុកពីកុំព្យូទ័រ</span>
-            </div>
-            <div id="video-poster-list" class="poster-admin-list"></div>
-            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; line-height: 1.5;">
-              អាចបន្ថែមបានរហូតដល់ 10 រូប។ បើមានចាប់ពី 2 រូបឡើងទៅ គេហទំព័រភ្ញៀវនឹងបង្ហាញជា
-              <strong>Slideshow ចលនាថ្មី</strong> (បើកដូចសៀវភៅ + តំណក់ទឹកធ្លាក់)។
-            </div>
-          </div>
-        </div>
 
-        <!-- Live Animated Video Preview in Admin -->
-        <div style="margin-top: 20px; border-top: 1px dashed rgba(229,185,85,0.25); padding-top: 16px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h4
-              style="font-size: 0.95rem; color: var(--primary-gold-light); display: flex; align-items: center; gap: 8px;">
-              <span>✨</span> ទិដ្ឋភាពជាក់ស្តែង និងចលនា (Live Preview with Animations)
-            </h4>
-            <span id="preview-video-status" style="font-size: 0.75rem; color: var(--text-muted);"></span>
-          </div>
+            <p style="font-size: 0.85rem; color: var(--text-cream); margin-bottom: 16px;">
+              លោកអ្នកអាចផ្ទុកវីដេអូ (MP4/WebM) ពីកុំព្យូទ័រ ឬដាក់តំណភ្ជាប់វីដេអូ (Video URL) ដើម្បីបង្ហាញជូនភ្ញៀវទស្សនា។
+            </p>
 
-          <!-- Video Showcase Frame with Glowing Pulse and Traditional Corners -->
-          <div class="video-showcase-box" style="max-width: 580px; margin: 0 auto;">
-            <div class="video-frame-glow"></div>
-            <div class="kbach-corner kbach-corner-tl"></div>
-            <div class="kbach-corner kbach-corner-tr"></div>
-            <div class="kbach-corner kbach-corner-bl"></div>
-            <div class="kbach-corner kbach-corner-br"></div>
-
-            <div class="video-player-wrapper" style="position: relative;">
-              <video id="admin-video-preview" class="wedding-video-element" controls playsinline
-                poster="assets/images/couple.jpg">
-                <source id="admin-video-source" src="" type="video/mp4">
-              </video>
-              <div id="admin-video-overlay" class="video-play-overlay">
-                <div class="video-pulse-ring"></div>
-                <div class="video-play-trigger">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                  </svg>
-                </div>
-                <div class="video-overlay-text">ចាក់មើលវីដេអូតេស្ត (Test Play)</div>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">ចំណងជើងវីដេអូ (Video Title)</label>
+                <input type="text" id="cfg-video-title" class="form-input"
+                  placeholder="វីដេអូអនុស្សាវរីយ៍ & សាច់រឿងស្នេហា">
+              </div>
+              <div class="form-group">
+                <label class="form-label">ចំណងជើងរង (Video Subtitle)</label>
+                <input type="text" id="cfg-video-subtitle" class="form-input"
+                  placeholder="Cinematic Wedding Video & Love Story">
               </div>
             </div>
 
-            <div class="video-control-bar">
-              <span class="video-tag-pill">🎬 <span id="admin-preview-tag">Wedding Highlights</span></span>
-              <span style="font-size: 0.75rem; color: var(--primary-gold-light);">🌟 Animated Khmer Frame Active</span>
+            <div class="form-group">
+              <label class="form-label">ការពិពណ៌នាវីដេអូ (Video Description)</label>
+              <textarea id="cfg-video-desc" class="form-textarea" rows="2"
+                placeholder="សូមទស្សនាវីដេអូអនុស្សាវរីយ៍ដ៏មានអត្ថន័យ និងសាច់រឿងនៃក្តីស្រឡាញ់..."></textarea>
             </div>
+
+            <div class="form-group"
+              style="background: rgba(229,185,85,0.05); border: 1.5px dashed var(--primary-gold); border-radius: var(--radius-sm); padding: 16px;">
+              <label class="form-label" style="color: var(--primary-gold-light); font-weight: 700;">
+                📤 ផ្ទុកវីដេអូឡើងពីកុំព្យូទ័រ (Upload Video File):
+              </label>
+              <input type="file" id="cfg-video-file" accept="video/mp4,video/webm,video/quicktime,video/ogg"
+                class="form-input" style="padding: 10px;">
+              <div id="video-upload-status" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 6px;">
+                គាំទ្រ MP4, WebM, MOV (អាចផ្ទុកឡើង និងរក្សាទុកក្នុង <code>assets/videos/</code>)
+              </div>
+              <div id="video-progress-bar-container"
+                style="display: none; width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-top: 8px; overflow: hidden;">
+                <div id="video-progress-bar"
+                  style="width: 0%; height: 100%; background: var(--gold-gradient); transition: width 0.3s ease;"></div>
+              </div>
+            </div>
+
+            <div class="form-grid-2" style="margin-top: 12px;">
+              <div class="form-group">
+                <label class="form-label">ឬបញ្ចូល Video URL ផ្ទាល់ (Direct MP4 URL)</label>
+                <input type="text" id="cfg-video-url" class="form-input" placeholder="assets/videos/... ឬ https://...">
+              </div>
+              <div class="form-group">
+                <label class="form-label"
+                  style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                  <span>🖼️ រូបភាពគម្របវីដេអូ (Poster / Thumbnail Gallery)</span>
+                  <span id="video-poster-count" class="poster-count-pill">0 / 10</span>
+                </label>
+                <input type="hidden" id="cfg-video-poster" value="">
+                <div style="display: flex; gap: 8px;">
+                  <input type="text" id="cfg-video-poster-input" class="form-input"
+                    placeholder="assets/images/couple.jpg ឬ https://...">
+                  <button type="button" id="btn-add-poster-url" class="btn-primary-lux"
+                    style="white-space: nowrap; padding: 10px 16px;">+ បន្ថែម</button>
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 8px; align-items: center;">
+                  <input type="file" id="cfg-video-poster-file" accept="image/*" class="form-input"
+                    style="padding: 8px;">
+                  <span
+                    style="font-size: 0.72rem; color: var(--text-muted); white-space: nowrap;">ផ្ទុកពីកុំព្យូទ័រ</span>
+                </div>
+                <div id="video-poster-list" class="poster-admin-list"></div>
+                <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; line-height: 1.5;">
+                  អាចបន្ថែមបានរហូតដល់ 10 រូប។ បើមានចាប់ពី 2 រូបឡើងទៅ គេហទំព័រភ្ញៀវនឹងបង្ហាញជា
+                  <strong>Slideshow ចលនាថ្មី</strong> (បើកដូចសៀវភៅ + តំណក់ទឹកធ្លាក់)។
+                </div>
+              </div>
+            </div>
+
+            <!-- Live Animated Video Preview in Admin -->
+            <div style="margin-top: 20px; border-top: 1px dashed rgba(229,185,85,0.25); padding-top: 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h4
+                  style="font-size: 0.95rem; color: var(--primary-gold-light); display: flex; align-items: center; gap: 8px;">
+                  <span>✨</span> ទិដ្ឋភាពជាក់ស្តែង និងចលនា (Live Preview with Animations)
+                </h4>
+                <span id="preview-video-status" style="font-size: 0.75rem; color: var(--text-muted);"></span>
+              </div>
+
+              <!-- Video Showcase Frame with Glowing Pulse and Traditional Corners -->
+              <div class="video-showcase-box" style="max-width: 580px; margin: 0 auto;">
+                <div class="video-frame-glow"></div>
+                <div class="kbach-corner kbach-corner-tl"></div>
+                <div class="kbach-corner kbach-corner-tr"></div>
+                <div class="kbach-corner kbach-corner-bl"></div>
+                <div class="kbach-corner kbach-corner-br"></div>
+
+                <div class="video-player-wrapper" style="position: relative;">
+                  <video id="admin-video-preview" class="wedding-video-element" controls playsinline
+                    poster="assets/images/couple.jpg">
+                    <source id="admin-video-source" src="" type="video/mp4">
+                  </video>
+                  <div id="admin-video-overlay" class="video-play-overlay">
+                    <div class="video-pulse-ring"></div>
+                    <div class="video-play-trigger">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                      </svg>
+                    </div>
+                    <div class="video-overlay-text">ចាក់មើលវីដេអូតេស្ត (Test Play)</div>
+                  </div>
+                </div>
+
+                <div class="video-control-bar">
+                  <span class="video-tag-pill">🎬 <span id="admin-preview-tag">Wedding Highlights</span></span>
+                  <span style="font-size: 0.75rem; color: var(--primary-gold-light);">🌟 Animated Khmer Frame
+                    Active</span>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
 
-      </div>
-    </div>
-
-    <!-- ========================================================================
+        <!-- ========================================================================
          TAB 2: Dates & Countdown
          ========================================================================== -->
-    <div class="admin-tab-pane" id="tab-dates">
-      <div class="card-glass">
-        <h3 class="section-title" style="font-size: 1.15rem; margin-bottom: 16px;">🗓️ កាលបរិច្ឆេទ & នាឡិការាប់ថយក្រោយ
-        </h3>
+        <div class="admin-tab-pane" id="tab-dates">
+          <div class="card-glass">
+            <h3 class="section-title" style="font-size: 1.15rem; margin-bottom: 16px;">🗓️ កាលបរិច្ឆេទ &
+              នាឡិការាប់ថយក្រោយ
+            </h3>
 
-        <!-- Quick ceremony date & time picker (auto-fills everything below) -->
-        <div class="form-group"
-          style="background: rgba(229,185,85,0.06); border: 1.5px dashed var(--primary-gold); border-radius: var(--radius-sm); padding: 14px;">
-          <label class="form-label" style="color: var(--primary-gold-light); font-weight: 700;">
-            📅 ជ្រើសរើសកាលបរិច្ឆេទមង្គល (Pick Ceremony Date &amp; Time)
-          </label>
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label" for="cfg-date-picker" style="font-size: 0.75rem; cursor: pointer;">ថ្ងៃ (Date) 📅</label>
-              <input type="date" id="cfg-date-picker" class="form-input" style="cursor: pointer;">
+            <!-- Quick ceremony date & time picker (auto-fills everything below) -->
+            <div class="form-group"
+              style="background: rgba(229,185,85,0.06); border: 1.5px dashed var(--primary-gold); border-radius: var(--radius-sm); padding: 14px;">
+              <label class="form-label" style="color: var(--primary-gold-light); font-weight: 700;">
+                📅 ជ្រើសរើសកាលបរិច្ឆេទមង្គល (Pick Ceremony Date &amp; Time)
+              </label>
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label" for="cfg-date-picker" style="font-size: 0.75rem; cursor: pointer;">ថ្ងៃ
+                    (Date) 📅</label>
+                  <input type="date" id="cfg-date-picker" class="form-input" style="cursor: pointer;">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="cfg-time-picker" style="font-size: 0.75rem; cursor: pointer;">ម៉ោង
+                    (Time) ⏰</label>
+                  <input type="time" id="cfg-time-picker" class="form-input" value="07:00" style="cursor: pointer;">
+                </div>
+              </div>
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">
+                ជ្រើសរើសថ្ងៃ និងម៉ោង — ប្រព័ន្ធនឹងបំពេញ <strong>ថ្ងៃខែឆ្នាំសកល</strong> និង
+                <strong>Countdown</strong> ជាស្វ័យប្រវត្តិ។
+              </div>
             </div>
+
             <div class="form-group">
-              <label class="form-label" for="cfg-time-picker" style="font-size: 0.75rem; cursor: pointer;">ម៉ោង (Time) ⏰</label>
-              <input type="time" id="cfg-time-picker" class="form-input" value="07:00" style="cursor: pointer;">
+              <label class="form-label">ថ្ងៃខែឆ្នាំសកល (Solar Date Display)</label>
+              <input type="text" id="cfg-solar-date" class="form-input"
+                placeholder="ថ្ងៃអាទិត្យ ទី១៥ ខែវិច្ឆិកា ឆ្នាំ២០២៦">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">ថ្ងៃខែឆ្នាំចន្ទគតិខ្មែរ (Khmer Lunar Date Display)</label>
+              <input type="text" id="cfg-lunar-date" class="form-input"
+                placeholder="ត្រូវនឹងថ្ងៃ ៥កើត ខែកត្តិក ឆ្នាំរោង ឆស័ក ព.ស. ២៥៧០">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">កាលបរិច្ឆេទ និងម៉ោងសម្រាប់រាប់ថយក្រោយ (Countdown Target Date & Time)</label>
+              <input type="hidden" id="cfg-target-time">
+              <div id="cfg-target-display" class="form-input"
+                style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.25); cursor: default;">—
+              </div>
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+                * ថ្ងៃត្រូវបានគណនាដោយស្វ័យប្រវត្តិពីការជ្រើសរើសខាងលើ។ ម៉ោង អាចបញ្ចូលដោយដៃ។
+              </div>
             </div>
           </div>
-          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">
-            ជ្រើសរើសថ្ងៃ និងម៉ោង — ប្រព័ន្ធនឹងបំពេញ <strong>ថ្ងៃខែឆ្នាំសកល</strong> និង
-            <strong>Countdown</strong> ជាស្វ័យប្រវត្តិ។
-          </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label">ថ្ងៃខែឆ្នាំសកល (Solar Date Display)</label>
-          <input type="text" id="cfg-solar-date" class="form-input" placeholder="ថ្ងៃអាទិត្យ ទី១៥ ខែវិច្ឆិកា ឆ្នាំ២០២៦">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">ថ្ងៃខែឆ្នាំចន្ទគតិខ្មែរ (Khmer Lunar Date Display)</label>
-          <input type="text" id="cfg-lunar-date" class="form-input"
-            placeholder="ត្រូវនឹងថ្ងៃ ៥កើត ខែកត្តិក ឆ្នាំរោង ឆស័ក ព.ស. ២៥៧០">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">កាលបរិច្ឆេទ និងម៉ោងសម្រាប់រាប់ថយក្រោយ (Countdown Target Date & Time)</label>
-          <input type="hidden" id="cfg-target-time">
-          <div id="cfg-target-display" class="form-input"
-            style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.25); cursor: default;">—</div>
-          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
-            * ថ្ងៃត្រូវបានគណនាដោយស្វ័យប្រវត្តិពីការជ្រើសរើសខាងលើ។ ម៉ោង អាចបញ្ចូលដោយដៃ។
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ==========================================================================
+        <!-- ==========================================================================
          TAB 3: Ceremony Schedule Timeline
          ========================================================================== -->
-    <div class="admin-tab-pane" id="tab-schedule">
-      <div class="card-glass">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-          <h3 class="section-title" style="font-size: 1.15rem;">📜 កាលវិភាគកម្មវិធីសិរីមង្គល</h3>
-          <button class="btn-gold-secondary ripple-effect" id="btn-add-schedule-item"
-            style="width: auto; padding: 6px 14px; font-size: 0.8rem; margin-top: 0;">
-            + បន្ថែមកម្មវិធី
-          </button>
-        </div>
-
-        <div id="schedule-edit-list">
-          <!-- Dynamically populated timeline items for editing -->
-        </div>
-      </div>
-    </div>
-
-    <!-- ==========================================================================
-         TAB 4: Venue & Maps
-         ========================================================================== -->
-    <div class="admin-tab-pane" id="tab-venue">
-      <div class="card-glass">
-        <h3 class="section-title" style="font-size: 1.15rem; margin-bottom: 16px;">📍 ទីតាំងប្រារព្ធពិធី & ផែនទី Google
-          Maps</h3>
-
-        <div class="form-group">
-          <label class="form-label">ឈ្មោះទីតាំង (Venue Name)</label>
-          <input type="text" id="cfg-venue-name" class="form-input"
-            placeholder="មជ្ឈមណ្ឌលសន្និបាត និងពិព័រណ៍កោះពេជ្រ (អគារ G)">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">អាសយដ្ឋានលម្អិត (Venue Address)</label>
-          <textarea id="cfg-venue-address" class="form-textarea" rows="3"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">តំណភ្ជាប់ Google Maps (Maps Navigation URL)</label>
-          <input type="url" id="cfg-maps-url" class="form-input" placeholder="https://maps.google.com/?q=...">
-        </div>
-
-        <div class="form-group">
-          <button type="button" id="btn-use-location" class="btn-gold-secondary ripple-effect"
-            style="width: auto; padding: 10px 16px;">
-            📍 ប្រើទីតាំងបច្ចុប្បន្ន (Use My Current Location)
-          </button>
-          <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px;">
-            ចុចដើម្បីទាញយកទីតាំងបច្ចុប្បន្នរបស់អ្នក (GPS) ហើយបំពេញអាសយដ្ឋាន និងតំណ Google Maps ដោយស្វ័យប្រវត្តិ។
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- ==========================================================================
-         TAB 5: Bank & KHQR Gift
-         ========================================================================== -->
-    <div class="admin-tab-pane" id="tab-gift">
-      <div class="card-glass">
-        <h3 class="section-title" style="font-size: 1.15rem; margin-bottom: 16px;">💳 ចំណងដៃអាពាហ៍ពិពាហ៍ (KHQR & ធនាគារ)
-        </h3>
-
-        <div class="form-group">
-          <label class="form-label">ឈ្មោះម្ចាស់គណនី (Account Name)</label>
-          <input type="text" id="cfg-bank-accname" class="form-input" placeholder="CHEA VIBOL & SUN DEVI">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">លេខគណនីធនាគារ (Account Number)</label>
-          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <input type="text" id="cfg-bank-accnum" class="form-input" placeholder="001 888 999 (USD)"
-              style="flex: 1; min-width: 200px;">
-            <button type="button" id="btn-copy-bank-accnum" class="btn-gold-secondary ripple-effect"
-              style="width: auto; padding: 12px 16px; white-space: nowrap;" title="ចម្លងលេខគណនី">
-              📋 ចម្លងលេខ
-            </button>
-            <button type="button" id="btn-open-bank-app" class="btn-gold-primary ripple-effect"
-              style="width: auto; padding: 12px 16px; white-space: nowrap;" title="បើក App ធនាគារ">
-              🏦 បើក App
-            </button>
-          </div>
-        </div>
-
-        <div class="form-group" style="margin-top: 10px;">
-          <label class="form-label">តំណភ្ជាប់បើក App ធនាគារ (Bank App Deep Link URL)</label>
-          <input type="url" id="cfg-bank-applink" class="form-input"
-            placeholder="aba://pay?account=001888999 ឬ https://app.aba.com/transfer/001888999">
-          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
-            ឧទាហរណ៍: ABA: <code>aba://pay?account=001888999</code> | ACLEDA:
-            <code>acleda://transfer?acc=001888999</code> | Wing: <code>wing://pay?to=001888999</code>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">ឈ្មោះធនាគារ / ប្រព័ន្ធ (Bank / System Name)</label>
-          <input type="text" id="cfg-bank-name" class="form-input" placeholder="ABA Bank / Bakong">
-        </div>
-
-        <div class="form-group"
-          style="margin-top: 14px; border-top: 1px dashed rgba(229,185,85,0.25); padding-top: 14px;">
-          <label class="form-label">រូបភាព QR Code សម្រាប់ទទួលចំណងដៃ (QR Code Image)</label>
-          <input type="text" id="cfg-qr-image" class="form-input"
-            placeholder="assets/images/qr.jpg ឬ Link រូបភាព / Data URL">
-          <div style="margin-top: 8px;">
-            <label class="form-label" style="font-size: 0.8rem; color: var(--text-muted);">ឬជ្រើសរើសរូបភាព QR Code
-              ពីកុំព្យូទ័រ (Upload QR Image):</label>
-            <input type="file" id="cfg-qr-file" accept="image/*" class="form-input" style="padding: 8px;">
-          </div>
-          <!-- QR Code Preview -->
-          <div style="margin-top: 14px; text-align: center;">
-            <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 6px;">រូបភាព QR
-              Code បច្ចុប្បន្ន (Current QR Preview)៖</span>
-            <div
-              style="display: inline-block; background: #ffffff; padding: 12px; border-radius: 8px; border: 1.5px solid var(--primary-gold); box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
-              <img id="cfg-qr-preview" src="" alt="QR Preview"
-                style="width: 170px; height: 170px; object-fit: contain; display: none; margin: 0 auto;">
-              <div id="cfg-qr-placeholder"
-                style="width: 170px; height: 170px; display: flex; align-items: center; justify-content: center; color: #555; font-size: 0.75rem; text-align: center; border: 1px dashed #ccc; border-radius: 6px; line-height: 1.4;">
-                មិនទាន់មានរូបភាព QR<br>(ប្រើ KHQR SVG លំនាំដើម)
-              </div>
-            </div>
-            <div style="margin-top: 8px;">
-              <button type="button" id="btn-remove-qr" class="btn-gold-secondary"
-                style="width: auto; padding: 4px 12px; font-size: 0.75rem; color: #ff6b6b; border-color: #ff6b6b; display: inline-block;">
-                🗑️ លុបរូបភាព QR (ប្រើ SVG លំនាំដើម)
+        <div class="admin-tab-pane" id="tab-schedule">
+          <div class="card-glass">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h3 class="section-title" style="font-size: 1.15rem;">📜 កាលវិភាគកម្មវិធីសិរីមង្គល</h3>
+              <button class="btn-gold-secondary ripple-effect" id="btn-add-schedule-item"
+                style="width: auto; padding: 6px 14px; font-size: 0.8rem; margin-top: 0;">
+                + បន្ថែមកម្មវិធី
               </button>
             </div>
+
+            <div id="schedule-edit-list">
+              <!-- Dynamically populated timeline items for editing -->
+            </div>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- ==========================================================================
+        <!-- ==========================================================================
+         TAB 4: Venue & Maps
+         ========================================================================== -->
+        <div class="admin-tab-pane" id="tab-venue">
+          <div class="card-glass">
+            <h3 class="section-title" style="font-size: 1.15rem; margin-bottom: 16px;">📍 ទីតាំងប្រារព្ធពិធី & ផែនទី
+              Google
+              Maps</h3>
+
+            <div class="form-group">
+              <label class="form-label">ឈ្មោះទីតាំង (Venue Name)</label>
+              <input type="text" id="cfg-venue-name" class="form-input"
+                placeholder="មជ្ឈមណ្ឌលសន្និបាត និងពិព័រណ៍កោះពេជ្រ (អគារ G)">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">អាសយដ្ឋានលម្អិត (Venue Address)</label>
+              <textarea id="cfg-venue-address" class="form-textarea" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">តំណភ្ជាប់ Google Maps (Maps Navigation URL)</label>
+              <input type="url" id="cfg-maps-url" class="form-input" placeholder="https://maps.google.com/?q=...">
+            </div>
+
+            <div class="form-group">
+              <button type="button" id="btn-use-location" class="btn-gold-secondary ripple-effect"
+                style="width: auto; padding: 10px 16px;">
+                📍 ប្រើទីតាំងបច្ចុប្បន្ន (Use My Current Location)
+              </button>
+              <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px;">
+                ចុចដើម្បីទាញយកទីតាំងបច្ចុប្បន្នរបស់អ្នក (GPS) ហើយបំពេញអាសយដ្ឋាន និងតំណ Google Maps ដោយស្វ័យប្រវត្តិ។
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==========================================================================
+         TAB 5: Bank & KHQR Gift
+         ========================================================================== -->
+        <div class="admin-tab-pane" id="tab-gift">
+          <div class="card-glass">
+            <h3 class="section-title" style="font-size: 1.15rem; margin-bottom: 16px;">💳 ចំណងដៃអាពាហ៍ពិពាហ៍ (KHQR &
+              ធនាគារ)
+            </h3>
+
+            <div class="form-group">
+              <label class="form-label">ឈ្មោះម្ចាស់គណនី (Account Name)</label>
+              <input type="text" id="cfg-bank-accname" class="form-input" placeholder="CHEA VIBOL & SUN DEVI">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">លេខគណនីធនាគារ (Account Number)</label>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <input type="text" id="cfg-bank-accnum" class="form-input" placeholder="001 888 999 (USD)"
+                  style="flex: 1; min-width: 200px;">
+                <button type="button" id="btn-copy-bank-accnum" class="btn-gold-secondary ripple-effect"
+                  style="width: auto; padding: 12px 16px; white-space: nowrap;" title="ចម្លងលេខគណនី">
+                  📋 ចម្លងលេខ
+                </button>
+                <button type="button" id="btn-open-bank-app" class="btn-gold-primary ripple-effect"
+                  style="width: auto; padding: 12px 16px; white-space: nowrap;" title="បើក App ធនាគារ">
+                  🏦 បើក App
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 10px;">
+              <label class="form-label">តំណភ្ជាប់បើក App ធនាគារ (Bank App Deep Link URL)</label>
+              <input type="url" id="cfg-bank-applink" class="form-input"
+                placeholder="aba://pay?account=001888999 ឬ https://app.aba.com/transfer/001888999">
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+                ឧទាហរណ៍: ABA: <code>aba://pay?account=001888999</code> | ACLEDA:
+                <code>acleda://transfer?acc=001888999</code> | Wing: <code>wing://pay?to=001888999</code>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">ឈ្មោះធនាគារ / ប្រព័ន្ធ (Bank / System Name)</label>
+              <input type="text" id="cfg-bank-name" class="form-input" placeholder="ABA Bank / Bakong">
+            </div>
+
+            <div class="form-group"
+              style="margin-top: 14px; border-top: 1px dashed rgba(229,185,85,0.25); padding-top: 14px;">
+              <label class="form-label">រូបភាព QR Code សម្រាប់ទទួលចំណងដៃ (QR Code Image)</label>
+              <input type="text" id="cfg-qr-image" class="form-input"
+                placeholder="assets/images/qr.jpg ឬ Link រូបភាព / Data URL">
+              <div style="margin-top: 8px;">
+                <label class="form-label" style="font-size: 0.8rem; color: var(--text-muted);">ឬជ្រើសរើសរូបភាព QR Code
+                  ពីកុំព្យូទ័រ (Upload QR Image):</label>
+                <input type="file" id="cfg-qr-file" accept="image/*" class="form-input" style="padding: 8px;">
+              </div>
+              <!-- QR Code Preview -->
+              <div style="margin-top: 14px; text-align: center;">
+                <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 6px;">រូបភាព
+                  QR
+                  Code បច្ចុប្បន្ន (Current QR Preview)៖</span>
+                <div
+                  style="display: inline-block; background: #ffffff; padding: 12px; border-radius: 8px; border: 1.5px solid var(--primary-gold); box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
+                  <img id="cfg-qr-preview" src="" alt="QR Preview"
+                    style="width: 170px; height: 170px; object-fit: contain; display: none; margin: 0 auto;">
+                  <div id="cfg-qr-placeholder"
+                    style="width: 170px; height: 170px; display: flex; align-items: center; justify-content: center; color: #555; font-size: 0.75rem; text-align: center; border: 1px dashed #ccc; border-radius: 6px; line-height: 1.4;">
+                    មិនទាន់មានរូបភាព QR<br>(ប្រើ KHQR SVG លំនាំដើម)
+                  </div>
+                </div>
+                <div style="margin-top: 8px;">
+                  <button type="button" id="btn-remove-qr" class="btn-gold-secondary"
+                    style="width: auto; padding: 4px 12px; font-size: 0.75rem; color: #ff6b6b; border-color: #ff6b6b; display: inline-block;">
+                    🗑️ លុបរូបភាព QR (ប្រើ SVG លំនាំដើម)
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==========================================================================
          TAB 6: Live RSVP & Manual Confirmation Form
          ========================================================================== -->
-    <div class="admin-tab-pane" id="tab-rsvp">
-      <!-- 1. Manual RSVP Form for Admin -->
-      <div class="card-glass" style="margin-bottom: 24px;">
-        <div class="section-kbach-header" style="margin-bottom: 16px;">
-          <h3 class="section-title" style="font-size: 1.15rem;">ការបញ្ជាក់ការចូលរួម (RSVP)</h3>
-          <p class="section-subtitle">Please Confirm Your Attendance (Admin Entry)</p>
+        <div class="admin-tab-pane" id="tab-rsvp">
+          <!-- 1. Manual RSVP Form for Admin -->
+          <div class="card-glass" style="margin-bottom: 24px;">
+            <div class="section-kbach-header" style="margin-bottom: 16px;">
+              <h3 class="section-title" style="font-size: 1.15rem;">ការបញ្ជាក់ការចូលរួម (RSVP)</h3>
+              <p class="section-subtitle">Please Confirm Your Attendance (Admin Entry)</p>
+            </div>
+
+            <form id="admin-manual-rsvp-form">
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">ឈ្មោះភ្ញៀវកិត្តិយស (Full Name) *</label>
+                  <input type="text" id="admin-rsvp-name" class="form-input" placeholder="សូមបញ្ចូលឈ្មោះរបស់លោកអ្នក"
+                    required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">លេខទូរស័ព្ទ ឬ Telegram (Contact Number)</label>
+                  <input type="tel" id="admin-rsvp-phone" class="form-input" placeholder="012 345 678">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">ការចូលរួម (Attendance Status) *</label>
+                <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 6px;">
+                  <label
+                    style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #2ecc71; font-weight: 600;">
+                    <input type="radio" name="admin-attendance" value="attending" checked
+                      style="accent-color: #2ecc71;">
+                    <span>🎉 ខ្ញុំនឹងចូលរួម (Attending)</span>
+                  </label>
+                  <label
+                    style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #e74c3c; font-weight: 600;">
+                    <input type="radio" name="admin-attendance" value="declined" style="accent-color: #e74c3c;">
+                    <span>🙏 មិនអាចចូលរួម (Regret)</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-group" id="admin-group-guest-count">
+                <label class="form-label">ចំនួនភ្ញៀវចូលរួម (Number of Guests)</label>
+                <select id="admin-rsvp-count" class="form-input" style="cursor: pointer;">
+                  <option value="1">១ នាក់ (1 Person)</option>
+                  <option value="2" selected>២ នាក់ (2 Persons)</option>
+                  <option value="3">៣ នាក់ (3 Persons)</option>
+                  <option value="4">៤ នាក់ (4 Persons)</option>
+                  <option value="5">៥ នាក់ (5 Persons)</option>
+                  <option value="6">៦ នាក់ (6 Persons)</option>
+                  <option value="8">៨ នាក់ (8 Persons)</option>
+                  <option value="10">១០ នាក់ (1 Table / 10 Persons)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">សារជូនពរដល់គូស្វាមីភរិយា (Wedding Wishes)</label>
+                <textarea id="admin-rsvp-wishes" class="form-input" rows="3"
+                  placeholder="សូមជូនពរឱ្យមានសុភមង្គល និងស្រឡាញ់គ្នារហូតដល់ចាស់កោងខ្នង..."></textarea>
+              </div>
+
+              <button type="submit" class="btn-gold-primary ripple-effect" style="margin-top: 10px;">
+                <span>ផ្ញើការបញ្ជាក់ (Submit RSVP)</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- 2. RSVP Guest List Table -->
+          <div class="card-glass">
+            <div
+              style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+              <div>
+                <h3 class="section-title" style="font-size: 1.15rem;">💌 បញ្ជីភ្ញៀវបញ្ជាក់វត្តមាន (RSVP List)</h3>
+                <span style="font-size: 0.78rem; color: var(--text-muted);">ភ្ញៀវសរុប៖ <strong id="rsvp-total-guests"
+                    style="color: var(--primary-gold-light);">0</strong> នាក់</span>
+              </div>
+
+              <div style="display: flex; gap: 8px;">
+                <button class="btn-gold-secondary ripple-effect" id="btn-export-rsvp"
+                  style="width: auto; padding: 6px 12px; font-size: 0.8rem; margin-top: 0;">
+                  📥 Export CSV
+                </button>
+                <button class="btn-gold-secondary" id="btn-clear-rsvps"
+                  style="width: auto; padding: 6px 12px; font-size: 0.8rem; margin-top: 0; color: #ff6b6b; border-color: #ff6b6b;">
+                  🗑️ សម្អាតទាំងអស់
+                </button>
+              </div>
+            </div>
+
+            <div class="data-table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>កាលបរិច្ឆេទ</th>
+                    <th>ឈ្មោះភ្ញៀវ</th>
+                    <th>លេខទូរស័ព្ទ / Telegram</th>
+                    <th>ស្ថានភាព</th>
+                    <th>ចំនួន</th>
+                    <th>ពាក្យជូនពរ</th>
+                    <th style="text-align: center;">សកម្មភាព</th>
+                  </tr>
+                </thead>
+                <tbody id="rsvp-table-body">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
 
-        <form id="admin-manual-rsvp-form">
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label">ឈ្មោះភ្ញៀវកិត្តិយស (Full Name) *</label>
-              <input type="text" id="admin-rsvp-name" class="form-input" placeholder="សូមបញ្ចូលឈ្មោះរបស់លោកអ្នក"
-                required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">លេខទូរស័ព្ទ ឬ Telegram (Contact Number)</label>
-              <input type="tel" id="admin-rsvp-phone" class="form-input" placeholder="012 345 678">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">ការចូលរួម (Attendance Status) *</label>
-            <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 6px;">
-              <label
-                style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #2ecc71; font-weight: 600;">
-                <input type="radio" name="admin-attendance" value="attending" checked style="accent-color: #2ecc71;">
-                <span>🎉 ខ្ញុំនឹងចូលរួម (Attending)</span>
-              </label>
-              <label
-                style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #e74c3c; font-weight: 600;">
-                <input type="radio" name="admin-attendance" value="declined" style="accent-color: #e74c3c;">
-                <span>🙏 មិនអាចចូលរួម (Regret)</span>
-              </label>
-            </div>
-          </div>
-
-          <div class="form-group" id="admin-group-guest-count">
-            <label class="form-label">ចំនួនភ្ញៀវចូលរួម (Number of Guests)</label>
-            <select id="admin-rsvp-count" class="form-input" style="cursor: pointer;">
-              <option value="1">១ នាក់ (1 Person)</option>
-              <option value="2" selected>២ នាក់ (2 Persons)</option>
-              <option value="3">៣ នាក់ (3 Persons)</option>
-              <option value="4">៤ នាក់ (4 Persons)</option>
-              <option value="5">៥ នាក់ (5 Persons)</option>
-              <option value="6">៦ នាក់ (6 Persons)</option>
-              <option value="8">៨ នាក់ (8 Persons)</option>
-              <option value="10">១០ នាក់ (1 Table / 10 Persons)</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">សារជូនពរដល់គូស្វាមីភរិយា (Wedding Wishes)</label>
-            <textarea id="admin-rsvp-wishes" class="form-input" rows="3"
-              placeholder="សូមជូនពរឱ្យមានសុភមង្គល និងស្រឡាញ់គ្នារហូតដល់ចាស់កោងខ្នង..."></textarea>
-          </div>
-
-          <button type="submit" class="btn-gold-primary ripple-effect" style="margin-top: 10px;">
-            <span>ផ្ញើការបញ្ជាក់ (Submit RSVP)</span>
-          </button>
-        </form>
-      </div>
-
-      <!-- 2. RSVP Guest List Table -->
-      <div class="card-glass">
-        <div
-          style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
-          <div>
-            <h3 class="section-title" style="font-size: 1.15rem;">💌 បញ្ជីភ្ញៀវបញ្ជាក់វត្តមាន (RSVP List)</h3>
-            <span style="font-size: 0.78rem; color: var(--text-muted);">ភ្ញៀវសរុប៖ <strong id="rsvp-total-guests"
-                style="color: var(--primary-gold-light);">0</strong> នាក់</span>
-          </div>
-
-          <div style="display: flex; gap: 8px;">
-            <button class="btn-gold-secondary ripple-effect" id="btn-export-rsvp"
-              style="width: auto; padding: 6px 12px; font-size: 0.8rem; margin-top: 0;">
-              📥 Export CSV
-            </button>
-            <button class="btn-gold-secondary" id="btn-clear-rsvps"
-              style="width: auto; padding: 6px 12px; font-size: 0.8rem; margin-top: 0; color: #ff6b6b; border-color: #ff6b6b;">
-              🗑️ សម្អាតទាំងអស់
-            </button>
-          </div>
-        </div>
-
-        <div class="data-table-wrap">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>កាលបរិច្ឆេទ</th>
-                <th>ឈ្មោះភ្ញៀវ</th>
-                <th>លេខទូរស័ព្ទ / Telegram</th>
-                <th>ស្ថានភាព</th>
-                <th>ចំនួន</th>
-                <th>ពាក្យជូនពរ</th>
-                <th style="text-align: center;">សកម្មភាព</th>
-              </tr>
-            </thead>
-            <tbody id="rsvp-table-body">
-              <!-- Populated dynamically -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ==========================================================================
+        <!-- ==========================================================================
          TAB 7: Guestbook & Warm Wishes Manager
          ========================================================================== -->
-    <div class="admin-tab-pane" id="tab-wishes">
-      <!-- 1. Add New Wish Form -->
-      <div class="card-glass" style="margin-bottom: 24px;">
-        <div class="section-kbach-header" style="margin-bottom: 16px;">
-          <h3 class="section-title" style="font-size: 1.15rem;">សៀវភៅជូនពរឌីជីថល</h3>
-          <p class="section-subtitle">Guestbook & Warm Wishes Manager</p>
-        </div>
-
-        <form id="admin-add-wish-form">
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label">ឈ្មោះភ្ញៀវ ឬគណៈអធិបតី (Guest / VIP Name) *</label>
-              <input type="text" id="admin-wish-name" class="form-input" placeholder="ឧ. ឯកឧត្តម លី សុផាត" required>
+        <div class="admin-tab-pane" id="tab-wishes">
+          <!-- 1. Add New Wish Form -->
+          <div class="card-glass" style="margin-bottom: 24px;">
+            <div class="section-kbach-header" style="margin-bottom: 16px;">
+              <h3 class="section-title" style="font-size: 1.15rem;">សៀវភៅជូនពរឌីជីថល</h3>
+              <p class="section-subtitle">Guestbook & Warm Wishes Manager</p>
             </div>
-            <div class="form-group">
-              <label class="form-label">កាលបរិច្ឆេទបង្ហាញ (Display Date)</label>
-              <input type="text" id="admin-wish-date" class="form-input" placeholder="ថ្មីៗនេះ ឬ ទើបតែផ្ញើ"
-                value="ថ្មីៗនេះ">
+
+            <form id="admin-add-wish-form">
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">ឈ្មោះភ្ញៀវ ឬគណៈអធិបតី (Guest / VIP Name) *</label>
+                  <input type="text" id="admin-wish-name" class="form-input" placeholder="ឧ. ឯកឧត្តម លី សុផាត" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">កាលបរិច្ឆេទបង្ហាញ (Display Date)</label>
+                  <input type="text" id="admin-wish-date" class="form-input" placeholder="ថ្មីៗនេះ ឬ ទើបតែផ្ញើ"
+                    value="ថ្មីៗនេះ">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">សារជូនពរដល់គូស្វាមីភរិយា (Wedding Wishes Message) *</label>
+                <textarea id="admin-wish-msg" class="form-input" rows="3"
+                  placeholder="សូមប្រសិទ្ធពរជ័យមង្គល សិរីសួស្តី វិបុលសុខគ្រប់ប្រការដល់គូស្វាមីភរិយាថ្មី..."
+                  required></textarea>
+              </div>
+
+              <button type="submit" class="btn-gold-primary ripple-effect" style="margin-top: 10px;">
+                <span>➕ បន្ថែមពាក្យជូនពរ (Add Wish to Guestbook)</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- 2. Wishes Wall List & Moderation -->
+          <div class="card-glass">
+            <div
+              style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+              <div>
+                <h3 class="section-title" style="font-size: 1.15rem;">📖 បញ្ជីពាក្យជូនពរក្នុងសៀវភៅឌីជីថល</h3>
+                <span style="font-size: 0.78rem; color: var(--text-muted);">ពាក្យជូនពរសរុប៖ <strong
+                    id="wishes-total-count" style="color: var(--primary-gold-light);">0</strong> កំណត់ត្រា</span>
+              </div>
+
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="btn-gold-secondary" id="btn-reset-default-wishes"
+                  style="width: auto; padding: 6px 12px; font-size: 0.8rem; margin-top: 0; color: var(--primary-gold-light);">
+                  🔄 ផ្ទុកពាក្យជូនពរគំរូ 3 ដើម
+                </button>
+                <button class="btn-gold-secondary" id="btn-clear-wishes"
+                  style="width: auto; padding: 6px 12px; font-size: 0.8rem; margin-top: 0; color: #ff6b6b; border-color: #ff6b6b;">
+                  🗑️ សម្អាតទាំងអស់
+                </button>
+              </div>
+            </div>
+
+            <div id="admin-wishes-list" style="display: flex; flex-direction: column; gap: 12px;">
+              <!-- Populated dynamically -->
             </div>
           </div>
-
-          <div class="form-group">
-            <label class="form-label">សារជូនពរដល់គូស្វាមីភរិយា (Wedding Wishes Message) *</label>
-            <textarea id="admin-wish-msg" class="form-input" rows="3"
-              placeholder="សូមប្រសិទ្ធពរជ័យមង្គល សិរីសួស្តី វិបុលសុខគ្រប់ប្រការដល់គូស្វាមីភរិយាថ្មី..."
-              required></textarea>
-          </div>
-
-          <button type="submit" class="btn-gold-primary ripple-effect" style="margin-top: 10px;">
-            <span>➕ បន្ថែមពាក្យជូនពរ (Add Wish to Guestbook)</span>
-          </button>
-        </form>
-      </div>
-
-      <!-- 2. Wishes Wall List & Moderation -->
-      <div class="card-glass">
-        <div
-          style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
-          <div>
-            <h3 class="section-title" style="font-size: 1.15rem;">📖 បញ្ជីពាក្យជូនពរក្នុងសៀវភៅឌីជីថល</h3>
-            <span style="font-size: 0.78rem; color: var(--text-muted);">ពាក្យជូនពរសរុប៖ <strong id="wishes-total-count"
-                style="color: var(--primary-gold-light);">0</strong> កំណត់ត្រា</span>
-          </div>
-
-          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <button class="btn-gold-secondary" id="btn-reset-default-wishes"
-              style="width: auto; padding: 6px 12px; font-size: 0.8rem; margin-top: 0; color: var(--primary-gold-light);">
-              🔄 ផ្ទុកពាក្យជូនពរគំរូ 3 ដើម
-            </button>
-            <button class="btn-gold-secondary" id="btn-clear-wishes"
-              style="width: auto; padding: 6px 12px; font-size: 0.8rem; margin-top: 0; color: #ff6b6b; border-color: #ff6b6b;">
-              🗑️ សម្អាតទាំងអស់
-            </button>
-          </div>
         </div>
 
-        <div id="admin-wishes-list" style="display: flex; flex-direction: column; gap: 12px;">
-          <!-- Populated dynamically -->
-        </div>
-      </div>
-    </div>
-
-    <!-- ==========================================================================
+        <!-- ==========================================================================
          TAB: General, Media & Text Customization
          ========================================================================== -->
-    <div class="admin-tab-pane" id="tab-general">
-      <div class="card-glass">
-        <h3 class="section-title" style="font-size: 1.15rem; margin-bottom: 16px;">⚙️ ការកំណត់អត្ថបទរួម & តន្ត្រី
-          (General, Media & Texts)</h3>
+        <div class="admin-tab-pane" id="tab-general">
+          <div class="card-glass">
+            <h3 class="section-title" style="font-size: 1.15rem; margin-bottom: 16px;">⚙️ ការកំណត់អត្ថបទរួម & តន្ត្រី
+              (General, Media & Texts)</h3>
 
-        <!-- 1. Blessings & Header Texts -->
-        <div style="margin-bottom: 20px;">
-          <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 12px;">🪷 បាលីប្រសិទ្ធពរ &
-            ចំណងជើងលិខិតអញ្ជើញ</h4>
+            <!-- 1. Blessings & Header Texts -->
+            <div style="margin-bottom: 20px;">
+              <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 12px;">🪷 បាលីប្រសិទ្ធពរ &
+                ចំណងជើងលិខិតអញ្ជើញ</h4>
 
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label">បាលីប្រសិទ្ធពរ (Sacred Verse)</label>
-              <input type="text" id="cfg-blessing-verse" class="form-input" placeholder="☸ ជយោ ហោតុ សព្វទា ☸">
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">បាលីប្រសិទ្ធពរ (Sacred Verse)</label>
+                  <input type="text" id="cfg-blessing-verse" class="form-input" placeholder="☸ ជយោ ហោតុ សព្វទា ☸">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">ចំណងជើងកម្មវិធី (Title / Badge)</label>
+                  <input type="text" id="cfg-invitation-title" class="form-input" placeholder="សិរីសួស្តី អាពាហ៍ពិពាហ៍">
+                </div>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">ចំណងជើងធំ (Hero Header)</label>
+                  <input type="text" id="cfg-invitation-header" class="form-input" placeholder="លិខិតអញ្ជើញ">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">ពាក្យណែនាំបើកស្រោមសំបុត្រ 3D (Envelope Open Hint)</label>
+                  <input type="text" id="cfg-envelope-hint" class="form-input"
+                    placeholder="✨ ចុចត្រាមាសដើម្បីបើកសំបុត្រ ✨">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">ពាក្យផ្ដើមគោរពអញ្ជើញ (Greeting Text)</label>
+                <input type="text" id="cfg-invitation-greeting" class="form-input" placeholder="យើងខ្ញុំសូមគោរពអញ្ជើញ">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">អត្ថបទអញ្ជើញពិស្តារ (Invitation Subtext)</label>
+                <textarea id="cfg-invitation-subtext" class="form-input" rows="2"
+                  placeholder="ចូលរួមជាអធិបតី និងជាភ្ញៀវកិត្តិយស ក្នុងពិធីមង្គលការកូនប្រុស-កូនស្រីរបស់យើងខ្ញុំ"></textarea>
+              </div>
             </div>
-            <div class="form-group">
-              <label class="form-label">ចំណងជើងកម្មវិធី (Title / Badge)</label>
-              <input type="text" id="cfg-invitation-title" class="form-input" placeholder="សិរីសួស្តី អាពាហ៍ពិពាហ៍">
-            </div>
-          </div>
 
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label">ចំណងជើងធំ (Hero Header)</label>
-              <input type="text" id="cfg-invitation-header" class="form-input" placeholder="លិខិតអញ្ជើញ">
-            </div>
-            <div class="form-group">
-              <label class="form-label">ពាក្យណែនាំបើកស្រោមសំបុត្រ 3D (Envelope Open Hint)</label>
-              <input type="text" id="cfg-envelope-hint" class="form-input" placeholder="✨ ចុចត្រាមាសដើម្បីបើកសំបុត្រ ✨">
-            </div>
-          </div>
+            <!-- 2. Background Music Playlist (up to 10 tracks) -->
+            <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
+              <h4
+                style="display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 8px;">
+                <span>🎵 តន្ត្រីកំដរមង្គលការ (Background Music)</span>
+                <span id="music-count" style="font-size: 0.8rem; color: var(--text-muted); font-weight: 400;">0 /
+                  10</span>
+              </h4>
+              <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px;">
+                បន្ថែមបានច្រើនបំផុត <strong>១០ បទ</strong> (ផ្ទុកឯកសារ MP3, Audio URL, ឬ YouTube)។
+                គេហទំព័រភ្ញៀវនឹងចាក់បទមួយដោយ<strong>ចៃដន្យ</strong> ហើយប្តូរទៅបទផ្សេងទៀតដោយស្វ័យប្រវត្តិ។
+              </p>
 
-          <div class="form-group">
-            <label class="form-label">ពាក្យផ្ដើមគោរពអញ្ជើញ (Greeting Text)</label>
-            <input type="text" id="cfg-invitation-greeting" class="form-input" placeholder="យើងខ្ញុំសូមគោរពអញ្ជើញ">
-          </div>
+              <div id="music-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;"></div>
 
-          <div class="form-group">
-            <label class="form-label">អត្ថបទអញ្ជើញពិស្តារ (Invitation Subtext)</label>
-            <textarea id="cfg-invitation-subtext" class="form-input" rows="2"
-              placeholder="ចូលរួមជាអធិបតី និងជាភ្ញៀវកិត្តិយស ក្នុងពិធីមង្គលការកូនប្រុស-កូនស្រីរបស់យើងខ្ញុំ"></textarea>
+              <div class="form-group" style="margin-bottom: 14px;">
+                <label class="form-label">🎨 ពណ៌អក្សរបញ្ជីចម្រៀង (Playlist Font Color)</label>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <input type="color" id="cfg-music-list-color" value="#fbf6ec"
+                    style="width: 56px; height: 38px; padding: 2px; background: transparent; border: 1px solid rgba(229,185,85,0.35); border-radius: 6px; cursor: pointer;">
+                  <button type="button" id="btn-music-color-auto" class="btn-gold-secondary ripple-effect"
+                    style="width: auto; margin-top: 0; padding: 8px 14px; white-space: nowrap;">🔄 Auto
+                    (តាមផ្ទាំង)</button>
+                </div>
+                <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px;">
+                  ជ្រើសពណ៌អក្សរឈ្មោះបទចម្រៀង។ <strong>Auto</strong> នឹងប្តូរពណ៌ស្វ័យប្រវត្តិតាម
+                  Dark/Light Mode របស់ឧបករណ៍។
+                </p>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">បន្ថែមតាម URL (Audio URL ឬ YouTube URL)</label>
+                <div style="display: flex; gap: 8px;">
+                  <input type="text" id="cfg-music-url-input" class="form-input"
+                    placeholder="https://.../song.mp3 ឬ https://youtu.be/xxxxxxxxxxx">
+                  <button type="button" id="btn-add-music-url" class="btn-gold-secondary ripple-effect"
+                    style="width: auto; margin-top: 0; white-space: nowrap; padding: 10px 16px;">➕ បន្ថែម</button>
+                </div>
+                <div style="margin-top: 8px;">
+                  <label class="form-label" style="font-size: 0.8rem; color: var(--text-muted);">ឬផ្ទុកឯកសារ mp3
+                    ពីកុំព្យូទ័រ (Upload MP3 File):</label>
+                  <input type="file" id="cfg-music-file" accept="audio/*" class="form-input" style="padding: 8px;">
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. Golden Seal Image -->
+            <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
+              <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 12px;">🏅 រូបភាពត្រាមាសខ្មែរ 3D
+                (Golden Seal)</h4>
+
+              <div class="form-group">
+                <label class="form-label">រូបភាពត្រាមាស (Golden Seal Image Path or URL)</label>
+                <input type="text" id="cfg-seal-image" class="form-input" placeholder="assets/images/golden_seal.jpg">
+                <div style="margin-top: 8px;">
+                  <label class="form-label"
+                    style="font-size: 0.8rem; color: var(--text-muted);">ឬជ្រើសរើសរូបភាពត្រាថ្មីពីកុំព្យូទ័រ (Upload
+                    Seal
+                    Image):</label>
+                  <input type="file" id="cfg-seal-file" accept="image/*" class="form-input" style="padding: 8px;">
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. Footer & Thank You Text -->
+            <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
+              <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 12px;">🙏
+                សារថ្លែងអំណរគុណចុងក្រោយ
+                (Footer Messages)</h4>
+
+              <div class="form-group">
+                <label class="form-label">សារថ្លែងអំណរគុណ (Thank You Message)</label>
+                <input type="text" id="cfg-thankyou-text" class="form-input"
+                  placeholder="សូមថ្លែងអំណរគុណយ៉ាងជ្រាលជ្រៅចំពោះវត្តមានដ៏ឧត្តុង្គឧត្តមរបស់លោកអ្នក">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Footer Design Credit</label>
+                <input type="text" id="cfg-footer-credit" class="form-input"
+                  placeholder="Designed with Khmer Traditional Heritage & Modern Elegance">
+              </div>
+            </div>
+
+            <!-- 5. Section Headings, Subtitles & Button Labels (admin-editable) -->
+            <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
+              <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 6px;">🏷️ ចំណងជើងផ្នែក
+                & ស្លាក (Section Headings & Labels)</h4>
+              <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 12px;">
+                កែអត្ថបទចំណងជើងផ្នែក ចំណងជើងរង និងអក្សរលើប៊ូតុងទាំងអស់លើគេហទំព័រភ្ញៀវ
+                តាមចិត្តរបស់អ្នក។ ចុច <strong>រក្សាទុក</strong> ដើម្បីអនុវត្ត។
+              </p>
+              <div id="section-texts-fields" class="form-grid-2"></div>
+            </div>
+
           </div>
         </div>
 
-        <!-- 2. Background Music Playlist (up to 10 tracks) -->
-        <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
-          <h4
-            style="display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 8px;">
-            <span>🎵 តន្ត្រីកំដរមង្គលការ (Background Music)</span>
-            <span id="music-count" style="font-size: 0.8rem; color: var(--text-muted); font-weight: 400;">0 / 10</span>
-          </h4>
-          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px;">
-            បន្ថែមបានច្រើនបំផុត <strong>១០ បទ</strong> (ផ្ទុកឯកសារ MP3, Audio URL, ឬ YouTube)។
-            គេហទំព័រភ្ញៀវនឹងចាក់បទមួយដោយ<strong>ចៃដន្យ</strong> ហើយប្តូរទៅបទផ្សេងទៀតដោយស្វ័យប្រវត្តិ។
-          </p>
-
-          <div id="music-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;"></div>
-
-          <div class="form-group" style="margin-bottom: 14px;">
-            <label class="form-label">🎨 ពណ៌អក្សរបញ្ជីចម្រៀង (Playlist Font Color)</label>
-            <div style="display: flex; gap: 8px; align-items: center;">
-              <input type="color" id="cfg-music-list-color" value="#fbf6ec"
-                style="width: 56px; height: 38px; padding: 2px; background: transparent; border: 1px solid rgba(229,185,85,0.35); border-radius: 6px; cursor: pointer;">
-              <button type="button" id="btn-music-color-auto" class="btn-gold-secondary ripple-effect"
-                style="width: auto; margin-top: 0; padding: 8px 14px; white-space: nowrap;">🔄 Auto (តាមផ្ទាំង)</button>
-            </div>
-            <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px;">
-              ជ្រើសពណ៌អក្សរឈ្មោះបទចម្រៀង។ <strong>Auto</strong> នឹងប្តូរពណ៌ស្វ័យប្រវត្តិតាម
-              Dark/Light Mode របស់ឧបករណ៍។
-            </p>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">បន្ថែមតាម URL (Audio URL ឬ YouTube URL)</label>
-            <div style="display: flex; gap: 8px;">
-              <input type="text" id="cfg-music-url-input" class="form-input"
-                placeholder="https://.../song.mp3 ឬ https://youtu.be/xxxxxxxxxxx">
-              <button type="button" id="btn-add-music-url" class="btn-gold-secondary ripple-effect"
-                style="width: auto; margin-top: 0; white-space: nowrap; padding: 10px 16px;">➕ បន្ថែម</button>
-            </div>
-            <div style="margin-top: 8px;">
-              <label class="form-label" style="font-size: 0.8rem; color: var(--text-muted);">ឬផ្ទុកឯកសារ mp3
-                ពីកុំព្យូទ័រ (Upload MP3 File):</label>
-              <input type="file" id="cfg-music-file" accept="audio/*" class="form-input" style="padding: 8px;">
-            </div>
-          </div>
-        </div>
-
-        <!-- 3. Golden Seal Image -->
-        <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
-          <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 12px;">🏅 រូបភាពត្រាមាសខ្មែរ 3D
-            (Golden Seal)</h4>
-
-          <div class="form-group">
-            <label class="form-label">រូបភាពត្រាមាស (Golden Seal Image Path or URL)</label>
-            <input type="text" id="cfg-seal-image" class="form-input" placeholder="assets/images/golden_seal.jpg">
-            <div style="margin-top: 8px;">
-              <label class="form-label"
-                style="font-size: 0.8rem; color: var(--text-muted);">ឬជ្រើសរើសរូបភាពត្រាថ្មីពីកុំព្យូទ័រ (Upload Seal
-                Image):</label>
-              <input type="file" id="cfg-seal-file" accept="image/*" class="form-input" style="padding: 8px;">
-            </div>
-          </div>
-        </div>
-
-        <!-- 4. Footer & Thank You Text -->
-        <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
-          <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 12px;">🙏 សារថ្លែងអំណរគុណចុងក្រោយ
-            (Footer Messages)</h4>
-
-          <div class="form-group">
-            <label class="form-label">សារថ្លែងអំណរគុណ (Thank You Message)</label>
-            <input type="text" id="cfg-thankyou-text" class="form-input"
-              placeholder="សូមថ្លែងអំណរគុណយ៉ាងជ្រាលជ្រៅចំពោះវត្តមានដ៏ឧត្តុង្គឧត្តមរបស់លោកអ្នក">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Footer Design Credit</label>
-            <input type="text" id="cfg-footer-credit" class="form-input"
-              placeholder="Designed with Khmer Traditional Heritage & Modern Elegance">
-          </div>
-        </div>
-
-        <!-- 5. Section Headings, Subtitles & Button Labels (admin-editable) -->
-        <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
-          <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 6px;">🏷️ ចំណងជើងផ្នែក
-            & ស្លាក (Section Headings & Labels)</h4>
-          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 12px;">
-            កែអត្ថបទចំណងជើងផ្នែក ចំណងជើងរង និងអក្សរលើប៊ូតុងទាំងអស់លើគេហទំព័រភ្ញៀវ
-            តាមចិត្តរបស់អ្នក។ ចុច <strong>រក្សាទុក</strong> ដើម្បីអនុវត្ត។
-          </p>
-          <div id="section-texts-fields" class="form-grid-2"></div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- ==========================================================================
-         TAB: Configurations (appearance, colors, language, fonts, sections)
+        <!-- ==========================================================================
+         TAB: Design Settings (theme, colors, fonts, icons, sections visibility)
          ========================================================================== -->
-    <div class="admin-tab-pane" id="tab-config">
-      <div class="card-glass">
-        <h3 class="section-title" style="font-size: 1.15rem; margin-bottom: 6px;">🎨 Configurations</h3>
-        <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 18px;">
-          កំណត់ពណ៌ ផ្ទៃខាងក្រោយ ផ្ទាំងមើល (Dark/Light) ភាសា ពុម្ពអក្សរ និងការបង្ហាញផ្នែកនីមួយៗ សម្រាប់គេហទំព័រភ្ញៀវ។
-        </p>
+        <div class="admin-tab-pane" id="tab-design">
+          <div class="card-glass">
+            <h3 class="section-title" style="font-size: 1.15rem; margin-bottom: 6px;">✨ ការកំណត់រចនាប័ទ្ម (Design Settings)
+            </h3>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 18px;">
+              កំណត់ពណ៌ ផ្ទៃខាងក្រោយ ផ្ទាំងមើល (Dark/Light) ភាសា ពុម្ពអក្សរ រូបតំណាង និងការបង្ហាញផ្នែកនីមួយៗ
+              សម្រាប់គេហទំព័រភ្ញៀវ។
+            </p>
 
-        <!-- A. Display Mode -->
-        <div style="margin-bottom: 20px;">
-          <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 12px;">🌓 ផ្ទាំងបង្ហាញ (Display
-            Mode)</h4>
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label">របៀបបង្ហាញ (Theme Mode)</label>
-              <select id="cfg-theme-mode" class="form-input">
-                <option value="auto">🖥️ តាមប្រព័ន្ធ (System / Auto)</option>
-                <option value="dark">🌙 ងងឹត (Dark)</option>
-                <option value="light">☀️ ភ្លឺ (Light)</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">ភាសាគេហទំព័រ (Language)</label>
-              <select id="cfg-language" class="form-input">
-                <option value="auto">🖥️ តាមប្រព័ន្ធ (System / Auto)</option>
-                <option value="kh">🇰🇭 ខ្មែរ (Khmer)</option>
-                <option value="en">🇬🇧 English</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <!-- B. Colors -->
-        <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
-          <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 12px;">🎨 ពណ៌ និងផ្ទៃខាងក្រោយ
-            (Colors &amp; Background)</h4>
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                <input type="checkbox" id="cfg-accent-enabled"
-                  style="width: 16px; height: 16px; accent-color: #e5b955;">
-                <span>កំណត់ពណ៌មាសដោយខ្លួនឯង (Custom Accent / Gold)</span>
-              </label>
-              <div style="display: flex; gap: 8px; align-items: center;">
-                <input type="color" id="cfg-theme-accent" value="#e5b955"
-                  style="width: 52px; height: 40px; border: none; background: none; cursor: pointer;">
-                <input type="text" id="cfg-theme-accent-hex" class="form-input" placeholder="#e5b955" style="flex: 1;">
+            <!-- A. Display Mode -->
+            <div style="margin-bottom: 20px;">
+              <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 12px;">🌓 ផ្ទាំងបង្ហាញ (Display
+                Mode)</h4>
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">របៀបបង្ហាញ (Theme Mode)</label>
+                  <select id="cfg-theme-mode" class="form-input">
+                    <option value="auto">🖥️ តាមប្រព័ន្ធ (System / Auto)</option>
+                    <option value="dark">🌙 ងងឹត (Dark)</option>
+                    <option value="light">☀️ ភ្លឺ (Light)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">ភាសាគេហទំព័រ (Language)</label>
+                  <select id="cfg-language" class="form-input">
+                    <option value="auto">🖥️ តាមប្រព័ន្ធ (System / Auto)</option>
+                    <option value="kh">🇰🇭 ខ្មែរ (Khmer)</option>
+                    <option value="en">🇬🇧 English</option>
+                  </select>
+                </div>
               </div>
             </div>
-            <div class="form-group">
-              <label class="form-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                <input type="checkbox" id="cfg-bg-enabled" style="width: 16px; height: 16px; accent-color: #e5b955;">
-                <span>កំណត់ពណ៌ផ្ទៃខាងក្រោយដោយខ្លួនឯង (Custom Background)</span>
-              </label>
-              <div style="display: flex; gap: 8px; align-items: center;">
-                <input type="color" id="cfg-theme-bg" value="#0a0a0d"
-                  style="width: 52px; height: 40px; border: none; background: none; cursor: pointer;">
-                <input type="text" id="cfg-theme-bg-hex" class="form-input" placeholder="#0a0a0d" style="flex: 1;">
+
+            <!-- B. Colors -->
+            <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
+              <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 12px;">🎨 ពណ៌ និងផ្ទៃខាងក្រោយ
+                (Colors &amp; Background)</h4>
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="cfg-accent-enabled"
+                      style="width: 16px; height: 16px; accent-color: #e5b955;">
+                    <span>កំណត់ពណ៌មាសដោយខ្លួនឯង (Custom Accent / Gold)</span>
+                  </label>
+                  <div style="display: flex; gap: 8px; align-items: center;">
+                    <input type="color" id="cfg-theme-accent" value="#e5b955"
+                      style="width: 52px; height: 40px; border: none; background: none; cursor: pointer;">
+                    <input type="text" id="cfg-theme-accent-hex" class="form-input" placeholder="#e5b955"
+                      style="flex: 1;">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="cfg-bg-enabled"
+                      style="width: 16px; height: 16px; accent-color: #e5b955;">
+                    <span>កំណត់ពណ៌ផ្ទៃខាងក្រោយដោយខ្លួនឯង (Custom Background)</span>
+                  </label>
+                  <div style="display: flex; gap: 8px; align-items: center;">
+                    <input type="color" id="cfg-theme-bg" value="#0a0a0d"
+                      style="width: 52px; height: 40px; border: none; background: none; cursor: pointer;">
+                    <input type="text" id="cfg-theme-bg-hex" class="form-input" placeholder="#0a0a0d" style="flex: 1;">
+                  </div>
+                </div>
+              </div>
+              <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+                បើមិនធីកទេ ពណ៌មាស និងផ្ទៃខាងក្រោយនឹងប្រើតម្លៃលំនាំដើមតាម Dark/Light Mode។
+              </p>
+            </div>
+
+            <!-- C. Fonts -->
+            <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
+              <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 12px;">🔤 ពុម្ពអក្សរ (Fonts)
+              </h4>
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">ពុម្ពអក្សរខ្មែរ — អត្ថបទ (Khmer Body Font)</label>
+                  <select id="cfg-font-khmer" class="form-input">
+                    <option value="">លំនាំដើម (Default)</option>
+                    <option value="Kantumruy Pro">Kantumruy Pro</option>
+                    <option value="Noto Serif Khmer">Noto Serif Khmer</option>
+                    <option value="Noto Sans Khmer">Noto Sans Khmer</option>
+                    <option value="Hanuman">Hanuman</option>
+                    <option value="Battambang">Battambang</option>
+                    <option value="Siemreap">Siemreap</option>
+                    <option value="Koulen">Koulen</option>
+                    <option value="Bayon">Bayon</option>
+                    <option value="Content">Content</option>
+                    <option value="Dangrek">Dangrek</option>
+                    <option value="Nokora">Nokora</option>
+                    <option value="Suwannaphum">Suwannaphum</option>
+                    <option value="Preahvihear">Preahvihear</option>
+                    <option value="Angkor">Angkor</option>
+                    <option value="Odor Mean Chey">Odor Mean Chey</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">ពុម្ពអក្សរខ្មែរ — ចំណងជើង (Khmer Heading Font)</label>
+                  <select id="cfg-font-khmer-heading" class="form-input">
+                    <option value="">លំនាំដើម (Moul)</option>
+                    <option value="Moul">Moul</option>
+                    <option value="Koulen">Koulen</option>
+                    <option value="Bayon">Bayon</option>
+                    <option value="Angkor">Angkor</option>
+                    <option value="Content">Content</option>
+                    <option value="Metal">Metal</option>
+                    <option value="Noto Serif Khmer">Noto Serif Khmer</option>
+                    <option value="Kantumruy Pro">Kantumruy Pro</option>
+                    <option value="Siemreap">Siemreap</option>
+                    <option value="Fasthand">Fasthand</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">ពុម្ពអក្សរអង់គ្លេស (English / Latin Font)</label>
+                <select id="cfg-font-english" class="form-input">
+                  <option value="">លំនាំដើម (Default)</option>
+                  <option value="Poppins">Poppins</option>
+                  <option value="Montserrat">Montserrat</option>
+                  <option value="Playfair Display">Playfair Display</option>
+                  <option value="Cormorant Garamond">Cormorant Garamond</option>
+                  <option value="Cinzel">Cinzel</option>
+                  <option value="Great Vibes">Great Vibes</option>
+                  <option value="Dancing Script">Dancing Script</option>
+                  <option value="Lato">Lato</option>
+                  <option value="Inter">Inter</option>
+                  <option value="Roboto">Roboto</option>
+                  <option value="Open Sans">Open Sans</option>
+                  <option value="Raleway">Raleway</option>
+                  <option value="Merriweather">Merriweather</option>
+                  <option value="Josefin Sans">Josefin Sans</option>
+                </select>
+              </div>
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">Custom Font CSS URL (ជម្រើស)</label>
+                  <input type="text" id="cfg-font-custom-url" class="form-input"
+                    placeholder="https://fonts.googleapis.com/css2?family=...">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Custom Font Family (ជម្រើស)</label>
+                  <input type="text" id="cfg-font-custom-family" class="form-input"
+                    placeholder="ឧ. 'MyFont', 'Kantumruy Pro', sans-serif">
+                </div>
               </div>
             </div>
-          </div>
-          <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
-            បើមិនធីកទេ ពណ៌មាស និងផ្ទៃខាងក្រោយនឹងប្រើតម្លៃលំនាំដើមតាម Dark/Light Mode។
-          </p>
 
-          <div class="form-group" style="margin-top: 16px;">
-            <label class="form-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 8px;">
-              <input type="checkbox" id="cfg-butterfly-show" checked style="width: 16px; height: 16px; accent-color: #e5b955;">
-              <span>🦋 បង្ហាញប៊ូតឺរហ្វ្លាយ (Show Butterflies)</span>
-            </label>
-            <label class="form-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-              <input type="checkbox" id="cfg-butterfly-enabled" style="width: 16px; height: 16px; accent-color: #e5b955;">
-              <span>🦋 កំណត់ពណ៌ប៊ូតឺរហ្វ្លាយដោយខ្លួនឯង (Custom Butterfly Colour)</span>
-            </label>
-            <div style="display: flex; gap: 8px; align-items: center;">
-              <input type="color" id="cfg-butterfly-color" value="#e5b955"
-                style="width: 52px; height: 40px; border: none; background: none; cursor: pointer;">
-              <input type="text" id="cfg-butterfly-color-hex" class="form-input" placeholder="#e5b955" style="flex: 1;">
+            <!-- D. App Icon / Favicon (list, max 10, choose one) -->
+            <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
+              <h4
+                style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                <span>🖼️ រូបតំណាងគេហទំព័រ (App Icon / Favicon)</span>
+                <span id="icon-count" class="poster-count-pill">0 / 10</span>
+              </h4>
+              <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px;">
+                ផ្ទុករូបតំណាងពីកុំព្យូទ័រ (.ico / .png / .jpg / .svg) បានរហូតដល់ 10 រូប ហើយជ្រើសរើស
+                <strong>មួយ</strong> ដើម្បីបង្ហាញលើ Tab វេបប្រោស័រ និងពេលរក្សាទុកលើទូរស័ព្ទ។
+              </p>
+              <div style="display: flex; gap: 8px;">
+                <input type="text" id="cfg-icon-url" class="form-input"
+                  placeholder="assets/images/favicon.png ឬ https://...">
+                <button type="button" id="btn-add-icon-url" class="btn-primary-lux"
+                  style="white-space: nowrap; padding: 10px 16px;">+ បន្ថែម</button>
+              </div>
+              <div style="display: flex; gap: 8px; margin-top: 8px; align-items: center;">
+                <input type="file" id="cfg-icon-file"
+                  accept=".ico,.png,.jpg,.jpeg,.webp,.svg,image/x-icon,image/vnd.microsoft.icon,image/png,image/jpeg,image/webp,image/svg+xml,image/*"
+                  class="form-input" style="padding: 8px;">
+                <span
+                  style="font-size: 0.72rem; color: var(--text-muted); white-space: nowrap;">ផ្ទុកពីកុំព្យូទ័រ</span>
+              </div>
+              <div id="icon-list" class="icon-admin-list"></div>
+              <button type="button" id="btn-clear-icon"
+                style="margin-top: 10px; font-size: 0.75rem; padding: 6px 12px; background: none; border: 1px solid rgba(229,185,85,0.4); color: var(--primary-gold-light); border-radius: 6px; cursor: pointer;">
+                ✕ លុបទាំងអស់ និងប្រើលំនាំដើម (Use Default)
+              </button>
             </div>
-            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
-              បើមិនធីកទេ ប៊ូតឺរហ្វ្លាយនឹងប្រើពណ៌មាសលំនាំដើម។
+
+            <!-- E. Sections Visibility -->
+            <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
+              <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 8px;">🧩 ការបង្ហាញផ្នែកនីមួយៗ
+                (Show
+                / Hide Sections)</h4>
+              <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px;">
+                ធីក ✓ = បង្ហាញ ផ្នែកនោះនៅលើគេហទំព័រភ្ញៀវ ។ ដោះធីក = លាក់ផ្នែកនោះ។
+              </p>
+              <div id="sections-visibility-grid"
+                style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px;">
+                <label
+                  style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
+                  <input type="checkbox" id="cfg-show-countdown" checked
+                    style="width: 16px; height: 16px; accent-color: #e5b955;">
+                  <span>⏳ Countdown</span>
+                </label>
+                <label
+                  style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
+                  <input type="checkbox" id="cfg-show-parents" checked
+                    style="width: 16px; height: 16px; accent-color: #e5b955;">
+                  <span>👪 មាតាបិតា</span>
+                </label>
+                <label
+                  style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
+                  <input type="checkbox" id="cfg-show-video" checked
+                    style="width: 16px; height: 16px; accent-color: #e5b955;">
+                  <span>🎬 វីដេអូ Album</span>
+                </label>
+                <label
+                  style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
+                  <input type="checkbox" id="cfg-show-schedule" checked
+                    style="width: 16px; height: 16px; accent-color: #e5b955;">
+                  <span>🗓️ កាលវិភាគ</span>
+                </label>
+                <label
+                  style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
+                  <input type="checkbox" id="cfg-show-venue" checked
+                    style="width: 16px; height: 16px; accent-color: #e5b955;">
+                  <span>📍 ទីតាំង</span>
+                </label>
+                <label
+                  style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
+                  <input type="checkbox" id="cfg-show-gift" checked
+                    style="width: 16px; height: 16px; accent-color: #e5b955;">
+                  <span>🎁 ចំណងដៃ</span>
+                </label>
+                <label
+                  style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
+                  <input type="checkbox" id="cfg-show-rsvp" checked
+                    style="width: 16px; height: 16px; accent-color: #e5b955;">
+                  <span>✉️ RSVP</span>
+                </label>
+                <label
+                  style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
+                  <input type="checkbox" id="cfg-show-guestbook" checked
+                    style="width: 16px; height: 16px; accent-color: #e5b955;">
+                  <span>💬 សៀវភៅជូនពរ</span>
+                </label>
+              </div>
+            </div>
+
+            <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 12px;">
+              ចុចប៊ូតុង <strong>💾 រក្សាទុក (Save)</strong> ខាងក្រោមដើម្បីអនុវត្តទៅលើគេហទំព័រភ្ញៀវទាំងអស់។
             </p>
           </div>
         </div>
 
-        <!-- C. Fonts -->
-        <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
-          <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 12px;">🔤 ពុម្ពអក្សរ (Fonts)</h4>
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label">ពុម្ពអក្សរខ្មែរ — អត្ថបទ (Khmer Body Font)</label>
-              <select id="cfg-font-khmer" class="form-input">
-                <option value="">លំនាំដើម (Default)</option>
-                <option value="Kantumruy Pro">Kantumruy Pro</option>
-                <option value="Noto Serif Khmer">Noto Serif Khmer</option>
-                <option value="Noto Sans Khmer">Noto Sans Khmer</option>
-                <option value="Hanuman">Hanuman</option>
-                <option value="Battambang">Battambang</option>
-                <option value="Siemreap">Siemreap</option>
-                <option value="Koulen">Koulen</option>
-                <option value="Bayon">Bayon</option>
-                <option value="Content">Content</option>
-                <option value="Dangrek">Dangrek</option>
-                <option value="Nokora">Nokora</option>
-                <option value="Suwannaphum">Suwannaphum</option>
-                <option value="Preahvihear">Preahvihear</option>
-                <option value="Angkor">Angkor</option>
-                <option value="Odor Mean Chey">Odor Mean Chey</option>
-              </select>
+        <!-- ==========================================================================
+         TAB: Animation Settings (butterflies, falling flowers)
+         ========================================================================== -->
+        <div class="admin-tab-pane" id="tab-animation">
+          <div class="card-glass">
+            <h3 class="section-title" style="font-size: 1.15rem; margin-bottom: 6px;">✨ ការកំណត់ចលនា (Animation
+              Settings)</h3>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 18px;">
+              បើក/បិទ និងកំណត់ពណ៌ចលនាតាំងពិព័រណ៍ ដូចជា ប៊ូតឺរហ្វ្លាយ និងផ្កាក្រដាច នៅលើគេហទំព័រភ្ញៀវ។
+            </p>
+
+            <!-- A. Butterflies -->
+            <div class="form-group" style="margin-bottom: 20px;">
+              <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 12px;">🦋 ប៊ូតឺរហ្វ្លាយ
+                (Butterflies)</h4>
+              <label class="form-label"
+                style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 8px;">
+                <input type="checkbox" id="cfg-butterfly-show" checked
+                  style="width: 16px; height: 16px; accent-color: #e5b955;">
+                <span>🦋 បង្ហាញប៊ូតឺរហ្វ្លាយ (Show Butterflies)</span>
+              </label>
+              <label class="form-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="cfg-butterfly-enabled"
+                  style="width: 16px; height: 16px; accent-color: #e5b955;">
+                <span>🦋 កំណត់ពណ៌ប៊ូតឺរហ្វ្លាយដោយខ្លួនឯង (Custom Butterfly Colour)</span>
+              </label>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <input type="color" id="cfg-butterfly-color" value="#e5b955"
+                  style="width: 52px; height: 40px; border: none; background: none; cursor: pointer;">
+                <input type="text" id="cfg-butterfly-color-hex" class="form-input" placeholder="#e5b955"
+                  style="flex: 1;">
+              </div>
+              <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+                បើមិនធីកទេ ប៊ូតឺរហ្វ្លាយនឹងប្រើពណ៌មាសលំនាំដើម។
+              </p>
             </div>
-            <div class="form-group">
-              <label class="form-label">ពុម្ពអក្សរខ្មែរ — ចំណងជើង (Khmer Heading Font)</label>
-              <select id="cfg-font-khmer-heading" class="form-input">
-                <option value="">លំនាំដើម (Moul)</option>
-                <option value="Moul">Moul</option>
-                <option value="Koulen">Koulen</option>
-                <option value="Bayon">Bayon</option>
-                <option value="Angkor">Angkor</option>
-                <option value="Content">Content</option>
-                <option value="Metal">Metal</option>
-                <option value="Noto Serif Khmer">Noto Serif Khmer</option>
-                <option value="Kantumruy Pro">Kantumruy Pro</option>
-                <option value="Siemreap">Siemreap</option>
-                <option value="Fasthand">Fasthand</option>
-              </select>
+
+            <!-- B. Falling Flower / Blossom Animation -->
+            <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
+              <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 12px;">🌸 ប្រពៃកណ្ដាលផ្កា /
+                ផ្កាក្រដាច (Falling Flower / Blossom)</h4>
+
+              <div class="form-group" style="margin-bottom: 16px;">
+                <label class="form-label"
+                  style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 8px;">
+                  <input type="checkbox" id="cfg-flower-show" checked
+                    style="width: 16px; height: 16px; accent-color: #e5b955;">
+                  <span>🌸 បង្ហាញប្រពៃកណ្ដាលផ្កា (Show Falling Flowers)</span>
+                </label>
+                <label class="form-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                  <input type="checkbox" id="cfg-flower-enabled"
+                    style="width: 16px; height: 16px; accent-color: #e5b955;">
+                  <span>🌸 កំណត់ពណ៌ផ្កាដោយខ្លួនឯង (Custom Flower Colour)</span>
+                </label>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <input type="color" id="cfg-flower-color" value="#e5b955"
+                    style="width: 52px; height: 40px; border: none; background: none; cursor: pointer;">
+                  <input type="text" id="cfg-flower-color-hex" class="form-input" placeholder="#e5b955"
+                    style="flex: 1;">
+                </div>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+                  បើមិនធីកទេ ផ្កានឹងប្រើពណ៌មាសលំនាំដើម។
+                </p>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label"
+                  style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 8px;">
+                  <input type="checkbox" id="cfg-flower-style-petal"
+                    style="width: 16px; height: 16px; accent-color: #e5b955;">
+                  <span>🌿 ប្រើរូបផ្កាមួយកែបទ្រង់ (Single Petal Style) — គ្មាន = ៥ កែបទ្រង់ (Blossom)</span>
+                </label>
+                <p style="font-size: 0.72rem; color: var(--text-muted); margin-left: 24px;">
+                  Blossom = ៥ កែបទ្រង់ និងមាន core ខាងក្រោម | Petal = ផ្កាមួយកែបទ្រង់រលងចុះ
+                </p>
+              </div>
             </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">ពុម្ពអក្សរអង់គ្លេស (English / Latin Font)</label>
-            <select id="cfg-font-english" class="form-input">
-              <option value="">លំនាំដើម (Default)</option>
-              <option value="Poppins">Poppins</option>
-              <option value="Montserrat">Montserrat</option>
-              <option value="Playfair Display">Playfair Display</option>
-              <option value="Cormorant Garamond">Cormorant Garamond</option>
-              <option value="Cinzel">Cinzel</option>
-              <option value="Great Vibes">Great Vibes</option>
-              <option value="Dancing Script">Dancing Script</option>
-              <option value="Lato">Lato</option>
-              <option value="Inter">Inter</option>
-              <option value="Roboto">Roboto</option>
-              <option value="Open Sans">Open Sans</option>
-              <option value="Raleway">Raleway</option>
-              <option value="Merriweather">Merriweather</option>
-              <option value="Josefin Sans">Josefin Sans</option>
-            </select>
-          </div>
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label">Custom Font CSS URL (ជម្រើស)</label>
-              <input type="text" id="cfg-font-custom-url" class="form-input"
-                placeholder="https://fonts.googleapis.com/css2?family=...">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Custom Font Family (ជម្រើស)</label>
-              <input type="text" id="cfg-font-custom-family" class="form-input"
-                placeholder="ឧ. 'MyFont', 'Kantumruy Pro', sans-serif">
-            </div>
+
+            <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 12px;">
+              ចុចប៊ូតុង <strong>💾 រក្សាទុក (Save)</strong> ដើម្បីអនុវត្តចលនាទាំងនេះទៅលើគេហទំព័រភ្ញៀវទាំងអស់។
+            </p>
           </div>
         </div>
 
-        <!-- D. App Icon / Favicon (list, max 10, choose one) -->
-        <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
-          <h4
-            style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
-            <span>🖼️ រូបតំណាងគេហទំព័រ (App Icon / Favicon)</span>
-            <span id="icon-count" class="poster-count-pill">0 / 10</span>
-          </h4>
-          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px;">
-            ផ្ទុករូបតំណាងពីកុំព្យូទ័រ (.ico / .png / .jpg / .svg) បានរហូតដល់ 10 រូប ហើយជ្រើសរើស
-            <strong>មួយ</strong> ដើម្បីបង្ហាញលើ Tab វេបប្រោស័រ និងពេលរក្សាទុកលើទូរស័ព្ទ។
-          </p>
-          <div style="display: flex; gap: 8px;">
-            <input type="text" id="cfg-icon-url" class="form-input"
-              placeholder="assets/images/favicon.png ឬ https://...">
-            <button type="button" id="btn-add-icon-url" class="btn-primary-lux"
-              style="white-space: nowrap; padding: 10px 16px;">+ បន្ថែម</button>
-          </div>
-          <div style="display: flex; gap: 8px; margin-top: 8px; align-items: center;">
-            <input type="file" id="cfg-icon-file"
-              accept=".ico,.png,.jpg,.jpeg,.webp,.svg,image/x-icon,image/vnd.microsoft.icon,image/png,image/jpeg,image/webp,image/svg+xml,image/*"
-              class="form-input" style="padding: 8px;">
-            <span style="font-size: 0.72rem; color: var(--text-muted); white-space: nowrap;">ផ្ទុកពីកុំព្យូទ័រ</span>
-          </div>
-          <div id="icon-list" class="icon-admin-list"></div>
-          <button type="button" id="btn-clear-icon"
-            style="margin-top: 10px; font-size: 0.75rem; padding: 6px 12px; background: none; border: 1px solid rgba(229,185,85,0.4); color: var(--primary-gold-light); border-radius: 6px; cursor: pointer;">
-            ✕ លុបទាំងអស់ និងប្រើលំនាំដើម (Use Default)
-          </button>
-        </div>
-
-        <!-- E. Sections Visibility -->
-        <div style="border-top: 1px dashed rgba(229,185,85,0.25); margin: 20px 0; padding-top: 16px;">
-          <h4 style="font-size: 0.95rem; color: var(--primary-gold); margin-bottom: 8px;">🧩 ការបង្ហាញផ្នែកនីមួយៗ (Show
-            / Hide Sections)</h4>
-          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px;">
-            ធីក ✓ = បង្ហាញ ផ្នែកនោះនៅលើគេហទំព័រភ្ញៀវ ។ ដោះធីក = លាក់ផ្នែកនោះ។
-          </p>
-          <div id="sections-visibility-grid"
-            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px;">
-            <label
-              style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
-              <input type="checkbox" id="cfg-show-countdown" checked
-                style="width: 16px; height: 16px; accent-color: #e5b955;">
-              <span>⏳ Countdown</span>
-            </label>
-            <label
-              style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
-              <input type="checkbox" id="cfg-show-parents" checked
-                style="width: 16px; height: 16px; accent-color: #e5b955;">
-              <span>👪 មាតាបិតា</span>
-            </label>
-            <label
-              style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
-              <input type="checkbox" id="cfg-show-video" checked
-                style="width: 16px; height: 16px; accent-color: #e5b955;">
-              <span>🎬 វីដេអូ Album</span>
-            </label>
-            <label
-              style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
-              <input type="checkbox" id="cfg-show-schedule" checked
-                style="width: 16px; height: 16px; accent-color: #e5b955;">
-              <span>🗓️ កាលវិភាគ</span>
-            </label>
-            <label
-              style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
-              <input type="checkbox" id="cfg-show-venue" checked
-                style="width: 16px; height: 16px; accent-color: #e5b955;">
-              <span>📍 ទីតាំង</span>
-            </label>
-            <label
-              style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
-              <input type="checkbox" id="cfg-show-gift" checked
-                style="width: 16px; height: 16px; accent-color: #e5b955;">
-              <span>🎁 ចំណងដៃ</span>
-            </label>
-            <label
-              style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
-              <input type="checkbox" id="cfg-show-rsvp" checked
-                style="width: 16px; height: 16px; accent-color: #e5b955;">
-              <span>✉️ RSVP</span>
-            </label>
-            <label
-              style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(229,185,85,0.2); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 0.82rem;">
-              <input type="checkbox" id="cfg-show-guestbook" checked
-                style="width: 16px; height: 16px; accent-color: #e5b955;">
-              <span>💬 សៀវភៅជូនពរ</span>
-            </label>
-          </div>
-        </div>
-
-        <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 12px;">
-          ចុចប៊ូតុង <strong>💾 រក្សាទុក (Save)</strong> ខាងក្រោមដើម្បីអនុវត្តទៅលើគេហទំព័រភ្ញៀវទាំងអស់។
-        </p>
-      </div>
-    </div>
-
-    <!-- ==========================================================================
+        <!-- ==========================================================================
          TAB 7: VIP Link Generator
          ========================================================================== -->
-    <div class="admin-tab-pane" id="tab-viplinks">
-      <div class="card-glass">
-        <h3 class="section-title" style="font-size: 1.15rem; margin-bottom: 16px;">👑 បង្កើតតំណភ្ជាប់អញ្ជើញ VIP
-          ផ្ទាល់ខ្លួន</h3>
-        <p style="font-size: 0.85rem; color: var(--text-cream); margin-bottom: 16px;">
-          វាយបញ្ចូលឈ្មោះភ្ញៀវដើម្បីបង្កើត Link ពិសេសដែលមានឈ្មោះភ្ញៀវបង្ហាញលើសំបុត្រផ្ទាល់!
-        </p>
+        <div class="admin-tab-pane" id="tab-viplinks">
+          <div class="card-glass">
+            <h3 class="section-title" style="font-size: 1.15rem; margin-bottom: 16px;">👑 បង្កើតតំណភ្ជាប់អញ្ជើញ VIP
+              ផ្ទាល់ខ្លួន</h3>
+            <p style="font-size: 0.85rem; color: var(--text-cream); margin-bottom: 16px;">
+              វាយបញ្ចូលឈ្មោះភ្ញៀវដើម្បីបង្កើត Link ពិសេសដែលមានឈ្មោះភ្ញៀវបង្ហាញលើសំបុត្រផ្ទាល់!
+            </p>
 
-        <div class="form-group">
-          <label class="form-label">ឈ្មោះ ឬគោរមងារភ្ញៀវកិត្តិយស (Guest Name)</label>
-          <div style="display: flex; gap: 8px;">
-            <input type="text" id="admin-guest-name-input" class="form-input" placeholder="ឧ. ឯកឧត្តម សុខ សាន">
-            <button class="btn-gold-primary ripple-effect" id="btn-admin-generate-link"
-              style="width: auto; padding: 12px 20px; white-space: nowrap;">
-              <span>ចម្លង Link</span>
-            </button>
-          </div>
-        </div>
+            <div class="form-group">
+              <label class="form-label">ឈ្មោះ ឬគោរមងារភ្ញៀវកិត្តិយស (Guest Name)</label>
+              <div style="display: flex; gap: 8px;">
+                <input type="text" id="admin-guest-name-input" class="form-input" placeholder="ឧ. ឯកឧត្តម សុខ សាន">
+                <button class="btn-gold-primary ripple-effect" id="btn-admin-generate-link"
+                  style="width: auto; padding: 12px 20px; white-space: nowrap;">
+                  <span>ចម្លង Link</span>
+                </button>
+              </div>
+            </div>
 
-        <!-- Generated VIP link output -->
-        <div id="admin-vip-output"
-          style="display: none; background: rgba(0,0,0,0.5); border: 1.5px dashed var(--primary-gold); border-radius: var(--radius-sm); padding: 12px; margin-top: 14px;">
-          <div style="font-size: 0.78rem; color: var(--primary-gold-light); margin-bottom: 4px;">🔗
-            តំណភ្ជាប់ដែលបានបង្កើត៖</div>
-          <div id="admin-vip-url"
-            style="font-size: 0.82rem; color: #fff; word-break: break-all; font-family: monospace; user-select: all;">
-          </div>
-        </div>
+            <!-- Generated VIP link output -->
+            <div id="admin-vip-output"
+              style="display: none; background: rgba(0,0,0,0.5); border: 1.5px dashed var(--primary-gold); border-radius: var(--radius-sm); padding: 12px; margin-top: 14px;">
+              <div style="font-size: 0.78rem; color: var(--primary-gold-light); margin-bottom: 4px;">🔗
+                តំណភ្ជាប់ដែលបានបង្កើត៖</div>
+              <div id="admin-vip-url"
+                style="font-size: 0.82rem; color: #fff; word-break: break-all; font-family: monospace; user-select: all;">
+              </div>
+            </div>
 
-        <!-- Saved VIP List -->
-        <div style="margin-top: 20px;">
-          <div style="font-size: 0.82rem; font-weight: 700; color: var(--primary-gold-light); margin-bottom: 8px;">
-            📋 បញ្ជីភ្ញៀវ VIP ដែលបានបង្កើត៖
-          </div>
-          <div id="admin-vip-history"
-            style="max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB: Database Diagnostic & Cloud Sync -->
-    <div class="admin-tab-pane" id="tab-database">
-      <div class="card-glass" style="border: 1.5px solid #3ecf8e; margin-bottom: 20px;">
-        <div
-          style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
-          <div>
-            <h3 class="section-title" style="font-size: 1.15rem; color: #3ecf8e;">🗄️ ត្រួតពិនិត្យ Database & Test Data
-            </h3>
-            <p class="section-subtitle">Database Connection Diagnostic & Live Data Inspector</p>
-          </div>
-          <div id="admin-db-status-pill" class="status-pill status-connected"
-            style="background: rgba(46, 204, 113, 0.2); border: 1px solid #2ecc71; color: #2ecc71;">
-            🟢 Database Ready
-          </div>
-        </div>
-
-        <div style="display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;">
-          <button type="button" class="btn-gold-primary ripple-effect" id="btn-admin-test-server-db"
-            style="width: auto; padding: 10px 18px; font-size: 0.85rem; background: linear-gradient(135deg, #3ecf8e 0%, #2bb874 100%); color: #051a10;">
-            ⚡ តេស្ត Server DB (/api/test-db)
-          </button>
-          <button type="button" class="btn-gold-secondary ripple-effect" id="btn-admin-test-cloud"
-            style="width: auto; padding: 10px 18px; font-size: 0.85rem; margin-top: 0; border-color: #3ecf8e; color: #3ecf8e;">
-            🔄 តេស្ត Supabase Cloud
-          </button>
-          <button type="button" class="btn-gold-secondary ripple-effect" id="btn-admin-fetch-all"
-            style="width: auto; padding: 10px 18px; font-size: 0.85rem; margin-top: 0; border-color: var(--primary-gold); color: var(--primary-gold-light);">
-            📥 ទាញយកទិន្នន័យពិត (Fetch Live Data)
-          </button>
-          <a href="../databasecloud/" target="_blank" class="btn-gold-secondary"
-            style="width: auto; padding: 10px 18px; font-size: 0.85rem; margin-top: 0; text-decoration: none;">
-            🌐 បើក Supabase Explorer ➔
-          </a>
-        </div>
-
-        <!-- Diagnostic Output Card -->
-        <div id="admin-db-diagnostic-box" class="db-test-box" style="margin-bottom: 16px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <span
-              style="font-weight: 700; color: var(--primary-gold-light); font-size: 0.85rem;">ស្ថានភាពតភ្ជាប់បច្ចុប្បន្ន
-              (Connection Status):</span>
-            <span id="admin-db-latency" style="font-size: 0.75rem; color: #2ecc71; font-weight: 700;">Ping: 0ms</span>
-          </div>
-          <div id="admin-db-diagnostic-details" style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.6;">
-            ចុចប៊ូតុង <strong>«តេស្ត Server DB»</strong> ឬ <strong>«ទាញយកទិន្នន័យពិត»</strong> ដើម្បីត្រួតពិនិត្យ
-            និងបង្ហាញទិន្នន័យចេញពី Database។
-          </div>
-        </div>
-
-        <!-- Live Data Container with Tabs -->
-        <div style="border-top: 1px dashed rgba(62, 207, 142, 0.3); padding-top: 16px;">
-          <div
-            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap;">
-            <h4 style="font-size: 0.95rem; color: var(--primary-gold-light);">
-              📋 ទិន្នន័យពិតក្នុង Database (Live Records in DB)
-            </h4>
-            <div id="admin-db-record-counts" style="font-size: 0.8rem; color: #85e8ba;"></div>
-          </div>
-
-          <div id="admin-db-live-display"
-            style="max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
-            <div style="font-size: 0.78rem; color: var(--text-muted); text-align: center; padding: 12px;">
-              ចុច «ទាញយកទិន្នន័យពិត» ដើម្បីបង្ហាញ RSVPs, Wishes និង Config ផ្ទាល់ពី Database
+            <!-- Saved VIP List -->
+            <div style="margin-top: 20px;">
+              <div style="font-size: 0.82rem; font-weight: 700; color: var(--primary-gold-light); margin-bottom: 8px;">
+                📋 បញ្ជីភ្ញៀវ VIP ដែលបានបង្កើត៖
+              </div>
+              <div id="admin-vip-history"
+                style="max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;"></div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Supabase Cloud Credentials Card -->
-      <div class="card-glass" style="border: 1px solid rgba(62, 207, 142, 0.4);">
-        <div
-          style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
-          <div>
-            <h4 style="font-size: 1rem; color: #3ecf8e;">⚡ ការកំណត់ Supabase Cloud Credentials</h4>
-            <p style="font-size: 0.78rem; color: var(--text-muted);">ភ្ជាប់ Cloud Database សម្រាប់រក្សាទុក RSVP
-              និងពាក្យជូនពរ Real-time</p>
-          </div>
-          <div id="supabase-status-badge"
-            style="padding: 4px 14px; border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 700; background: rgba(255,255,255,0.06); border: 1px solid var(--text-muted); color: var(--text-muted);">
-            ⚪ មិនទាន់ភ្ជាប់ (Offline / Local)
-          </div>
-        </div>
+        <!-- TAB: Database Diagnostic & Cloud Sync -->
+        <div class="admin-tab-pane" id="tab-database">
+          <div class="card-glass" style="border: 1.5px solid #3ecf8e; margin-bottom: 20px;">
+            <div
+              style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+              <div>
+                <h3 class="section-title" style="font-size: 1.15rem; color: #3ecf8e;">🗄️ ត្រួតពិនិត្យ Database & Test
+                  Data
+                </h3>
+                <p class="section-subtitle">Database Connection Diagnostic & Live Data Inspector</p>
+              </div>
+              <div id="admin-db-status-pill" class="status-pill status-connected"
+                style="background: rgba(46, 204, 113, 0.2); border: 1px solid #2ecc71; color: #2ecc71;">
+                🟢 Database Ready
+              </div>
+            </div>
 
-        <div class="form-group">
-          <label class="form-label">Supabase Project URL</label>
-          <input type="url" id="cfg-supabase-url" class="form-input" placeholder="https://your-project.supabase.co">
-          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
-            យកពី Supabase Dashboard ➔ Project Settings ➔ API ➔ Project URL
-          </div>
-        </div>
+            <div style="display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;">
+              <button type="button" class="btn-gold-primary ripple-effect" id="btn-admin-test-server-db"
+                style="width: auto; padding: 10px 18px; font-size: 0.85rem; background: linear-gradient(135deg, #3ecf8e 0%, #2bb874 100%); color: #051a10;">
+                ⚡ តេស្ត Server DB (/api/test-db)
+              </button>
+              <button type="button" class="btn-gold-secondary ripple-effect" id="btn-admin-test-cloud"
+                style="width: auto; padding: 10px 18px; font-size: 0.85rem; margin-top: 0; border-color: #3ecf8e; color: #3ecf8e;">
+                🔄 តេស្ត Supabase Cloud
+              </button>
+              <button type="button" class="btn-gold-secondary ripple-effect" id="btn-admin-fetch-all"
+                style="width: auto; padding: 10px 18px; font-size: 0.85rem; margin-top: 0; border-color: var(--primary-gold); color: var(--primary-gold-light);">
+                📥 ទាញយកទិន្នន័យពិត (Fetch Live Data)
+              </button>
+              <a href="../databasecloud/" target="_blank" class="btn-gold-secondary"
+                style="width: auto; padding: 10px 18px; font-size: 0.85rem; margin-top: 0; text-decoration: none;">
+                🌐 បើក Supabase Explorer ➔
+              </a>
+            </div>
 
-        <div class="form-group">
-          <label class="form-label">Supabase Anon Public API Key</label>
-          <input type="password" id="cfg-supabase-key" class="form-input"
-            placeholder="•••••••••••••••••••• (Secured on Server)">
-          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
-            រក្សាទុកដោយសុវត្ថិភាពលើ Server (.env) — លាក់បាំងមិនឱ្យឃើញក្នុង Inspect DevTools
-          </div>
-        </div>
+            <!-- Diagnostic Output Card -->
+            <div id="admin-db-diagnostic-box" class="db-test-box" style="margin-bottom: 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span
+                  style="font-weight: 700; color: var(--primary-gold-light); font-size: 0.85rem;">ស្ថានភាពតភ្ជាប់បច្ចុប្បន្ន
+                  (Connection Status):</span>
+                <span id="admin-db-latency" style="font-size: 0.75rem; color: #2ecc71; font-weight: 700;">Ping:
+                  0ms</span>
+              </div>
+              <div id="admin-db-diagnostic-details"
+                style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.6;">
+                ចុចប៊ូតុង <strong>«តេស្ត Server DB»</strong> ឬ <strong>«ទាញយកទិន្នន័យពិត»</strong> ដើម្បីត្រួតពិនិត្យ
+                និងបង្ហាញទិន្នន័យចេញពី Database។
+              </div>
+            </div>
 
-        <div style="display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap;">
-          <button class="btn-gold-primary ripple-effect" id="btn-save-supabase"
-            style="width: auto; padding: 10px 18px; font-size: 0.85rem; background: linear-gradient(135deg, #3ecf8e 0%, #2bb874 100%); color: #051a10;">
-            ⚡ រក្សាទុក & ភ្ជាប់ (Connect)
-          </button>
-          <button class="btn-gold-secondary ripple-effect" id="btn-test-supabase"
-            style="width: auto; padding: 10px 18px; font-size: 0.85rem; margin-top: 0; border-color: #3ecf8e; color: #3ecf8e;">
-            🔄 សាកល្បងភ្ជាប់ (Test)
-          </button>
-          <button class="btn-gold-secondary" id="btn-disconnect-supabase"
-            style="width: auto; padding: 10px 18px; font-size: 0.85rem; margin-top: 0; border-color: #ff6b6b; color: #ff6b6b;">
-            ❌ ផ្តាច់ការភ្ជាប់
-          </button>
-        </div>
+            <!-- Live Data Container with Tabs -->
+            <div style="border-top: 1px dashed rgba(62, 207, 142, 0.3); padding-top: 16px;">
+              <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap;">
+                <h4 style="font-size: 0.95rem; color: var(--primary-gold-light);">
+                  📋 ទិន្នន័យពិតក្នុង Database (Live Records in DB)
+                </h4>
+                <div id="admin-db-record-counts" style="font-size: 0.8rem; color: #85e8ba;"></div>
+              </div>
 
-        <!-- Ready SQL Schema Box -->
-        <div style="margin-top: 24px; border-top: 1px dashed rgba(62, 207, 142, 0.3); padding-top: 18px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <span style="font-size: 0.85rem; font-weight: 700; color: #3ecf8e;">
-              📜 SQL Schema សម្រាប់បង្កើត Tables ក្នុង Supabase:
-            </span>
-            <button class="btn-gold-secondary ripple-effect" id="btn-copy-sql"
-              style="padding: 4px 12px; font-size: 0.75rem; margin-top: 0; width: auto;">
-              📋 ចម្លង SQL
-            </button>
+              <div id="admin-db-live-display"
+                style="max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+                <div style="font-size: 0.78rem; color: var(--text-muted); text-align: center; padding: 12px;">
+                  ចុច «ទាញយកទិន្នន័យពិត» ដើម្បីបង្ហាញ RSVPs, Wishes និង Config ផ្ទាល់ពី Database
+                </div>
+              </div>
+            </div>
           </div>
-          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px;">
-            គ្រាន់តែចុច <strong>«ចម្លង SQL»</strong> រួច paste ចូលក្នុង <strong>Supabase Dashboard ➔ SQL Editor ➔
-              Run</strong> ជាការស្រេច!
-          </p>
-          <textarea id="sql-schema-code" class="form-textarea" rows="12" readonly
-            style="font-family: monospace; font-size: 0.75rem; background: #050a12; color: #85e8ba;">-- 1. Invitations table (multi-tenant parent record)
+
+          <!-- Supabase Cloud Credentials Card -->
+          <div class="card-glass" style="border: 1px solid rgba(62, 207, 142, 0.4);">
+            <div
+              style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+              <div>
+                <h4 style="font-size: 1rem; color: #3ecf8e;">⚡ ការកំណត់ Supabase Cloud Credentials</h4>
+                <p style="font-size: 0.78rem; color: var(--text-muted);">ភ្ជាប់ Cloud Database សម្រាប់រក្សាទុក RSVP
+                  និងពាក្យជូនពរ Real-time</p>
+              </div>
+              <div id="supabase-status-badge"
+                style="padding: 4px 14px; border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 700; background: rgba(255,255,255,0.06); border: 1px solid var(--text-muted); color: var(--text-muted);">
+                ⚪ មិនទាន់ភ្ជាប់ (Offline / Local)
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Supabase Project URL</label>
+              <input type="url" id="cfg-supabase-url" class="form-input" placeholder="https://your-project.supabase.co">
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+                យកពី Supabase Dashboard ➔ Project Settings ➔ API ➔ Project URL
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Supabase Anon Public API Key</label>
+              <input type="password" id="cfg-supabase-key" class="form-input"
+                placeholder="•••••••••••••••••••• (Secured on Server)">
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+                រក្សាទុកដោយសុវត្ថិភាពលើ Server (.env) — លាក់បាំងមិនឱ្យឃើញក្នុង Inspect DevTools
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap;">
+              <button class="btn-gold-primary ripple-effect" id="btn-save-supabase"
+                style="width: auto; padding: 10px 18px; font-size: 0.85rem; background: linear-gradient(135deg, #3ecf8e 0%, #2bb874 100%); color: #051a10;">
+                ⚡ រក្សាទុក & ភ្ជាប់ (Connect)
+              </button>
+              <button class="btn-gold-secondary ripple-effect" id="btn-test-supabase"
+                style="width: auto; padding: 10px 18px; font-size: 0.85rem; margin-top: 0; border-color: #3ecf8e; color: #3ecf8e;">
+                🔄 សាកល្បងភ្ជាប់ (Test)
+              </button>
+              <button class="btn-gold-secondary" id="btn-disconnect-supabase"
+                style="width: auto; padding: 10px 18px; font-size: 0.85rem; margin-top: 0; border-color: #ff6b6b; color: #ff6b6b;">
+                ❌ ផ្តាច់ការភ្ជាប់
+              </button>
+            </div>
+
+            <!-- Ready SQL Schema Box -->
+            <div style="margin-top: 24px; border-top: 1px dashed rgba(62, 207, 142, 0.3); padding-top: 18px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 0.85rem; font-weight: 700; color: #3ecf8e;">
+                  📜 SQL Schema សម្រាប់បង្កើត Tables ក្នុង Supabase:
+                </span>
+                <button class="btn-gold-secondary ripple-effect" id="btn-copy-sql"
+                  style="padding: 4px 12px; font-size: 0.75rem; margin-top: 0; width: auto;">
+                  📋 ចម្លង SQL
+                </button>
+              </div>
+              <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px;">
+                គ្រាន់តែចុច <strong>«ចម្លង SQL»</strong> រួច paste ចូលក្នុង <strong>Supabase Dashboard ➔ SQL Editor ➔
+                  Run</strong> ជាការស្រេច!
+              </p>
+              <textarea id="sql-schema-code" class="form-textarea" rows="12" readonly
+                style="font-family: monospace; font-size: 0.75rem; background: #050a12; color: #85e8ba;">-- 1. Invitations table (multi-tenant parent record)
 create table if not exists public.invitations (
   id uuid default gen_random_uuid() primary key,
   user_id uuid,
@@ -1663,10 +1959,16 @@ values
   ('ឯកឧត្តម លី សុផាត', 'ថ្មីៗនេះ', 'សូមប្រសិទ្ធពរជ័យមង្គល សិរីសួស្តី វិបុលសុខគ្រប់ប្រការដល់គូស្វាមីភរិយាថ្មី ស្រឡាញ់គ្នារហូតដល់ចាស់កោងខ្នង!', now() - interval '2 hours'),
   ('លោកជំទាវ ម៉េង គន្ធា', 'ថ្មីៗនេះ', 'អបអរសាទរពិធីមង្គលការ! សូមឱ្យគ្រួសារថ្មីពោរពេញដោយសុភមង្គល ទ្រព្យសម្បត្តិហូរហៀរ និងត្រជាក់ត្រជុំដូចទឹកអង្គរ។', now() - interval '1 hour'),
   ('មិត្តភក្តិរួមការងារ (ABA Team)', 'ថ្មីៗនេះ', 'Congratulations Vibol & Devi! Wishing you both a lifetime of eternal love, prosperity, and happiness!', now());</textarea>
+            </div>
+
+          </div>
         </div>
 
-      </div>
+      </main>
+      <!-- /Right Content Area -->
+
     </div>
+    <!-- /.admin-layout -->
 
   </div>
 
@@ -1740,6 +2042,11 @@ values
           tabGeneral: '⚙️ អត្ថបទរួម & តន្ត្រី',
           tabViplinks: '👑 បង្កើត VIP Links',
           tabConfig: '🎨 Configurations',
+          tabDesign: '✨ ការកំណត់រចនាប័ទ្ម',
+          tabAnimation: '✨ ការកំណត់ចលនា',
+          tabLogout: '🚪 ចាកចេញ',
+          sidebarTitle: '📋 ម៉ឺនុយគ្រប់គ្រង',
+          menuBtn: 'ម៉ឺនុយ',
           toastThemeSwitched: '🌓 បានប្តូរ Theme រួចរាល់!',
           toastLangSwitched: '🇰🇭 បានប្តូរភាសាទៅជា ភាសាខ្មែរ'
         },
@@ -1770,6 +2077,11 @@ values
           tabGeneral: '⚙️ General & Music',
           tabViplinks: '👑 VIP Links',
           tabConfig: '🎨 Configurations',
+          tabDesign: '✨ Design Settings',
+          tabAnimation: '✨ Animation Settings',
+          tabLogout: '🚪 Logout',
+          sidebarTitle: '📋 Admin Menu',
+          menuBtn: 'Menu',
           toastThemeSwitched: '🌓 Theme updated successfully!',
           toastLangSwitched: '🇬🇧 Language switched to English'
         }
@@ -1806,7 +2118,7 @@ values
         if (cfgSelect && cfgSelect.value !== mode) cfgSelect.value = mode;
 
         if (save) {
-          try { localStorage.setItem('admin-theme-mode', mode); } catch (_) {}
+          try { localStorage.setItem('admin-theme-mode', mode); } catch (_) { }
         }
       }
 
@@ -1858,12 +2170,20 @@ values
           'tab-wishes': dict.tabWishes,
           'tab-general': dict.tabGeneral,
           'tab-viplinks': dict.tabViplinks,
-          'tab-config': dict.tabConfig
+          'tab-design': dict.tabDesign,
+          'tab-animation': dict.tabAnimation,
+          'tab-logout': dict.tabLogout
         };
         Object.keys(tabMap).forEach(key => {
           const btn = document.querySelector(`.tab-btn-lux[data-tab="${key}"]`);
           if (btn) btn.textContent = tabMap[key];
         });
+
+        // Sidebar menu heading + mobile menu button label
+        const elSidebarTitle = document.getElementById('sidebar-title-text');
+        if (elSidebarTitle) elSidebarTitle.textContent = dict.sidebarTitle;
+        const elMenuBtnText = document.getElementById('text-admin-menu');
+        if (elMenuBtnText) elMenuBtnText.textContent = dict.menuBtn;
 
         // Theme buttons text update according to current language
         const isLight = document.documentElement.getAttribute('data-theme') === 'light';
@@ -1876,7 +2196,7 @@ values
         if (cfgLang && cfgLang.value !== lang) cfgLang.value = lang;
 
         if (save) {
-          try { localStorage.setItem('admin-lang', lang); } catch (_) {}
+          try { localStorage.setItem('admin-lang', lang); } catch (_) { }
         }
       }
 
@@ -1998,14 +2318,56 @@ values
         });
       }
 
+      function doAdminLogout() {
+        localStorage.removeItem('khmer_admin_auth');
+        sessionStorage.removeItem('khmer_admin_auth');
+        closeSidebarDrawer();
+        showToast('👋 បានចាកចេញពីប្រព័ន្ធ');
+        checkAuth();
+      }
+
       if (btnLogout) {
-        btnLogout.addEventListener('click', () => {
-          localStorage.removeItem('khmer_admin_auth');
-          sessionStorage.removeItem('khmer_admin_auth');
-          showToast('👋 បានចាកចេញពីប្រព័ន្ធ');
-          checkAuth();
+        btnLogout.addEventListener('click', doAdminLogout);
+      }
+
+      // 1b. 📱 Mobile Drawer Menu (hamburger button opens the sidebar as a drawer)
+      const btnAdminMenu = document.getElementById('btn-admin-menu');
+      const sidebarOverlay = document.getElementById('sidebar-overlay');
+      const adminSidebar = document.getElementById('admin-sidebar');
+
+      function openSidebarDrawer() {
+        if (!adminSidebar) return;
+        adminSidebar.classList.add('open');
+        if (sidebarOverlay) sidebarOverlay.classList.add('open');
+        if (btnAdminMenu) btnAdminMenu.setAttribute('aria-expanded', 'true');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeSidebarDrawer() {
+        if (!adminSidebar) return;
+        adminSidebar.classList.remove('open');
+        if (sidebarOverlay) sidebarOverlay.classList.remove('open');
+        if (btnAdminMenu) btnAdminMenu.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+      }
+
+      if (btnAdminMenu) {
+        btnAdminMenu.addEventListener('click', () => {
+          adminSidebar.classList.contains('open') ? closeSidebarDrawer() : openSidebarDrawer();
         });
       }
+      if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebarDrawer);
+
+      // ✕ Close button inside the drawer header
+      const btnSidebarClose = document.getElementById('btn-sidebar-close');
+      if (btnSidebarClose) btnSidebarClose.addEventListener('click', closeSidebarDrawer);
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeSidebarDrawer();
+      });
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 860) closeSidebarDrawer();
+      });
 
       // 2. Tabs Switcher
       const tabBtns = document.querySelectorAll('.tab-btn-lux');
@@ -2013,17 +2375,27 @@ values
 
       tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
+          const targetId = btn.getAttribute('data-tab');
+
+          // 🚪 Logout menu item: behaves like the top-bar Logout button
+          if (targetId === 'tab-logout') {
+            doAdminLogout();
+            return;
+          }
+
           tabBtns.forEach(b => b.classList.remove('active'));
           tabPanes.forEach(p => p.classList.remove('active'));
 
           btn.classList.add('active');
-          const targetId = btn.getAttribute('data-tab');
           const targetPane = document.getElementById(targetId);
           if (targetPane) {
             targetPane.classList.add('active');
             if (targetId === 'tab-rsvp') loadRsvpList();
             if (targetId === 'tab-wishes') loadWishesList();
           }
+
+          // On phones, choosing a menu item closes the drawer
+          closeSidebarDrawer();
         });
       });
 
@@ -2049,19 +2421,29 @@ values
         if (picker) picker.value = hex;
         if (text) text.value = hex;
       }
+      function setFlowerColorInput(hex) {
+        const picker = document.getElementById('cfg-flower-color');
+        const text = document.getElementById('cfg-flower-color-hex');
+        if (picker) picker.value = hex;
+        if (text) text.value = hex;
+      }
       function syncColorControls() {
         const accentOn = document.getElementById('cfg-accent-enabled');
         const bgOn = document.getElementById('cfg-bg-enabled');
         const bfyOn = document.getElementById('cfg-butterfly-enabled');
+        const flowerOn = document.getElementById('cfg-flower-enabled');
         const accentPicker = document.getElementById('cfg-theme-accent');
         const accentHex = document.getElementById('cfg-theme-accent-hex');
         const bgPicker = document.getElementById('cfg-theme-bg');
         const bgHex = document.getElementById('cfg-theme-bg-hex');
         const bfyPicker = document.getElementById('cfg-butterfly-color');
         const bfyHex = document.getElementById('cfg-butterfly-color-hex');
+        const flowerPicker = document.getElementById('cfg-flower-color');
+        const flowerHex = document.getElementById('cfg-flower-color-hex');
         [accentPicker, accentHex].forEach(el => { if (el) el.disabled = !(accentOn && accentOn.checked); });
         [bgPicker, bgHex].forEach(el => { if (el) el.disabled = !(bgOn && bgOn.checked); });
         [bfyPicker, bfyHex].forEach(el => { if (el) el.disabled = !(bfyOn && bfyOn.checked); });
+        [flowerPicker, flowerHex].forEach(el => { if (el) el.disabled = !(flowerOn && flowerOn.checked); });
       }
       (function wireColorControls() {
         const accentPicker = document.getElementById('cfg-theme-accent');
@@ -2070,9 +2452,12 @@ values
         const bgHex = document.getElementById('cfg-theme-bg-hex');
         const bfyPicker = document.getElementById('cfg-butterfly-color');
         const bfyHex = document.getElementById('cfg-butterfly-color-hex');
+        const flowerPicker = document.getElementById('cfg-flower-color');
+        const flowerHex = document.getElementById('cfg-flower-color-hex');
         const accentOn = document.getElementById('cfg-accent-enabled');
         const bgOn = document.getElementById('cfg-bg-enabled');
         const bfyOn = document.getElementById('cfg-butterfly-enabled');
+        const flowerOn = document.getElementById('cfg-flower-enabled');
         if (accentPicker && accentHex) {
           accentPicker.addEventListener('input', () => { accentHex.value = accentPicker.value; });
           accentHex.addEventListener('input', () => {
@@ -2091,9 +2476,16 @@ values
             if (/^#[0-9a-fA-F]{6}$/.test(bfyHex.value.trim())) bfyPicker.value = bfyHex.value.trim();
           });
         }
+        if (flowerPicker && flowerHex) {
+          flowerPicker.addEventListener('input', () => { flowerHex.value = flowerPicker.value; });
+          flowerHex.addEventListener('input', () => {
+            if (/^#[0-9a-fA-F]{6}$/.test(flowerHex.value.trim())) flowerPicker.value = flowerHex.value.trim();
+          });
+        }
         if (accentOn) accentOn.addEventListener('change', syncColorControls);
         if (bgOn) bgOn.addEventListener('change', syncColorControls);
         if (bfyOn) bfyOn.addEventListener('change', syncColorControls);
+        if (flowerOn) flowerOn.addEventListener('change', syncColorControls);
         syncColorControls();
       })();
 
@@ -2141,7 +2533,12 @@ values
         theme: {
           mode: 'auto',
           accent: '',
-          bg: ''
+          bg: '',
+          butterflyColor: '',
+          butterflyShow: true,
+          flowerColor: '',
+          flowerShow: true,
+          flowerStyle: 'blossom'
         },
         language: 'auto',
         fonts: {
@@ -2614,6 +3011,15 @@ values
         if (document.getElementById('cfg-butterfly-enabled')) document.getElementById('cfg-butterfly-enabled').checked = !!themeCfg.butterflyColor;
         if (document.getElementById('cfg-butterfly-show')) document.getElementById('cfg-butterfly-show').checked = themeCfg.butterflyShow !== false;
         setBfyColor(themeCfg.butterflyColor || '#e5b955');
+        // Flower config
+        if (document.getElementById('cfg-flower-show')) document.getElementById('cfg-flower-show').checked = themeCfg.flowerShow !== false;
+        if (document.getElementById('cfg-flower-enabled')) document.getElementById('cfg-flower-enabled').checked = !!themeCfg.flowerColor;
+        if (document.getElementById('cfg-flower-style-petal')) document.getElementById('cfg-flower-style-petal').checked = themeCfg.flowerStyle === 'petal';
+        setFlowerColor(themeCfg.flowerColor || '');
+        setFlowerVisible(themeCfg.flowerShow !== false);
+        setFlowerStyle(themeCfg.flowerStyle || 'blossom');
+        if (document.getElementById('cfg-flower-color-hex')) document.getElementById('cfg-flower-color-hex').value = themeCfg.flowerColor || '#e5b955';
+        if (document.getElementById('cfg-flower-color')) document.getElementById('cfg-flower-color').value = themeCfg.flowerColor || '#e5b955';
         if (document.getElementById('cfg-font-khmer')) document.getElementById('cfg-font-khmer').value = fontsCfg.khmer || '';
         if (document.getElementById('cfg-font-khmer-heading')) document.getElementById('cfg-font-khmer-heading').value = fontsCfg.khmerHeading || '';
         if (document.getElementById('cfg-font-english')) document.getElementById('cfg-font-english').value = fontsCfg.english || '';
@@ -3361,7 +3767,14 @@ values
                 ? document.getElementById('cfg-butterfly-color-hex').value.trim()
                 : (document.getElementById('cfg-butterfly-color') ? document.getElementById('cfg-butterfly-color').value : ''))
               : '',
-            butterflyShow: !(document.getElementById('cfg-butterfly-show') && !document.getElementById('cfg-butterfly-show').checked)
+            butterflyShow: !(document.getElementById('cfg-butterfly-show') && !document.getElementById('cfg-butterfly-show').checked),
+            flowerColor: (document.getElementById('cfg-flower-enabled') && document.getElementById('cfg-flower-enabled').checked)
+              ? ((document.getElementById('cfg-flower-color-hex') && /^#[0-9a-fA-F]{6}$/.test(document.getElementById('cfg-flower-color-hex').value.trim()))
+                ? document.getElementById('cfg-flower-color-hex').value.trim()
+                : (document.getElementById('cfg-flower-color') ? document.getElementById('cfg-flower-color').value : ''))
+              : '',
+            flowerShow: !(document.getElementById('cfg-flower-show') && !document.getElementById('cfg-flower-show').checked),
+            flowerStyle: (document.getElementById('cfg-flower-style-petal') && document.getElementById('cfg-flower-style-petal').checked) ? 'petal' : 'blossom'
           },
           language: document.getElementById('cfg-language') ? document.getElementById('cfg-language').value : 'auto',
           fonts: {
@@ -4072,7 +4485,7 @@ values
         const urlInput = document.getElementById('cfg-supabase-url');
         const keyInput = document.getElementById('cfg-supabase-key');
         // Purge any stored client key to ensure DevTools inspect / storage shows no secrets
-        try { localStorage.removeItem('supabase_anon_key'); } catch(_) {}
+        try { localStorage.removeItem('supabase_anon_key'); } catch (_) { }
 
         const savedUrl = localStorage.getItem('supabase_url') || (window.appSupabase && window.appSupabase.defaultUrl) || '';
 
@@ -4188,6 +4601,247 @@ values
 
       function escapeAttr(s) {
         return escapeHtml(s).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      }
+
+      // ==========================================================================
+      // Elegant Falling Flower / Blossom Animation System (Admin Panel)
+      // ==========================================================================
+      let flowerCustomColor = "";
+      let flowerInstances = [];
+      let flowerVisible = true;
+      let flowerCanvasEl = null;
+      let flowerStyle = "blossom";
+      let flowerAnimationId = null;
+
+      // Default soft wedding blossom palette; overridden by a single custom colour.
+      function flowerPalette() {
+        if (flowerCustomColor) {
+          const c = flowerCustomColor;
+          return [
+            { petal: c, inner: _bfyMix(c, "#ffffff", 0.55), core: _bfyMix(c, "#000000", 0.3) },
+            { petal: _bfyMix(c, "#ffffff", 0.35), inner: _bfyMix(c, "#ffffff", 0.75), core: c }
+          ];
+        }
+        return [
+          { petal: "#f6c6d0", inner: "#fff0f4", core: "#e5b955" },
+          { petal: "#f4a3b8", inner: "#ffe0e8", core: "#d4af37" },
+          { petal: "#ffe1a8", inner: "#fff6de", core: "#e5b955" },
+          { petal: "#f9d5e5", inner: "#ffffff", core: "#e0a9c0" }
+        ];
+      }
+
+      // Tiny helper to mix two hex colours.
+      function _bfyMix(c1, c2, t) {
+        const h1 = c1.replace("#", ""), h2 = c2.replace("#", "");
+        const r1 = parseInt(h1.slice(0, 2), 16), g1 = parseInt(h1.slice(2, 4), 16), b1 = parseInt(h1.slice(4, 6), 16);
+        const r2 = parseInt(h2.slice(0, 2), 16), g2 = parseInt(h2.slice(2, 4), 16), b2 = parseInt(h2.slice(4, 6), 16);
+        const r = Math.round(r1 + (r2 - r1) * t);
+        const g = Math.round(g1 + (g2 - g1) * t);
+        const b = Math.round(b1 + (b2 - b1) * t);
+        return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+      }
+
+      // Called after config loads to recolour live flowers ("" -> default palette).
+      function setFlowerColor(hex) {
+        const value = hex ? String(hex).trim() : "";
+        flowerCustomColor = /^#[0-9a-fA-F]{3,8}$/.test(value) ? value : "";
+        flowerInstances.forEach(f => { if (f && typeof f.assignColor === "function") f.assignColor(); });
+      }
+
+      // Show/hide the flower decoration (admin toggle; default = shown).
+      function setFlowerVisible(show) {
+        flowerVisible = show !== false;
+        if (flowerCanvasEl) flowerCanvasEl.style.display = flowerVisible ? "" : "none";
+      }
+
+      // Flower shape style: "blossom" (5 petals) | "petal" (single falling petal).
+      function setFlowerStyle(style) {
+        flowerStyle = (style === "petal") ? "petal" : "blossom";
+      }
+
+      function initFlowerCanvas() {
+        const canvas = document.createElement("canvas");
+        canvas.id = "flower-canvas";
+        canvas.style.cssText = "position: fixed; inset: 0; pointer-events: none; z-index: 0; display: none;";
+        document.body.appendChild(canvas);
+        flowerCanvasEl = canvas;
+        return canvas;
+      }
+
+      function resizeFlowerCanvas() {
+        if (!flowerCanvasEl) return;
+        const dpr = window.devicePixelRatio || 1;
+        flowerCanvasEl.width = window.innerWidth * dpr;
+        flowerCanvasEl.height = window.innerHeight * dpr;
+        flowerCanvasEl.style.width = window.innerWidth + "px";
+        flowerCanvasEl.style.height = window.innerHeight + "px";
+      }
+
+      class Flower {
+        constructor(canvas, ctx) {
+          this.canvas = canvas;
+          this.ctx = ctx;
+          this.assignColor();
+          this.reset();
+        }
+
+        assignColor() {
+          const pal = flowerPalette();
+          const pick = pal[Math.floor(Math.random() * pal.length)];
+          this.petalColor = pick.petal;
+          this.innerColor = pick.inner;
+          this.coreColor = pick.core;
+        }
+
+        reset() {
+          const w = this.canvas.width / (window.devicePixelRatio || 1);
+          const h = this.canvas.height / (window.devicePixelRatio || 1);
+          this.x = Math.random() * w;
+          this.y = Math.random() * -h * 0.5;
+          this.size = 12 + Math.random() * 18;
+          this.speedY = 0.6 + Math.random() * 1.2;
+          this.speedX = (Math.random() - 0.5) * 0.8;
+          this.rotation = Math.random() * Math.PI * 2;
+          this.rotSpeed = (Math.random() - 0.5) * 0.02;
+          this.swing = Math.random() * Math.PI * 2;
+          this.swingSpeed = 0.005 + Math.random() * 0.01;
+          this.swingAmp = 15 + Math.random() * 25;
+          this.opacity = 0.6 + Math.random() * 0.35;
+          this.startY = this.y;
+        }
+
+        update() {
+          if (!flowerVisible) return;
+          const w = this.canvas.width / (window.devicePixelRatio || 1);
+          const h = this.canvas.height / (window.devicePixelRatio || 1);
+          this.y += this.speedY;
+          this.x += this.speedX + Math.sin(this.swing) * 0.3;
+          this.rotation += this.rotSpeed;
+          this.swing += this.swingSpeed;
+          if (this.y > h + this.size) this.reset();
+          if (this.x < -this.size) this.x = w + this.size;
+          if (this.x > w + this.size) this.x = -this.size;
+        }
+
+        draw() {
+          if (!flowerVisible) return;
+          const ctx = this.ctx;
+          ctx.save();
+          ctx.translate(this.x, this.y);
+          ctx.rotate(this.rotation);
+          ctx.globalAlpha = this.opacity;
+
+          if (flowerStyle === "petal") {
+            // Single petal shape
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.bezierCurveTo(-this.size * 0.4, -this.size * 0.6, this.size * 0.4, -this.size * 0.6, 0, 0);
+            ctx.fillStyle = this.petalColor;
+            ctx.fill();
+            // Inner highlight
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.bezierCurveTo(-this.size * 0.2, -this.size * 0.35, this.size * 0.2, -this.size * 0.35, 0, 0);
+            ctx.fillStyle = this.innerColor;
+            ctx.globalAlpha = this.opacity * 0.6;
+            ctx.fill();
+          } else {
+            // 5-petal blossom
+            for (let i = 0; i < 5; i++) {
+              const angle = (i * Math.PI * 2) / 5;
+              ctx.save();
+              ctx.rotate(angle);
+              ctx.beginPath();
+              ctx.moveTo(0, 0);
+              ctx.bezierCurveTo(-this.size * 0.35, -this.size * 0.7, this.size * 0.35, -this.size * 0.7, 0, 0);
+              ctx.fillStyle = this.petalColor;
+              ctx.fill();
+              ctx.restore();
+            }
+            // Inner glow
+            ctx.beginPath();
+            ctx.arc(0, 0, this.size * 0.25, 0, Math.PI * 2);
+            ctx.fillStyle = this.innerColor;
+            ctx.globalAlpha = this.opacity * 0.5;
+            ctx.fill();
+            // Core
+            ctx.beginPath();
+            ctx.arc(0, 0, this.size * 0.12, 0, Math.PI * 2);
+            ctx.fillStyle = this.coreColor;
+            ctx.globalAlpha = this.opacity;
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+      }
+
+      function startFlowerAnimation() {
+        if (flowerAnimationId) return; // already running
+        const canvas = flowerCanvasEl || initFlowerCanvas();
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        resizeFlowerCanvas();
+        window.addEventListener("resize", resizeFlowerCanvas);
+
+        // Create flower instances
+        const count = Math.min(40, Math.max(15, Math.floor((canvas.width / (window.devicePixelRatio || 1)) / 30)));
+        flowerInstances = [];
+        for (let i = 0; i < count; i++) {
+          flowerInstances.push(new Flower(canvas, ctx));
+        }
+
+        canvas.style.display = flowerVisible ? "" : "none";
+
+        function animate() {
+          const w = canvas.width;
+          const h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+          flowerInstances.forEach(f => {
+            f.update();
+            f.draw();
+          });
+          flowerAnimationId = requestAnimationFrame(animate);
+        }
+        animate();
+      }
+
+      function stopFlowerAnimation() {
+        if (flowerAnimationId) {
+          cancelAnimationFrame(flowerAnimationId);
+          flowerAnimationId = null;
+        }
+        if (flowerCanvasEl) flowerCanvasEl.style.display = "none";
+      }
+
+      // Start flower animation after auth check
+      // (will be called from checkAuth when authenticated)
+      function initAdminFlowers() {
+        startFlowerAnimation();
+        // Expose controls globally for Configurations tab integration later
+        window.adminFlower = {
+          setColor: setFlowerColor,
+          setVisible: setFlowerVisible,
+          setStyle: setFlowerStyle,
+          start: startFlowerAnimation,
+          stop: stopFlowerAnimation
+        };
+      }
+
+      // Flower checkbox handlers for immediate feedback
+      const flowerShowCb = document.getElementById('cfg-flower-show');
+      if (flowerShowCb) {
+        flowerShowCb.addEventListener('change', (e) => {
+          setFlowerVisible(e.target.checked);
+          showToast(e.target.checked ? '🌸 បានបើកប្រពៃកណ្ដាលផ្កា' : '🌸 បានបិទប្រពៃកណ្ដាលផ្កា');
+        });
+      }
+      const flowerStyleCb = document.getElementById('cfg-flower-style-petal');
+      if (flowerStyleCb) {
+        flowerStyleCb.addEventListener('change', (e) => {
+          setFlowerStyle(e.target.checked ? 'petal' : 'blossom');
+          showToast(e.target.checked ? '🌿 បានប្តូរទៅ Petal Style' : '🌸 បានប្តូរទៅ Blossom Style');
+        });
       }
 
       // Check initial auth on load
