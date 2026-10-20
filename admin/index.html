@@ -2006,6 +2006,32 @@ values
         ? 'http://localhost:8080'
         : (IS_LOCAL_DEV && window.location.port !== '8080' ? 'http://localhost:8080' : '');
 
+      // 🎵 Stop invitation music that may still be playing in another client
+      // tab/window. The client page pauses itself when it receives this signal.
+      (() => {
+        let adminChannel = null;
+        try {
+          if (typeof BroadcastChannel === 'function') {
+            adminChannel = new BroadcastChannel('khmer-invitation-admin');
+          }
+        } catch (_) { }
+
+        const notifyClientTabs = () => {
+          // localStorage fallback (fires a `storage` event in other tabs).
+          try { localStorage.setItem('khmer_admin_active', String(Date.now())); } catch (_) { }
+          // Primary BroadcastChannel signal.
+          try {
+            if (adminChannel) adminChannel.postMessage({ type: 'admin-active' });
+          } catch (_) { }
+        };
+
+        notifyClientTabs();
+        window.addEventListener('focus', notifyClientTabs);
+        document.addEventListener('visibilitychange', () => {
+          if (!document.hidden) notifyClientTabs();
+        });
+      })();
+
       // 🛟 Safety net: surface any uncaught script error instead of failing silently
       window.addEventListener('error', (ev) => {
         try {

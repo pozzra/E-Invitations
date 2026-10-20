@@ -123,6 +123,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // The admin panel broadcasts when it becomes active; keep the music button
+  // in sync after audio.js pauses playback in this (background) client tab.
+  document.addEventListener('khmer-music-paused-by-admin', () => {
+    if (btnMusic) btnMusic.classList.remove('spinning');
+  });
+
   // ==========================================================================
   // Client Language & Theme Switching System
   // ==========================================================================
@@ -1157,8 +1163,9 @@ document.addEventListener('DOMContentLoaded', () => {
       // 2. Load Wishes from Supabase (authoritative)
       const wishes = await window.appSupabase.fetchWishes();
       if (Array.isArray(wishes)) {
-        localStorage.setItem('khmer_wedding_wishes', JSON.stringify(wishes));
-        renderWishes();
+        // Pass the already-fetched list so renderWishes() doesn't hit the API
+        // a second time on every startup / manual data reload.
+        await renderWishes(wishes);
         console.log('[Data] Wishes loaded from Supabase ✅', wishes.length);
       }
 
@@ -1201,11 +1208,12 @@ document.addEventListener('DOMContentLoaded', () => {
       showToast('🔄 កំណត់ត្រាថ្មីត្រូវបានទទួលពី Supabase!');
     });
 
-    // 💬 Live wishes: re-render guestbook wall whenever a wish is added/deleted
+    // 💬 Live wishes: refresh ONLY the guestbook wall. Reloading all data here
+    // re-applied the invitation config, restarted the countdown / video / photo
+    // gallery and made the whole page look like it was updating on every message.
     window.appSupabase.subscribeToWishes(() => {
-      loadAllDataFromSupabase(); // Full refresh to get latest from Supabase
+      refreshWishesOnly({ notify: true });
       console.log('[Realtime] Wishes wall refreshed from Supabase ✅');
-      showToast('💬 ពាក្យជូនពរថ្មីត្រូវបានបន្ថែម!');
     });
 
     // ✉️ Live RSVPs: refresh when new RSVP comes in
@@ -1235,7 +1243,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // page automatically the moment the admin saves new data.
   let lastConfigSig = '';
   let lastWishesSig = '';
+  let lastWishesCount = 0;
   let pollTimer = null;
+  let wishRefreshInFlight = null;
 
   function signatureOf(value) {
     try {
@@ -1246,6 +1256,41 @@ document.addEventListener('DOMContentLoaded', () => {
         return val;
       });
     } catch (e) { return ''; }
+  }
+
+  // Fetch + re-render the guestbook wall only. Used by both Supabase Realtime
+  // and the polling fallback so a wish change never triggers a full page update.
+  async function refreshWishesOnly({ notify = false } = {}) {
+    if (!window.appSupabase || !window.appSupabase.isConfigured) return false;
+    if (wishRefreshInFlight) return wishRefreshInFlight;
+
+    wishRefreshInFlight = (async () => {
+      try {
+        const wishes = await window.appSupabase.fetchWishes();
+        if (!Array.isArray(wishes)) return false;
+
+        // Compare the same normalized list that is actually displayed, so
+        // filtering (deleted/spam/duplicate wishes) never looks like a change.
+        const normalized = normalizeWishes(wishes);
+        const sig = signatureOf(normalized);
+        if (lastWishesSig && sig === lastWishesSig) return false;
+
+        const hadSnapshot = lastWishesSig !== '';
+        const previousCount = lastWishesCount;
+        await renderWishes(normalized);
+
+        // Toast only for a genuinely new message — not for deletes/edits/clears.
+        if (notify && hadSnapshot && normalized.length > previousCount) {
+          showToast('💬 ពាក្យជូនពរថ្មីត្រូវបានបន្ថែម!');
+        }
+        return true;
+      } catch (err) {
+        console.warn('[Wishes] Live refresh failed:', err);
+        return false;
+      }
+    })().finally(() => { wishRefreshInFlight = null; });
+
+    return wishRefreshInFlight;
   }
 
   async function pollForUpdates() {
@@ -1267,22 +1312,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } catch (e) { /* offline; retry next tick */ }
 
-    // 2. Wishes / guestbook → re-render wall (including when the admin has
-    //    deleted/cleared everything, so the client empties too).
+    // 2. Wishes / guestbook → re-render the wall only (including when the
+    //    admin has deleted/cleared everything, so the client empties too).
     try {
-      const wishes = await window.appSupabase.fetchWishes();
-      if (Array.isArray(wishes)) {
-        const sig = signatureOf(wishes);
-        if (lastWishesSig && sig !== lastWishesSig) {
-          localStorage.setItem('khmer_wedding_wishes', JSON.stringify(wishes));
-          renderWishes();
-          if (wishes.length > 0) {
-            showToast('💬 ពាក្យជូនពរថ្មីត្រូវបានបន្ថែម!');
-          }
-          console.log('[AutoSync] Wishes changed → live update ✅');
-        }
-        lastWishesSig = sig;
-      }
+      const changed = await refreshWishesOnly({ notify: true });
+      if (changed) console.log('[AutoSync] Wishes changed → guestbook updated ✅');
     } catch (e) { /* offline; retry next tick */ }
   }
 
@@ -1554,9 +1588,26 @@ document.addEventListener('DOMContentLoaded', () => {
     return defaultWishes;
   }
 
-  async function renderWishes() {
+  // Apply the same filtering/deduping rules to every wish list — rendering and
+  // the realtime/polling signature must compare apples to apples, otherwise a
+  // filtered wish would look like a new update on every poll.
+  function normalizeWishes(list) {
+    const tombstones = getDeletedWishes();
+    const seen = new Set();
+    return (Array.isArray(list) ? list : [])
+      .filter(w => w && w.name !== 'sadasd' && w.message !== 'ggode')
+      .filter(w => !isWishDeleted(w, tombstones))
+      .filter(w => {
+        const key = (w.name || '') + '\u0000' + (w.message || '');
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+  }
+
+  async function renderWishes(preloadedWishes) {
     const wallEl = document.getElementById('wishes-wall');
-    if (!wallEl) return;
+    if (!wallEl) return [];
 
     // Priority: Supabase (authoritative) > LocalStorage > Defaults.
     // IMPORTANT: when the server returns an empty list (admin deleted / cleared),
@@ -1564,20 +1615,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let wishes = [];
     let remoteLoaded = false;
 
-    if (window.appSupabase && window.appSupabase.isConfigured) {
+    if (Array.isArray(preloadedWishes)) {
+      remoteLoaded = true;
+      wishes = preloadedWishes;
+    } else if (window.appSupabase && window.appSupabase.isConfigured) {
       try {
         const remoteWishes = await window.appSupabase.fetchWishes();
         if (Array.isArray(remoteWishes)) {
           remoteLoaded = true;
-          // The server already applies deletes/clear markers, so its list wins.
-          // (A stale local "cleared" flag must not hide valid new wishes.)
-          const tombstones = getDeletedWishes();
-          wishes = remoteWishes
-            .filter(w => w && w.name !== 'sadasd' && w.message !== 'ggode')
-            .filter(w => !isWishDeleted(w, tombstones));
-          // Cache the authoritative list (including an empty one) so the wall
-          // stays correct offline / on the next page load.
-          localStorage.setItem('khmer_wedding_wishes', JSON.stringify(wishes));
+          wishes = remoteWishes;
         }
       } catch (err) {
         console.warn('Remote wishes fetch failed, using local:', err);
@@ -1589,18 +1635,13 @@ document.addEventListener('DOMContentLoaded', () => {
       wishes = getStoredWishes();
     }
 
-    // Clean any remaining spam test
-    wishes = wishes.filter(w => w && w.name !== 'sadasd' && w.message !== 'ggode');
+    wishes = normalizeWishes(wishes);
 
-    // Never show the same wish twice — name + message is the identity used by
-    // the delete/sync flows. Safety net for older duplicate rows.
-    const seenWishes = new Set();
-    wishes = wishes.filter(w => {
-      const key = (w.name || '') + '\u0000' + (w.message || '');
-      if (seenWishes.has(key)) return false;
-      seenWishes.add(key);
-      return true;
-    });
+    // Cache the authoritative list (including an empty one) so the wall stays
+    // correct offline / on the next page load.
+    if (remoteLoaded) {
+      localStorage.setItem('khmer_wedding_wishes', JSON.stringify(wishes));
+    }
 
     wallEl.innerHTML = wishes.map((item) => `
       <div class="wish-item">
@@ -1615,6 +1656,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Keep the poller's comparison signature in sync with what is displayed,
     // so a later deletion/clear is detected immediately on the next poll.
     lastWishesSig = signatureOf(wishes);
+    lastWishesCount = wishes.length;
+    return wishes;
   }
 
   renderWishes();

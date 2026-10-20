@@ -37,6 +37,50 @@ class TraditionalAudioController {
 
     this.initAudioElement();
     this.initYouTubeAPI();
+    this.setupAdminPageGuard();
+  }
+
+  // ==========================================================================
+  // Admin page guard
+  // Stops invitation music as soon as the admin panel is opened or focused,
+  // even when the client invitation is open in another tab / window.
+  // ==========================================================================
+  setupAdminPageGuard() {
+    const stopFromAdmin = () => {
+      const wasPlaying = this.isPlaying;
+      if (wasPlaying) this.pauseBackgroundMusic();
+
+      const btn = document.getElementById('btn-toggle-music');
+      if (btn) btn.classList.remove('spinning');
+
+      try {
+        document.dispatchEvent(new CustomEvent('khmer-music-paused-by-admin', {
+          detail: { wasPlaying }
+        }));
+      } catch (e) { /* ignore */ }
+    };
+
+    // Primary channel: the admin panel broadcasts when it becomes active.
+    try {
+      if (typeof BroadcastChannel === 'function') {
+        this.adminChannel = new BroadcastChannel('khmer-invitation-admin');
+        this.adminChannel.addEventListener('message', (event) => {
+          if (event && event.data && event.data.type === 'admin-active') {
+            stopFromAdmin();
+          }
+        });
+      }
+    } catch (e) { /* BroadcastChannel not supported */ }
+
+    // Fallback for browsers without BroadcastChannel: the admin panel writes a
+    // localStorage marker, which fires a `storage` event in every other tab.
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'khmer_admin_active') stopFromAdmin();
+    });
+
+    // Same-tab navigation (e.g. client → /admin) must never leave media playing
+    // in browsers that keep the old page alive in the back/forward cache.
+    window.addEventListener('pagehide', stopFromAdmin);
   }
 
   // ==========================================================================
